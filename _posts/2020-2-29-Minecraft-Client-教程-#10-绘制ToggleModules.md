@@ -64,7 +64,7 @@ public class HUD extends Module {
             if (m.isToggle())
                 modules.add(m);
         }
-        //根据Module名长度从长到短分类
+        //根据Module名长度从长到短排序
         modules.sort((o1, o2) -> fr.getStringWidth(o2.getName()) - fr.getStringWidth(o1.getName()));
         //第一个显示的位置
         int index = 0;
