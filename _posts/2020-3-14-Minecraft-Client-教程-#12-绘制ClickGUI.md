@@ -5,6 +5,8 @@ date: 2020-3-14 17:52
 categories: minecraftclient
 ---
 
+一. 先复制进去`FontUtils`
+
 ## FontUtils
 
 ```java
@@ -54,6 +56,8 @@ public class FontUtils {
     }
 }
 ```
+
+二. 开始绘制
 
 ## ClickGUI
 
@@ -220,7 +224,7 @@ public class CategoryPanel {
 }
 ```
 
-## ModulePanel
+## CategoryPanel
 
 ```java
 package cn.enaium.coreium.gui.clickgui;
@@ -243,8 +247,8 @@ public class ModulePanel {
     public void drawScreen(int mouseX, int mouseY, int x, int y, int width, int height) {
         this.hovered = ClickGUI.isHovered(mouseX, mouseY, x, y, width, height);//鼠标是否在指定位置
         int color = new Color(200, 190, 255).getRGB();//颜色
-        if (this.hovered) color = new Color(200, 88, 120).getRGB();//鼠标在指定位置的颜色
         if (this.module.isToggle()) color = new Color(200, 0, 120).getRGB();//Module打开的颜色
+        if (this.hovered) color = new Color(200, 88, 120).getRGB();//鼠标在指定位置的颜色
         ClickGUI.drawRect(x, y, width, height, color);//绘制Module的背景
         FontUtils.drawCenteredString(this.module.getName(), x + width / 2, y + height / 2, Color.WHITE.getRGB());//绘制Module的名字
     }
@@ -255,10 +259,10 @@ public class ModulePanel {
             this.module.toggle();//当鼠标在指定位置并且鼠标被按下设置Module为关闭或打开
         }
     }
-
-
 }
 ```
+
+三. 打开`ClickGUI`
 
 ## Click
 
@@ -284,6 +288,7 @@ public class Click extends Module {
 }
 ```
 
+
 ## getModulesForCategory
 
 ```java
@@ -298,4 +303,3 @@ public class Click extends Module {
         return modules;
     }
 ```
-
