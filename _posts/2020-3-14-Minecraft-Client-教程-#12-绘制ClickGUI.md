@@ -224,7 +224,7 @@ public class CategoryPanel {
 }
 ```
 
-## CategoryPanel
+## ModulePanel
 
 ```java
 package cn.enaium.coreium.gui.clickgui;
