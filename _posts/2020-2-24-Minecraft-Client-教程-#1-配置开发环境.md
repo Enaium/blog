@@ -42,10 +42,6 @@ categories: minecraftclient
 >> ![1-10](/assets/minecraftclient/1-10.png)
 > 3. ![1-11](/assets/minecraftclient/1-11.png)
 >> ![1-12](/assets/minecraftclient/1-12.png)
-> 4. 清理文件
->> ![1-13](/assets/minecraftclient/1-13.png)
->> ![1-14](/assets/minecraftclient/1-14.png)
->> ![1-15](/assets/minecraftclient/1-15.png)
 六. 运行
 > 1. 打开Start
 > 2. 选右上角的Setup SDK选中1.8
