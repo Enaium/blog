@@ -11,6 +11,8 @@ categories: minecraftclient
 >> 改为enum
 >> 写一个枚举 INSTANCE;
 >> 写两个方法分别是 start 和 stop
+
+
 ```java
 public enum Coreium {
 
@@ -25,11 +27,14 @@ public enum Coreium {
     }
 }
 ```
+
 > 2. 在启动和退出游戏的时候调用这2个类
 >> 搜索`Minecraft`
 >> ![2-1](/assets/minecraftclient/2-1.png)
 >> 找到`startGame`在这个方法在最后面写`Coreium.INSTANCE.start();`
 >> 找到`shutdownMinecraftApplet`在`logger.info("Stopping!");`后面写`Coreium.INSTANCE.stop();`
+
+
 ```java
     [...]
         this.renderGlobal.makeEntityOutlineShader();
