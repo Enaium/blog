@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Minecraft Client 教程 #4 添加Event和Module"
+title: "[全民写端]#4添加Event和Module"
 date: 2020-2-25 13:03
 categories: minecraftclient
 ---

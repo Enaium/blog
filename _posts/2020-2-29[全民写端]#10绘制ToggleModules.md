@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Minecraft Client 教程 #10 绘制ToggleModules"
+title: "[全民写端]#10绘制ToggleModules"
 date: 2020-2-29 18:25
 categories: minecraftclient
 ---
