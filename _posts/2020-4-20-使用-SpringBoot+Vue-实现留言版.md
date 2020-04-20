@@ -91,7 +91,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * -----------------------------------------------------------
  * Copyright © 2020 | Enaium | All rights reserved.
  */
-public interface MessageRepository extends JpaRepository<Message, Integer> {
+public interface MessageRepository extends JpaRepository<Message, Long> {
 }
 ```
 
