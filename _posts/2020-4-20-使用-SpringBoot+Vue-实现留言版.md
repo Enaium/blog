@@ -7,7 +7,7 @@ categories: springboot
 
 # [完成源码](https://github.com/Enaium/SpringBoot-Vue-MessageBoard)
 
-## 一.新建Vue項目和SpringBoot項目
+## 一.新建Vue项目和SpringBoot项目
 
 ### 新建Vue项目
 > 1. 新建文件夹`SpringBoot-Vue-MessageBoard`
