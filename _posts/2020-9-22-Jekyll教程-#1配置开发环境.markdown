@@ -1,7 +1,7 @@
 ---
 title: Jekyll教程 #1配置开发环境
 data: 2020-9-22 19:42
-categorys: jekylll
+categories: jekylll
 ---
 
 ## 安装Ruby
