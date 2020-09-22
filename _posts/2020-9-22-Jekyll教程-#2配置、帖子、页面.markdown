@@ -1,0 +1,58 @@
+---
+layout: post
+title: "Jekyll教程 #2配置、帖子、页面"
+data: 2020-9-22 22:16
+categories: jekyll
+---
+
+## 配置
+
+```yml
+title: Myblog #标题
+email: Myblog@example.com #邮箱
+description: >- #说明
+  This is my blog.
+baseurl: "" #仓库名 比如 myblog
+url: "" #域名
+twitter_username: Myblog #推特
+github_username:  Myblog #github
+
+# Build settings
+theme: minima #主题
+plugins: #插件
+  - jekyll-feed
+```
+
+## 帖子
+
+### 文件名
+
+日期-文件名(标题) 用-代表空格
+
+### 头部信息
+
+```
+---
+layout: post #布局
+title:  "My first post!" #标题
+date:   2020-09-22 22:19 #时间
+categories: jekyll update #分类
+---
+```
+
+## 页面
+
+### 文件名
+
+文件名和链接名一致
+
+### 头部信息
+
+```
+---
+layout: page #布局
+title: Donation #标题
+permalink: /donation/ #永久链接
+---
+```
+
