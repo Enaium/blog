@@ -6,7 +6,7 @@ permalink: /categories/
 
 {% for category in site.categories %}
 <h2>
-    <a href="#{{ category | first }}">
+    <a href="#{{ category | first }}" id="{{ category | first }}">
         {{ category | first }}
     </a>
 </h2>
