@@ -1,0 +1,27 @@
+---
+layout: post
+title: "Jekyll教程 #4条件、循环"
+data: 2020-9-24 19:58
+categories: jekyll
+---
+
+## 条件
+
+```
+{% if page.title == "My first post!"%}
+    <h2>MYPOST</h2>
+{% endif %}
+```
+用 `{% if %}`包起来 用 `{% endif %}`结尾 也可以用`{% else if %}`
+
+## 循环
+
+用 `{% for %}`包起来 用 `{% endfor %}`结尾
+
+```
+{% for page in site.pages %}
+    <li>
+        <a href="{{ page.url }}">{{ page.title }}</a>
+    </li>
+{% endfor %}
+```
