@@ -7,21 +7,11 @@ categories: jekyll
 
 ## 条件
 
-```
-{% if page.title == "My first post!"%}
-    <h2>MYPOST</h2>
-{% endif %}
-```
-用 `{% if %}`包起来 用 `{% endif %}`结尾 也可以用`{% else if %}`
+
+![4-1](/assets/jekyll/4-1.png)
+
 
 ## 循环
 
-用 `{% for %}`包起来 用 `{% endfor %}`结尾
+![4-2](/assets/jekyll/4-2.png)
 
-```
-{% for page in site.pages %}
-    <li>
-        <a href="{{ page.url }}">{{ page.title }}</a>
-    </li>
-{% endfor %}
-```
