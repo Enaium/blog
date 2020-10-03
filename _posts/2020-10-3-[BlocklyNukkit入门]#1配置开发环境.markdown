@@ -11,7 +11,7 @@ categories: blocklynukkit
 
 下载好之后用`java -jar nukkit.jar`运行客户端 语言选自选
 
-如果没正版把`xbox-auth=on`改成`xbox-auth=off`
+如果没正版把`server.properties`里的`xbox-auth=on`改成`xbox-auth=off`
 
 ## 配置BlocklyNukkit
 
