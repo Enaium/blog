@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[BlocklyNukkit入门]#1配置环境"
+title: "[BlocklyNukkit入门]#1配置开发环境"
 data: 2020-10-3 20:32
 categories: blocklynukkit
 ---
