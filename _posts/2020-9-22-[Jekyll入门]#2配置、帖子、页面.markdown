@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Jekyll教程 #2配置、帖子、页面"
+title: "[Jekyll入门]#2配置、帖子、页面"
 data: 2020-9-22 22:16
 categories: jekyll
 ---

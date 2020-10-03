@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Jekyll教程 #4条件、循环"
+title: "[Jekyll入门]#4条件、循环"
 data: 2020-9-24 19:58
 categories: jekyll
 ---

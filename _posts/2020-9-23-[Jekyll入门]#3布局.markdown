@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Jekyll教程 #3布局"
+title: "[Jekyll入门]#3布局"
 data: 2020-9-23 19:14
 categories: jekyll
 ---
