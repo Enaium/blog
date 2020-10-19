@@ -32,6 +32,6 @@ alllist = Java.type("cn.nukkit.Server").getInstance().getOnlinePlayers().values(
 
 ```javascript
     for (var i = 0; i < alllist.length; i++) {
-        alllist[i].sendMessage(message);
+        alllist[i].sendMessage(args[0]);
     }
 ```
