@@ -22,7 +22,7 @@ item.setCustomName("棍");
 设置信息,用分号隔开换行
 
 ```javascript
-blockitem.setItemLore(item, "第一行;第二行;第三行;第四行")
+blockitem.setItemLore(item, "第一行;第二行;第三行;第四行");
 ```
 
 ### 添加有序合成
@@ -33,8 +33,8 @@ blockitem.setItemLore(item, "第一行;第二行;第三行;第四行")
 参数3是追加结果物品，物品数组类型，比如合成蛋糕会返给3个桶.
 
 ```javascript
-manager.putEasy("G", blockitem.buildItemFromBlock(blockitem.buildBlock(17, 0)))
-blockitem.addShapedCraft(Java.to(["G  ", "G  ", "G  "], "java.lang.String[]"), item, Java.to([], "cn.nukkit.item.Item[]"))
+manager.putEasy("G", blockitem.buildItemFromBlock(blockitem.buildBlock(17, 0)));
+blockitem.addShapedCraft(Java.to(["G  ", "G  ", "G  "], "java.lang.String[]"), item, Java.to([], "cn.nukkit.item.Item[]"));
 ```
 
 ### 创建第二个木棍
@@ -42,7 +42,7 @@ blockitem.addShapedCraft(Java.to(["G  ", "G  ", "G  "], "java.lang.String[]"), i
 ```javascript
 superItem = blockitem.buildItem(369, 0, 1);
 superItem.setCustomName("Super棍");
-blockitem.setItemLore(superItem, "第五行;第六行;第七行;第八行;第九行")
+blockitem.setItemLore(superItem, "第五行;第六行;第七行;第八行;第九行");
 ```
 
 ### 添加无序合成
@@ -50,5 +50,5 @@ blockitem.setItemLore(superItem, "第五行;第六行;第七行;第八行;第九
 参数1就是需要合成的配方，参数2就是合成后的物品
 
 ```javascript
-blockitem.addShapelessCraft(Java.to([item, blockitem.buildItemFromBlock(blockitem.buildBlock(41, 0))], "cn.nukkit.item.Item[]"), superItem)
+blockitem.addShapelessCraft(Java.to([item, blockitem.buildItemFromBlock(blockitem.buildBlock(41, 0))], "cn.nukkit.item.Item[]"), superItem);
 ```
