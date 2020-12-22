@@ -17,12 +17,10 @@ categories: minecraftclient
 > 2. 在`Minecraft`类里找到`runTick`方法 找到`Keyboard.next()`循环 在`if (k == 62 && this.entityRenderer != null)`下面写 `new EventKeyboard(k).call();`
 
 ```java
-    [...]
     public void onUpdate()
     {
 
         new EventUpdate().call();
-    [...]
 ```
 
 ```java
