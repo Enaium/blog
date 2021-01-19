@@ -1,9 +1,6 @@
 title: Enaium Blog
 email: Enaium@outlook.com
 description: This is Enaium's blog
-baseurl: ""
-url: ""
-twitter_username: Enaium
 github_username:  Enaium
 
 theme: minima
