@@ -10,6 +10,6 @@ categories: fabric
 
 * 用IDE 克隆 库
 * 直接导入IDE
-* 运行bat `./gradlew idea`然后导入IDE
+* 运行bat `./gradlew genSources`然后导入IDE
 
 推荐使用IDEA
