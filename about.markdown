@@ -19,8 +19,6 @@ QQ 363073757
 
 [Bitbucket](https://bitbucket.org/Enaium/)
 
-[Twitter](https://twitter.com/Enaium)
-
 [爱发电](https://afdian.net/@Enaium)
 
 [简书](https://www.jianshu.com/u/06e47522f2fd)
