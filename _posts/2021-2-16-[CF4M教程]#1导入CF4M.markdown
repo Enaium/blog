@@ -64,12 +64,18 @@ dependencies {
 
 在游戏的启动和停止的时候调用`run`和`stop`
 
-需要注意的是,如果你使用的是`Mixin`注入的方式也要这样做. `mixins`的包也不要和主类在同一个包下
+之后写的`Module` `Command` `Config` 等等都要和主类在同一包下
+
+需要注意的是,如果你使用的是`Mixin`注入的方式也要这样做. `mixins`的包也不要和主类在同一个包下.
 
 ✔正确示范
 ```
 cn.enaium.example
 ----client.主类
+--------modules
+--------commands
+--------configs
+--------...
 ----mixins
 ```
 
@@ -79,4 +85,8 @@ cn.enaium.example
 cn.enaium.example
 ----client.主类
 --------mixins
+--------modules
+--------commands
+--------configs
+--------...
 ```
