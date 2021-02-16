@@ -17,9 +17,9 @@ public class Sprint {
 
 默认参数`value` 就是Module的名字.
 
-在加上2个方法 分别加上`@Enable`和`@Disbale`.
-
 ## 打开或关闭
+
+在加上2个方法 分别加上`@Enable`和`@Disbale`.
 
 ```java
 @Module("Sprint")
