@@ -52,14 +52,14 @@ dependencies {
 ## 使用
 
 ```java
-    public void run() {
-        new CF4M(this, Minecraft.getMinecraft().mcDataDir.toString() + "/" + name);//参数1:当前的主类,参数2:客户端的目录(游戏目录/客户端名)
-        CF4M.getInstance().run();
-    }
+public void run() {
+    new CF4M(this, Minecraft.getMinecraft().mcDataDir.toString() + "/" + name);//参数1:当前的主类,参数2:客户端的目录(游戏目录/客户端名)
+    CF4M.getInstance().run();
+}
 
-    public void stop() {
-        CF4M.getInstance().stop();
-    }
+public void stop() {
+    CF4M.getInstance().stop();
+}
 ```
 
 在游戏的启动和停止的时候调用`run`和`stop`
