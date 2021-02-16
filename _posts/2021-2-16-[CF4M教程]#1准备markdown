@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[CF4M教程]#1导入CF4M"
+title: "[CF4M教程]#1准备"
 data: 2021-2-16 13:02
 categories: cf4m
 ---
@@ -66,7 +66,7 @@ dependencies {
 
 之后写的`Module` `Command` `Config` 等等都要和主类在同一包下
 
-需要注意的是,如果你使用的是`Mixin`注入的方式也要这样做. `mixins`的包也不要和主类在同一个包下.
+需要注意的是,如果您使用的是`Mixin`注入的方式也要这样做. `mixins`的包也不要和主类在同一个包下.
 
 ✔正确示范
 ```
@@ -90,3 +90,9 @@ cn.enaium.example
 --------configs
 --------...
 ```
+
+## 钩子
+
+CF4M内置了2个Event`UpdateEvent`和`KeyboardEvent`这些都要把游戏的事件钩住,才能使用.
+
+其中`KeyboardEvent`您必须钩住,因为CF4M的按键操作用到了它
