@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[CF4M教程]#3写一个简单的Module"
+title: "[CF4M教程]#3写一个简单的Command"
 data: 2021-2-18 14:41
 categories: cf4m
 ---
