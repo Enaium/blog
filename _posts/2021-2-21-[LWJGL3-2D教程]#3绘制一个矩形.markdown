@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[LWJGL3教程]#3绘制一个矩形"
+title: "[LWJGL3 2D教程]#3绘制一个矩形"
 data: 2021-2-21 17:50
 categories: cf4m
 ---
