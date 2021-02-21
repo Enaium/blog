@@ -1,0 +1,79 @@
+---
+layout: post
+title: "[LWJGL3教程]#2创建一个窗口"
+data: 2021-2-21 16:25
+categories: cf4m
+---
+
+随便创建一个类，直接在main方法里执行就可以。
+
+```java
+public static void main(String[] args) {
+}
+```
+
+先初始化，如果初始化失败，抛出异常。
+
+```java
+public static void main(String[] args) {
+    if (!glfwInit()) {
+        throw new IllegalStateException("Unable to initialize GLFW");
+    }
+}
+```
+
+设置窗口默认状态。
+
+```java
+public static void main(String[] args) {
+    if (!glfwInit()) {
+        throw new IllegalStateException("Unable to initialize GLFW");
+    }
+
+    glfwDefaultWindowHints();
+}
+```
+
+创建窗口，如果创建失败抛出异常。
+
+```java
+public static void main(String[] args) {
+    if (!glfwInit()) {
+        throw new IllegalStateException("Unable to initialize GLFW");
+    }
+
+    glfwDefaultWindowHints();
+
+    long window = glfwCreateWindow(640, 480, "My LWJGL Program", 0, 0);
+
+    if (window == NULL) {
+        throw new RuntimeException("Failed to create the GLFW window");
+    }
+
+    glfwShowWindow(window);
+}
+```
+
+创建了一个窗口，但是很快就关闭了，可以在创建窗口后，使用死循环来保证窗口不会消失，当检测到窗口关闭时，退出循环。
+
+```java
+public static void main(String[] args) {
+    if (!glfwInit()) {
+        throw new IllegalStateException("Unable to initialize GLFW");
+    }
+
+    glfwDefaultWindowHints();
+
+    long window = glfwCreateWindow(640, 480, "My LWJGL Program", 0, 0);
+
+    if (window == NULL) {
+        throw new RuntimeException("Failed to create the GLFW window");
+    }
+
+    glfwShowWindow(window);
+
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+    }
+}
+```
