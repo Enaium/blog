@@ -75,5 +75,7 @@ public static void main(String[] args) {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
+
+    glfwTerminate();//终止
 }
 ```
