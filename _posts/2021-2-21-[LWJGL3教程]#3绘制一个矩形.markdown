@@ -52,6 +52,4 @@ while (!glfwWindowShouldClose(window)) {
 
     glfwSwapBuffers(window);//交换缓冲区 
 }
-
-glfwTerminate();
 ```
