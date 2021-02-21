@@ -34,7 +34,7 @@ public static void main(String[] args) {
 }
 ```
 
-创建窗口，如果创建失败抛出异常。
+创建窗口，设置长、宽、标题，如果创建失败抛出异常。
 
 ```java
 public static void main(String[] args) {
@@ -44,7 +44,7 @@ public static void main(String[] args) {
 
     glfwDefaultWindowHints();
 
-    long window = glfwCreateWindow(640, 480, "My LWJGL Program", 0, 0);
+    long window = glfwCreateWindow(640, 480, "My LWJGL Program", NULL, NULL);
 
     if (window == NULL) {
         throw new RuntimeException("Failed to create the GLFW window");
