@@ -74,11 +74,11 @@ glBegin(GL_QUADS);
 glBindTexture(GL_TEXTURE_2D, textureID);
 glTexCoord2f(0, 0);//坐标1
 glVertex2d(-0.5f, 0.5f);
-glTexCoord2f(1, 0);
+glTexCoord2f(1, 0);//坐标2
 glVertex2d(0.5f, 0.5f);
-glTexCoord2f(1, 1);
+glTexCoord2f(1, 1);//坐标3
 glVertex2d(0.5f, -0.5f);
-glTexCoord2f(0, 1);
+glTexCoord2f(0, 1);//坐标4
 glVertex2d(-0.5f, -0.5f);
 glEnd();
 ```
