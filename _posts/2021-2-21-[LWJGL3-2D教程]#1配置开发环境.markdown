@@ -2,7 +2,7 @@
 layout: post
 title: "[LWJGL3 2D教程]#1配置开发环境"
 data: 2021-2-21 16:12
-categories: cf4m
+categories: lwjgl3
 ---
 
 进入[LWJGL下载](https://www.lwjgl.org/customize)

@@ -2,7 +2,7 @@
 layout: post
 title: "[LWJGL3 2D教程]#3绘制一个矩形"
 data: 2021-2-21 17:50
-categories: cf4m
+categories: lwjgl3
 ---
 
 做一个当前上下文，创建一个`createCapabilities`。

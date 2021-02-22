@@ -2,7 +2,7 @@
 layout: post
 title: "[LWJGL3 2D教程]#2创建一个窗口"
 data: 2021-2-21 16:25
-categories: cf4m
+categories: lwjgl3
 ---
 
 随便创建一个类，直接在main方法里执行就可以。
