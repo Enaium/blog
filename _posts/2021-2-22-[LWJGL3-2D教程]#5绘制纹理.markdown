@@ -71,7 +71,7 @@ int textureID = TextureLoader.loadTexture("/hero.png");
 
 ```java
 glBegin(GL_QUADS);
-glBindTexture(GL_TEXTURE_2D, textureID);
+glBindTexture(GL_TEXTURE_2D, textureID);//绑定纹理
 glTexCoord2f(0, 0);//坐标1
 glVertex2d(-0.5f, 0.5f);
 glTexCoord2f(1, 0);//坐标2
