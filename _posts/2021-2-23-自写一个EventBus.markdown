@@ -76,7 +76,7 @@ public class EventManager {
 }
 ```
 
-
+注册。
 
 ```java
 public void register(Object o) {
