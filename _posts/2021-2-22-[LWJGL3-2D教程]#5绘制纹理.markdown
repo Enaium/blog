@@ -9,52 +9,54 @@ categories: lwjgl3
 
 读取一张图片，然后获取图片所有的像素，根据像素的rgba来绘制
 
-先创建一个`TextureLoader`类
+先创建一个`Texture`类
 
 ```java
-public class TextureLoader {
-    public static int loadTexture(String path) {
+public class Texture {
 
-        BufferedImage image = null;
+    private int id;
+
+    public Texture (String path) {
+
         try {
-            image = ImageIO.read(TextureLoader.class.getResource(path));//读取图片
+            BufferedImage image = ImageIO.read(Texture.class.getResource(path));
+
+            int[] pixels = new int[image.getWidth() * image.getHeight()];//创建像素列表
+            image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());//获取图片像素
+
+            ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);//创建字节缓冲区，*4是包含alpha *3不包含
+
+            //遍历图片像素转换为RGBA
+            for (int y = 0; y < image.getHeight(); y++) {
+                for (int x = 0; x < image.getWidth(); x++) {
+                    int pixel = pixels[y * image.getWidth() + x];
+                    Color color = new Color(pixel);
+                    buffer.put((byte) color.getRed());//像素点的Red
+                    buffer.put((byte) color.getGreen());//像素点的Green
+                    buffer.put((byte) color.getBlue());//像素点的Blue
+                    buffer.put((byte) color.getAlpha());//像素点的Alpha
+                }
+            }
+
+            buffer.flip(); //一定要翻转
+
+            id = glGenTextures();
+
+            glBindTexture(GL_TEXTURE_2D, id);
+
+            //设置缩放过滤
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            //发送数据到OpenGL
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        assert image != null;
-        int[] pixels = new int[image.getWidth() * image.getHeight()];//创建像素列表
-        image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());//获取图片像素
-
-        ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);//创建字节缓冲区，*4是包含alpha *3不包含
-
-        //遍历图片像素转换为RGBA
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                int pixel = pixels[y * image.getWidth() + x];
-                Color color = new Color(pixel);
-                buffer.put((byte) color.getRed());//像素点的Red
-                buffer.put((byte) color.getGreen());//像素点的Green
-                buffer.put((byte) color.getBlue());//像素点的Blue
-                buffer.put((byte) color.getAlpha());//像素点的Alpha
-            }
-        }
-
-        buffer.flip(); //一定要翻转
-
-        //设置包装模式
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-
-        //设置缩放过滤
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        //发送数据到OpenGL
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-        //返回纹理ID
-        return glGenTextures();
+    public void bind() {
+        glBindTexture(GL_TEXTURE_2D, id);
     }
 }
 ```
@@ -64,14 +66,14 @@ public class TextureLoader {
 加载纹理，获取ID。
 
 ```java
-int textureID = TextureLoader.loadTexture("/hero.png");
+Texture texture = new Texture("/hero.png");
 ```
 
 绑定纹理绘制，4个顶点和4个坐标。
 
 ```java
 glBegin(GL_QUADS);
-glBindTexture(GL_TEXTURE_2D, textureID);//绑定纹理
+texture.bind();//绑定纹理
 glTexCoord2f(0, 0);//坐标1
 glVertex2d(-0.5f, 0.5f);
 glTexCoord2f(1, 0);//坐标2
