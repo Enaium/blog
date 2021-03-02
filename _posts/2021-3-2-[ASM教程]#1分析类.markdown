@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[LWJGL3 2D教程]#6VBO"
+title: "[ASM教程]#1分析类"
 data: 2021-3-2 14:07
 categories: asm
 ---
