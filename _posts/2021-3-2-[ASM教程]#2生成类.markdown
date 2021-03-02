@@ -13,8 +13,8 @@ public class Learn2 {
         MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "render", "()V", null, null);//插入方法
         methodVisitor.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");//插入字段
         methodVisitor.visitLdcInsn("Hello ASM!");//插入LDC
-        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-        methodVisitor.visitMaxs(2, 1);
+        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);//插入方法
+        methodVisitor.visitMaxs(2, 1);//设置栈和局部变量大小
         methodVisitor.visitInsn(RETURN);//插入返回
         methodVisitor.visitEnd();//结束
         classWriter.visitEnd();//结束
