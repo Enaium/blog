@@ -1,0 +1,52 @@
+---
+layout: post
+title: "[ASM教程]#4增加移除类成员"
+data: 2021-3-3 14:13
+categories: asm
+---
+
+这期我们要创建一个对象和数组。
+
+```java
+MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+methodVisitor.visitTypeInsn(NEW, "java/lang/String");//插入一个对象，操作码是NEW，类型是String。
+methodVisitor.visitLdcInsn("Enaium");//插入一个LDC常量。
+methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/String", "<init>", "(Ljava/lang/String;)V", false);//插入方法调用，调用String的构造方法。
+
+//用刚才的方法创建。
+methodVisitor.visitTypeInsn(NEW, "cn/enaium/learn/asm/learn4/Bean");
+methodVisitor.visitLdcInsn("Enaium");
+methodVisitor.visitMethodInsn(INVOKESPECIAL, "cn/enaium/learn/asm/learn4/Bean", "<init>", "(Ljava/lang/String;)V", false);
+
+methodVisitor.visitIntInsn(SIPUSH, 2);//先需要给一个数组长度。
+methodVisitor.visitIntInsn(NEWARRAY, T_BYTE);//插入一个数组，类型是byte。
+
+methodVisitor.visitInsn(DUP);//插入一个操作，将数据压入站。
+methodVisitor.visitIntInsn(SIPUSH, 0);//插入数组0的位置。
+methodVisitor.visitIntInsn(SIPUSH, 1);//插入一。
+methodVisitor.visitInsn(AASTORE);//保存数据。
+
+//重复这四个操作，在数组1的位置插入二。
+methodVisitor.visitInsn(DUP);
+methodVisitor.visitIntInsn(SIPUSH, 1);
+methodVisitor.visitIntInsn(SIPUSH, 2);
+methodVisitor.visitInsn(AASTORE);
+
+methodVisitor.visitEnd();
+```
+
+Bean
+
+```java
+public class Bean {
+    private final String name;
+
+    public Bean(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
