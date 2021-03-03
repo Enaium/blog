@@ -18,37 +18,39 @@ public enum Example {
 }
 ```
 
-只需用在Module中创建一个变量即可。
+只需用在Module中创建一个变量，加上Setting注解即可。
 
 ```java
 @Module("Sprint")
 public class Sprint {
-    private EnableSetting test1 = new EnableSetting(this, "test1", "test1", false);
+    @Setting("test1")
+    private EnableSetting test1 = new EnableSetting(false);
 }
 ```
 
-如果需要自定义一个Setting，就继承SettingBase。
+CF4M没有附带Setting，需要自定义一个Setting。
 
 
 ```java
-public class BlockListSetting extends SettingBase {
+public class EnableSetting {
 
-    private final List<String> blockList;
+    private boolean enable;
 
-    public BlockListSetting(Object module, String name, String info, List<String> blockList) {
-        super(module, name, info);
-        this.blockList = blockList;
+    public EnableSetting(boolean enable) {
+        this.enable = enable;
     }
 
-    public List<String> getBlockList() {
-        return blockList;
+    public boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }
 ```
 
-CF4M内置了6种Setting，EnableSetting、IntegerSetting，FloatSetting，DoubleSetting，LongSetting，和ModeSetting。
-
-自定义Event，继承Listener，要注意是CF4M的Listener，At这个参数是枚举型，分别是HEAD和TAIL，表示监听的位置。
+自定义Event，继承Listener，要注意是CF4M的Listener，At这个参数是枚举型，分别是HEAD、TAIL和NONE，表示监听的位置，如果没有确定位置就用NONE。
 
 要调用Call才能使Event监听这个事件。
 
