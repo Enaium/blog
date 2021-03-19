@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[ASM教程]#4增加移除类成员"
+title: "[ASM教程]#4创建对象和数组"
 data: 2021-3-3 14:13
 categories: asm
 ---
