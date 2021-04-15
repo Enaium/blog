@@ -17,7 +17,7 @@ https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&pid=10134
 
 摘要:项目名称
 
-Group Id:组名 这里要用自己的域名的话一定要保证有域名的所有全,后面会让你添加dns记录来验证
+Group Id:组名 这里要用自己的域名的话一定要保证有域名的所有权,后面会让你添加dns记录来验证
 
 Project URL仓库地址
 SCM URL git地址
