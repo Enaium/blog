@@ -40,11 +40,12 @@ SCM URL git地址
 
 这里我使用Gradle
 
-加上这2个插件
+加上这3个插件
 
 ```groovy
 plugins {
     id 'maven-publish'
+    id 'java-library'
     id 'signing'
 }
 ```
@@ -221,5 +222,7 @@ https://s01.oss.sonatype.org/#stagingRepositories
 [![cgT7vV.png](https://z3.ax1x.com/2021/04/15/cgT7vV.png)](https://imgtu.com/i/cgT7vV)
 
 之后可以再 https://search.maven.org/ 搜索到包
+
+如果升级版本或者在发布另一个仓库就不需要在创建问题了,直接上传就行,前提是group id不变
 
 上传到Maven中央仓库是不是很麻烦
