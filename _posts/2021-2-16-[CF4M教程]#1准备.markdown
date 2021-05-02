@@ -21,11 +21,11 @@ allprojects {
 }
 ```
 
-使用最新的CF4M 写这个文档的时候最新版是 1.4.6
+使用最新的CF4M 写这个文档的时候最新版是 1.8.1
 
 ```groovy
 dependencies {
-	implementation 'cn.enaium.cf4m:cf4m:1.4.6'
+	implementation 'cn.enaium.cf4m:cf4m:1.8.1'
 }
 ```
 
@@ -35,7 +35,7 @@ dependencies {
 
 ```groovy
 dependencies {
-	modImplementation 'cn.enaium.cf4m:cf4m-fabric:1.4.6'
+	modImplementation 'cn.enaium.cf4m:cf4m-fabric:1.8.1'
 }
 ```
 
@@ -43,7 +43,7 @@ dependencies {
 
 ```json
 "depends": {
-    "cf4m": ">=1.4.6"
+    "cf4m": ">=1.8.1"
 }
 ```
 
@@ -53,15 +53,19 @@ dependencies {
 
 ```java
 public void run() {
-    CF4M.INSTANCE.run(this, Minecraft.getMinecraft().mcDataDir.toString() + "/" + name);//参数1:当前的主类,参数2:客户端的目录(游戏目录/客户端名)
+	
+	CF4M.run(this);
+
+	//参数1:当前的主类,参数2:客户端的目录(游戏目录/客户端名)
+    // CF4M.run(this, Minecraft.getMinecraft().mcDataDir.toString() + "/" + name);
 }
 
 public void stop() {
-    CF4M.INSTANCE.stop();
+    CF4M.stop();
 }
 ```
 
-在游戏的启动和停止的时候调用`run`和`stop`
+在游戏的启动和停止的时候调用`run`
 
 之后写的`Module` `Command` `Config` 等等都要和主类在同一包下
 
@@ -89,9 +93,3 @@ cn.enaium.example
 --------configs
 --------...
 ```
-
-## 钩子
-
-CF4M内置了2个Event`UpdateEvent`和`KeyboardEvent`这些都要把游戏的事件钩住,才能使用.
-
-其中`KeyboardEvent`您必须钩住,因为CF4M的按键操作用到了它

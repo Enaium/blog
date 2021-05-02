@@ -96,3 +96,9 @@ public class Sprint {
     }
 }
 ```
+
+## 事件
+
+需要在游戏按下快捷键的时候调用`CF4M.MODULE.onKey(key)`才可以使Module启用或者禁用
+
+也可以写一个`Event` 然后使用`CF4M.EVENT.post(new Event())`

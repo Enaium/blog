@@ -41,16 +41,6 @@ public class ToggleCommand {
 
 那么这个“configuration.message”是什么呢？
 
-```java
-@Configuration
-public class ExampleConfig implements IConfiguration {
-    @Override
-    public void message(String message) {
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText(message));
-    }
-}
-```
-
 我们需要重写配置接口，来进行文本输出，默认是在控制台输出，注意要加上“Configuration” 
 
 ```java
