@@ -43,7 +43,7 @@ public void load() {
     for (ModuleProvider module : CF4M.MODULE.getAll()) {//遍历所有Module
         JsonArray jsonArray = new JsonArray();
         try {
-            jsonArray = new Gson().fromJson(read(CF4M.INSTANCE.config.getPath(this)), JsonArray.class);//读取配置文件并存入JsonArray
+            jsonArray = new Gson().fromJson(read(CF4M.CONFIG.getByInstance(this).getPath()), JsonArray.class);//读取配置文件并存入JsonArray
         } catch (IOException e) {
             e.printStackTrace();
         }
