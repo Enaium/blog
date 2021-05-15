@@ -4,6 +4,7 @@ title: "Minecraft启动器开发#2启动游戏"
 data: 2021-5-15 13:13
 categories: java
 ---
+
 ```java
 var name = "mcc";
 var version = "1.0";
