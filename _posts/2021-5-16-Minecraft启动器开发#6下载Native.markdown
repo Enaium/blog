@@ -6,7 +6,8 @@ categories: java
 ---
 
 ```java
-if (downloads.has("classifiers")) {                var classifiers = downloads.get("classifiers").getAsJsonObject();
+if (downloads.has("classifiers")) {
+                var classifiers = downloads.get("classifiers").getAsJsonObject();
                 var nativeName = "natives-linux";
                 var osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
                 if (osName.contains("win")) {
