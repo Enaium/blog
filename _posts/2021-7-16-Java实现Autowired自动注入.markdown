@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Java实现自动注入"
+title: "Java实现Autowired自动注入"
 data: 2021-7-16 21:22
 categories: java
 ---
