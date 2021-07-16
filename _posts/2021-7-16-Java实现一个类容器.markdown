@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Java 实现一个类容器"
+title: "Java实现一个类容器"
 data: 2021-7-16 20:42
 categories: java
 ---
