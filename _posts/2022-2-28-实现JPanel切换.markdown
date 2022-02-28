@@ -44,7 +44,7 @@ public static void main(String[] args) {
 }
 ```
 
-主语要就是这几行
+主要就是这几行
 
 ```java
 jPanel.removeAll();//移除全部
