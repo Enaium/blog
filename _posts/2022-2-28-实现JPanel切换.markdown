@@ -4,6 +4,7 @@ title: "实现JPanel切换"
 data: 2022-2-28 17:13
 categories: java
 ---
+
 ```java
 public static void main(String[] args) {
     JFrame jFrame = new JFrame("Test");
