@@ -5,7 +5,7 @@ data: 2022-3-12 19:21
 categories: java
 ---
 
-先写一个`Messsage`类,解码的时候将要把`ByteBuf`解码为Message
+先写一个`Messsage`类,解码的时候将要把`ByteBuf`解码为`Message`
 
 ```java
 public class Message implements Serializable {
