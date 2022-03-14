@@ -298,3 +298,7 @@ public class Handler extends SimpleChannelInboundHandler<Response> {
 ```
 
 现在来运行服务器和客户端测试一下
+
+[源码](https://github.com/Enaium-Learn/netty-rpc)
+
+[视频](https://www.bilibili.com/video/BV18Y411373o)
