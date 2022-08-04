@@ -8,8 +8,7 @@ Enaium的博客
 
 联系方式
 
-QQ 363073757
-
+[Kook](https://kook.top/YaP12f)
 
 [GitHub](https://github.com/Enaium)
 
