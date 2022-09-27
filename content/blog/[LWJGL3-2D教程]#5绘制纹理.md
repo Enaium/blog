@@ -1,0 +1,85 @@
+---
+title: "[LWJGL3 2D教程]#5绘制纹理"
+data: 2021-2-22 15:05
+categories: lwjgl3
+---
+
+先说原理
+
+读取一张图片，然后获取图片所有的像素，根据像素的rgba来绘制
+
+先创建一个`Texture`类
+
+```java
+public class Texture {
+
+    private int id;
+
+    public Texture (String path) {
+
+        try {
+            BufferedImage image = ImageIO.read(Texture.class.getResource(path));
+
+            int[] pixels = new int[image.getWidth() * image.getHeight()];//创建像素列表
+            image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());//获取图片像素
+
+            ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);//创建字节缓冲区，*4是包含alpha *3不包含
+
+            //遍历图片像素转换为RGBA
+            for (int y = 0; y < image.getHeight(); y++) {
+                for (int x = 0; x < image.getWidth(); x++) {
+                    int pixel = pixels[y * image.getWidth() + x];
+                    Color color = new Color(pixel);
+                    buffer.put((byte) color.getRed());//像素点的Red
+                    buffer.put((byte) color.getGreen());//像素点的Green
+                    buffer.put((byte) color.getBlue());//像素点的Blue
+                    buffer.put((byte) color.getAlpha());//像素点的Alpha
+                }
+            }
+
+            buffer.flip(); //一定要翻转
+
+            id = glGenTextures();
+
+            glBindTexture(GL_TEXTURE_2D, id);
+
+            //设置缩放过滤
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            //发送数据到OpenGL
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void bind() {
+        glBindTexture(GL_TEXTURE_2D, id);
+    }
+}
+```
+
+接下来开始绘制。
+
+加载纹理，获取ID。
+
+```java
+Texture texture = new Texture("/hero.png");
+```
+
+绑定纹理绘制，4个顶点和4个坐标。
+
+```java
+glBegin(GL_QUADS);
+texture.bind();//绑定纹理
+glTexCoord2f(0, 0);//坐标1
+glVertex2d(-0.5f, 0.5f);
+glTexCoord2f(1, 0);//坐标2
+glVertex2d(0.5f, 0.5f);
+glTexCoord2f(1, 1);//坐标3
+glVertex2d(0.5f, -0.5f);
+glTexCoord2f(0, 1);//坐标4
+glVertex2d(-0.5f, -0.5f);
+glEnd();
+```

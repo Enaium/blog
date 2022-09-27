@@ -1,8 +1,0 @@
-title: Enaium Blog
-email: Enaium@outlook.com
-description: This is Enaium's blog
-github_username:  Enaium
-
-theme: minima
-plugins:
-  - jekyll-feed

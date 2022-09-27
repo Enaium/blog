@@ -1,0 +1,16 @@
+---
+title: "[Jekyll入门]#4条件、循环"
+data: 2020-9-24 19:58
+categories: jekyll
+---
+
+## 条件
+
+
+![4-1](/assets/jekyll/4-1.png)
+
+
+## 循环
+
+![4-2](/assets/jekyll/4-2.png)
+

@@ -1,0 +1,29 @@
+---
+title: "[LWJGL3 2D教程]#4按键"
+data: 2021-2-21 18:43
+categories: lwjgl3
+---
+
+按键很简单，如果`K`按下，就会输出“K press“
+
+```java
+while (!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_TRUE) {
+        System.out.println("K press");
+    }
+}
+```
+
+如果鼠标左键按下，就会输出“MouseLeft press“
+
+```java
+while (!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_TRUE) {
+        System.out.println("MouseLeft press");
+    }
+}
+```
