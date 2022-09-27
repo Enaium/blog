@@ -1,6 +1,6 @@
 ---
 title: "[Jekyll入门]#3布局"
-data: 2020-9-23 19:14
+date: 2020-09-23T19:14:00+0800
 categories: jekyll
 ---
 

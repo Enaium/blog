@@ -1,6 +1,6 @@
 ---
 title: "[CF4M教程]#3写一个简单的Command"
-data: 2021-2-18 14:41
+date: 2021-02-18T14:41:00+0800
 categories: cf4m
 ---
 

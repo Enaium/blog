@@ -1,6 +1,6 @@
 ---
 title: "用Gitee搭建私有Maven仓库"
-date: 2020-3-1 19:53
+date: 2020-03-01T19:53:00+0800
 categories: others
 ---
 一. 新建仓库

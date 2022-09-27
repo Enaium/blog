@@ -1,6 +1,6 @@
 ---
 title: "[BlocklyNukkit入门]#10高级工作台合成"
-data: 2021-1-19 18:34
+date: 2021-01-19T18:34:00+0800
 categories: blocklynukkit
 ---
 

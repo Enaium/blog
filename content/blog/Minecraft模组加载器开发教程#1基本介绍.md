@@ -1,6 +1,6 @@
 ---
 title: "Minecraft模组加载器开发教程#1基本介绍"
-data: 2022-1-21 12:23
+date: 2022-01-21T12:23:00+0800
 categories: minecraft
 ---
 

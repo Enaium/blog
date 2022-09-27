@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #2 添加物品"
-date: 2019-12-15 19:06
+date: 2019-12-15T19:06:00+0800
 categories: fabric
 ---
 

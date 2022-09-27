@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #7 添加工具提示"
-date: 2019-12-16 12:30
+date: 2019-12-16T12:30:00+0800
 categories: fabric
 ---
 

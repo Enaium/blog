@@ -1,6 +1,6 @@
 ---
 title: "使用 SpringBoot+Vue 实现留言版"
-date: 2020-4-20 17:29
+date: 2020-04-20T17:29:00+0800
 categories: springboot
 ---
 

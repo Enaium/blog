@@ -1,6 +1,6 @@
 ---
 title: "解决Gradle不能构建问题"
-date: 2020-1-12 15:26
+date: 2020-01-12T15:26:00+0800
 categories: others
 ---
 

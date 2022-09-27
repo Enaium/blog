@@ -1,6 +1,6 @@
 ---
 title: "Minecraft 搭建一个Paper服务器"
-date: 2020-1-2 18:44
+date: 2020-01-02T18:44:00+0800
 categories: minecraft
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: "[Jekyll入门]#2配置、帖子、页面"
-data: 2020-9-22 22:16
+date: 2020-09-22T22:16:00+0800
 categories: jekyll
 ---
 
@@ -34,7 +34,7 @@ plugins: #插件
 ---
 layout: post #布局
 title:  "My first post!" #标题
-date:   2020-09-22 22:19 #时间
+date: "  2020-09-22 22:19 #时间"
 categories: jekyll update #分类
 ---
 ```

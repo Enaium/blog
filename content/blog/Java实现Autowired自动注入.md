@@ -1,6 +1,6 @@
 ---
 title: "Java实现Autowired自动注入"
-data: 2021-7-16 21:22
+date: 2021-07-16T21:22:00+0800
 categories: java
 ---
 

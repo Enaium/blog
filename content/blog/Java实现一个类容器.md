@@ -1,6 +1,6 @@
 ---
 title: "Java 实现一个类容器"
-data: 2021-7-16 20:42
+date: 2021-07-16T20:42:00+0800
 categories: java
 ---
 

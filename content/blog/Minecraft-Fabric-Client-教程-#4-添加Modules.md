@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric Client 教程 #4 添加Modules"
-date: 2020-1-9 10:58
+date: 2020-01-09T10:58:00+0800
 categories: fabricclient
 ---
 

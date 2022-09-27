@@ -1,6 +1,6 @@
 ---
 title: "[BlocklyNukkit入门]#1配置开发环境"
-data: 2020-10-3 20:32
+date: 2020-10-03T20:32:00+0800
 categories: blocklynukkit
 ---
 

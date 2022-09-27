@@ -1,6 +1,6 @@
 ---
 title: "Linux下制作Windows启动U盘"
-date: 2019-12-28 21:24
+date: 2019-12-28T21:24:00+0800
 categories: linux
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric Client 教程 #1 配置开发环境"
-date: 2020-1-4 22:08
+date: 2020-01-04T22:08:00+0800
 categories: fabricclient
 ---
 需要 JAVA8+ 和 IDE

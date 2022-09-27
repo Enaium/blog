@@ -1,6 +1,6 @@
 ---
 title: "[Jekyll入门]#1配置开发环境"
-data: 2020-9-22 19:42
+date: 2020-09-22T19:42:00+0800
 categories: jekyll
 ---
 

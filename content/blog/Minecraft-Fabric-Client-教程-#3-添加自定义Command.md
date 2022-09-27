@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric Client 教程 #3 添加自定义Command"
-date: 2020-1-5 12:52
+date: 2020-01-05T12:52:00+0800
 categories: fabricclient
 ---
 

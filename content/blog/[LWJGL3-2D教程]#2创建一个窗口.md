@@ -1,6 +1,6 @@
 ---
 title: "[LWJGL3 2D教程]#2创建一个窗口"
-data: 2021-2-21 16:25
+date: 2021-02-21T16:25:00+0800
 categories: lwjgl3
 ---
 

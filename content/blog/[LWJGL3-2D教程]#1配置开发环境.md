@@ -1,6 +1,6 @@
 ---
 title: "[LWJGL3 2D教程]#1配置开发环境"
-data: 2021-2-21 16:12
+date: 2021-02-21T16:12:00+0800
 categories: lwjgl3
 ---
 

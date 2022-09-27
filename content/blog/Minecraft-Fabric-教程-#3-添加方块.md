@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #3 添加方块"
-date: 2019-12-15 19:36
+date: 2019-12-15T19:36:00+0800
 categories: fabric
 ---
 

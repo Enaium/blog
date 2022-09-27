@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric Client 教程 #2 修改文件和目录名添加run和stop"
-date: 2020-1-4 23:08
+date: 2020-01-04T23:08:00+0800
 categories: fabricclient
 ---
 

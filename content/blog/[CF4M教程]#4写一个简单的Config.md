@@ -1,6 +1,6 @@
 ---
 title: "[CF4M教程]#4写一个简单的Config"
-data: 2021-2-21 14:43
+date: 2021-02-21T14:43:00+0800
 categories: cf4m
 ---
 

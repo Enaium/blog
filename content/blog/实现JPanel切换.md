@@ -1,6 +1,6 @@
 ---
 title: "实现JPanel切换"
-data: 2022-2-28 17:13
+date: 2022-02-28T17:13:00+0800
 categories: java
 ---
 

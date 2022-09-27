@@ -1,6 +1,6 @@
 ---
 title: "自写一个EventBus"
-data: 2021-2-23 22:09
+date: 2021-02-23T22:09:00+0800
 categories: java
 ---
 

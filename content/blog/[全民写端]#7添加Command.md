@@ -1,6 +1,6 @@
 ---
 title: "[全民写端]#7添加Command"
-date: 2020-2-25 18:34
+date: 2020-02-25T18:34:00+0800
 categories: minecraftclient
 ---
 一. 添加Command

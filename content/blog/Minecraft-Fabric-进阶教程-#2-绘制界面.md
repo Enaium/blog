@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 进阶教程 #2 绘制界面"
-date: 2020-2-24 16:27
+date: 2020-02-24T16:27:00+0800
 categories: fabric
 ---
 

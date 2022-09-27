@@ -1,6 +1,6 @@
 ---
 title: "Java插件化开发"
-date: 2020-5-4 9:17
+date: 2020-05-04T09:17:00+0800
 categories: java
 ---
 

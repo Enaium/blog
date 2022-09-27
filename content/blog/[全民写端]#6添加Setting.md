@@ -1,6 +1,6 @@
 ---
 title: "[全民写端]#6添加Setting"
-date: 2020-2-25 18:00
+date: 2020-02-25T18:00:00+0800
 categories: minecraftclient
 ---
 

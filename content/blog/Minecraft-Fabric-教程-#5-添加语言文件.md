@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #5 添加语言文件"
-date: 2019-12-15 20:26
+date: 2019-12-15T20:26:00+0800
 categories: fabric
 ---
 

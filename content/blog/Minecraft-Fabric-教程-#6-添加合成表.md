@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #6 添加合成表"
-date: 2019-12-15 20:48
+date: 2019-12-15T20:48:00+0800
 categories: fabric
 ---
 

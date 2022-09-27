@@ -1,6 +1,6 @@
 ---
 title: "[BlocklyNukkit入门]#3玩家进服欢迎"
-data: 2020-10-3 21:09
+date: 2020-10-03T21:09:00+0800
 categories: blocklynukkit
 ---
 

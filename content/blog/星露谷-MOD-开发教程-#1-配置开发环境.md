@@ -1,6 +1,6 @@
 ---
 title: "星露谷MOD开发教程 #1 配置开发环境"
-date: 2020-2-9 19:00
+date: 2020-02-09T19:00:00+0800
 categories: stardewvalley
 ---
 

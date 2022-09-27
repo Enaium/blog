@@ -1,6 +1,6 @@
 ---
 title: "[CF4M教程]#2写一个简单的Module"
-data: 2021-2-16 13:02
+date: 2021-02-16T13:02:00+0800
 categories: cf4m
 ---
 

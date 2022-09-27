@@ -1,6 +1,6 @@
 ---
 title: "解决IDEA Push rejected问题"
-date: 2020-1-6 11:25
+date: 2020-01-06T11:25:00+0800
 categories: others
 ---
 

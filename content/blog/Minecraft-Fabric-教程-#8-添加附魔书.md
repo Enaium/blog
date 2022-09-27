@@ -1,6 +1,6 @@
 ---
 title: "Minecraft Fabric 教程 #8 添加附魔书"
-date: 2019-12-16 13:45
+date: 2019-12-16T13:45:00+0800
 categories: fabric
 ---
 
