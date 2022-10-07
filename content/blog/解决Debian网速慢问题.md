@@ -1,6 +1,6 @@
 ---
 title: "解决Debian网速慢问题"
-date: 2022-10-7T15:12:00+0800
+date: 2022-10-07T15:12:00+0800
 categories: linux
 ---
 
