@@ -28,7 +28,7 @@ gatsby develop
 在创建项目时后面跟着一个github地址，这个是gatsby官方的一个博客模板
 
 ```shell
-gatsby new blog  https://github.com/gatsbyjs/gatsby-starter-hello-world   
+gatsby new blog  https://github.com/gatsbyjs/gatsby-starter-blog   
 ```
 
 ![](/assets/Snipaste_2022-09-28_09-46-26.png)
