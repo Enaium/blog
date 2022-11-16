@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="container">
+    {{ with .Site.GetPage "/post" }}
+    <ul class="list-group">
+        {{ range .Pages }}
+        {{ $url := .Permalink }}
+        {{ $url = replace $url "#" "%23" }}
+        <li class="list-group-item">
+            <div class="d-flex flex-column">
+                <a href="{{ $url }}">{{ .Title }}</a>
+                <span>{{ .Date | time.Format ":date_long" }}</span>
+            </div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+</div>
+{{ end }}

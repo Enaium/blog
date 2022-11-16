@@ -1,0 +1,5 @@
+baseURL = 'https://blog.enaium.cn'
+languageCode = 'zh-cn'
+
+[params]
+title = "Enaium's blog"
