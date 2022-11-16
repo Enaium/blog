@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>星露谷MOD开发教程 #1 配置开发环境</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body><nav class="navbar bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's blog</a></div></nav><div class=mt-5></div><div id=content><div class=container><div class=card><div class=card-header>星露谷MOD开发教程 #1 配置开发环境</div><div class=card-body><div class=card-text><h2 id=要求>要求</h2><ul><li>安装了<a href=smapi.io/>SMAPI</a></li><li>IDE (推荐使用Visual Studio或者Rider)</li></ul><h2 id=准备>准备</h2><ol><li>创建一个类库项目</li></ol><p><img src=/assets/stardewvalley/2020-2-9-1.png alt></p><ol start=2><li>引用<a href=https://www.nuget.org/packages/Pathoschild.Stardew.ModBuildConfig>Pathoschild.Stardew.ModBuildConfig</a>Nuget包</li></ol><p><img src=/assets/stardewvalley/2020-2-9-2.png alt></p><ol start=3><li>创建一个类</li></ol><p><img src=/assets/stardewvalley/2020-2-9-3.png alt></p><ol start=4><li>新建<code>manifest.json</code>文件</li></ol><p><img src=/assets/stardewvalley/2020-2-9-4.png alt></p><p>格式</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;Name&#34;</span>: <span style=color:#e6db74>&#34;&lt;your project name&gt;&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;Author&#34;</span>: <span style=color:#e6db74>&#34;&lt;your name&gt;&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;Version&#34;</span>: <span style=color:#e6db74>&#34;1.0.0&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;Description&#34;</span>: <span style=color:#e6db74>&#34;&lt;One or two sentences about the mod&gt;&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;UniqueID&#34;</span>: <span style=color:#e6db74>&#34;&lt;your name&gt;.&lt;your project name&gt;&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;EntryDll&#34;</span>: <span style=color:#e6db74>&#34;&lt;your project name&gt;.dll&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;MinimumApiVersion&#34;</span>: <span style=color:#e6db74>&#34;2.10.0&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;UpdateKeys&#34;</span>: []
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=开始>开始</h2><p>继承父类<code>Mod</code></p><p>添加一个事件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c# data-lang=c#><span style=display:flex><span><span style=color:#66d9ef>using</span> StardewModdingAPI;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> StardewModdingAPI.Events;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> NewMod
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>     <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>NewMod</span> : Mod
+</span></span><span style=display:flex><span>     {
+</span></span><span style=display:flex><span>         <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>         {
+</span></span><span style=display:flex><span>             helper.Events.Input.ButtonPressed += onButtonPressed;
+</span></span><span style=display:flex><span>         }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>         <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> onButtonPressed(<span style=color:#66d9ef>object</span> sender, ButtonPressedEventArgs e)
+</span></span><span style=display:flex><span>         {
+</span></span><span style=display:flex><span>             <span style=color:#75715e>//如果世界没有完成返回</span>
+</span></span><span style=display:flex><span>             <span style=color:#66d9ef>if</span>(!Context.IsWorldReady)
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span>;
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>             <span style=color:#75715e>//输出玩家按下的某个键</span>
+</span></span><span style=display:flex><span>             Monitor.Log(e.Button.ToString(),LogLevel.Debug);
+</span></span><span style=display:flex><span>         }
+</span></span><span style=display:flex><span>     }
+</span></span><span style=display:flex><span> }
+</span></span></code></pre></div><p>这样一个mod就完成了</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2020-2-3-%E4%BD%BF%E7%94%A8wpf%E8%AE%BE%E8%AE%A1%E5%B7%A5%E5%85%B7-materialdesigninxamltoolkit/>使用WPF设计工具-MaterialDesignInXamlToolkit</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-#1-%E7%BB%98%E5%88%B6%E6%8C%89%E9%92%AE/>Minecraft Fabric 进阶教程 #1 绘制按钮</a></div></div></div></div></div><footer><script src=/js/bootstrap.bundle.min.js></script></footer></body></html>

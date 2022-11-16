@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>[CF4M教程]#1准备</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body><nav class="navbar bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's blog</a></div></nav><div class=mt-5></div><div id=content><div class=container><div class=card><div class=card-header>[CF4M教程]#1准备</div><div class=card-body><div class=card-text><p>访问<a href=https://cf4m.enaium.cn/>CF4M文档</a></p><p>CF4M(Client Minecraft for Minecraft)是Minecraft的客户端框架可以它可以便捷的写Module,Setting,Command,Config.等等</p><h2 id=导入>导入</h2><p>添加maven仓库</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>allprojects <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	repositories <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>		maven <span style=color:#f92672>{</span> url <span style=color:#e6db74>&#39;https://maven.enaium.cn&#39;</span> <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>	<span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>使用最新的CF4M 写这个文档的时候最新版是 1.8.1</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>dependencies <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	implementation <span style=color:#e6db74>&#39;cn.enaium.cf4m:cf4m:1.8.1&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h3 id=fabric-导入>Fabric 导入</h3><p>如果您用的是<code>Fabric</code>请导入下面的</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>dependencies <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	modImplementation <span style=color:#e6db74>&#39;cn.enaium.cf4m:cf4m-fabric:1.8.1&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>还需要您在<code>fabric.mod.json</code>文件里添加</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span><span style=color:#e6db74>&#34;depends&#34;</span><span style=color:#960050;background-color:#1e0010>:</span> {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;cf4m&#34;</span>: <span style=color:#e6db74>&#34;&gt;=1.8.1&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>当然还需用在<code>mods</code>文件夹放入<a href=https://github.com/cf4m/cf4m-fabric/releases>这个mod</a></p><h2 id=使用>使用</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>run</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	
+</span></span><span style=display:flex><span>	CF4M<span style=color:#f92672>.</span><span style=color:#a6e22e>run</span><span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//参数1:当前的主类,参数2:客户端的目录(游戏目录/客户端名)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// CF4M.run(this, Minecraft.getMinecraft().mcDataDir.toString() + &#34;/&#34; + name);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>stop</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    CF4M<span style=color:#f92672>.</span><span style=color:#a6e22e>stop</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>在游戏的启动和停止的时候调用<code>run</code></p><p>之后写的<code>Module</code> <code>Command</code> <code>Config</code> 等等都要和主类在同一包下</p><p>需要注意的是,如果您使用的是<code>Mixin</code>注入的方式也要这样做. <code>mixins</code>的包也不要和主类在同一个包下.</p><p>✔正确示范</p><pre tabindex=0><code>cn.enaium.example
+----client.主类
+--------modules
+--------commands
+--------configs
+--------...
+----mixins
+</code></pre><p>❌错误示范</p><pre tabindex=0><code>cn.enaium.example
+----client.主类
+--------mixins
+--------modules
+--------commands
+--------configs
+--------...
+</code></pre></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2021-2-16-cf4m%E6%95%99%E7%A8%8B#2%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84module/>[CF4M教程]#2写一个简单的Module</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2021-2-18-cf4m%E6%95%99%E7%A8%8B#3%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84command/>[CF4M教程]#3写一个简单的Command</a></div></div></div></div></div><footer><script src=/js/bootstrap.bundle.min.js></script></footer></body></html>

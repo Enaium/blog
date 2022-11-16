@@ -1,0 +1,89 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>详细介绍如何发布到Maven中央仓库</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body><nav class="navbar bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's blog</a></div></nav><div class=mt-5></div><div id=content><div class=container><div class=card><div class=card-header>详细介绍如何发布到Maven中央仓库</div><div class=card-body><div class=card-text><h2 id=注册账户>注册账户</h2><p><a href=https://issues.sonatype.org>https://issues.sonatype.org</a></p><h2 id=发布问题创建新的工程>发布问题(创建新的工程)</h2><p><a href="https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&pid=10134">https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&pid=10134</a></p><p><a href=https://imgtu.com/i/cg6kfe><img src=https://z3.ax1x.com/2021/04/15/cg6kfe.png alt=cg6kfe.png></a></p><p>摘要:项目名称</p><p>Group Id:组名 这里要用自己的域名的话一定要保证有域名的所有权,后面会让你添加dns记录来验证</p><p>Project URL仓库地址
+SCM URL git地址</p><p>之后创建</p><p>等待回复 会让你添加DNS记录</p><p><a href=https://imgtu.com/i/cg6gn1><img src=https://z3.ax1x.com/2021/04/15/cg6gn1.png alt=cg6gn1.png></a></p><p><a href=https://imgtu.com/i/cgcFH0><img src=https://z3.ax1x.com/2021/04/15/cgcFH0.png alt=cgcFH0.png></a></p><p>添加后回复,这个地址要使用这个工具才能访问,直接执行命令后面跟着地址就行</p><p><a href=https://imgtu.com/i/cg6Tcd><img src=https://z3.ax1x.com/2021/04/15/cg6Tcd.png alt=cg6Tcd.png></a></p><p>等待回复之后就能上传了,他说上传之后回复</p><p><a href=https://imgtu.com/i/cgcNgH><img src=https://z3.ax1x.com/2021/04/15/cgcNgH.png alt=cgcNgH.png></a></p><p>这里我使用Gradle</p><p>加上这2个插件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>plugins <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    id <span style=color:#e6db74>&#39;maven-publish&#39;</span>
+</span></span><span style=display:flex><span>    id <span style=color:#e6db74>&#39;signing&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>doc 和 source</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>java <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    withJavadocJar<span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>    withSourcesJar<span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h2 id=发布配置>发布配置</h2><p>配置后先别刷新</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>publishing <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//配置仓库
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    repositories <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//本地仓库
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>def</span> ENV <span style=color:#f92672>=</span> System<span style=color:#f92672>.</span><span style=color:#a6e22e>getenv</span><span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>ENV<span style=color:#f92672>.</span><span style=color:#a6e22e>MAVEN_URL</span><span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            maven <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                url ENV<span style=color:#f92672>.</span><span style=color:#a6e22e>MAVEN_URL</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//远程仓库
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        maven <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            url <span style=color:#e6db74>&#34;https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/&#34;</span>
+</span></span><span style=display:flex><span>            credentials <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                username ossrhUsername
+</span></span><span style=display:flex><span>                password ossrhPassword
+</span></span><span style=display:flex><span>            <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    publications <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        mavenJava<span style=color:#f92672>(</span>MavenPublication<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            groupId project<span style=color:#f92672>.</span><span style=color:#a6e22e>group</span>
+</span></span><span style=display:flex><span>            artifactId project<span style=color:#f92672>.</span><span style=color:#a6e22e>name</span>
+</span></span><span style=display:flex><span>            version project<span style=color:#f92672>.</span><span style=color:#a6e22e>version</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            from components<span style=color:#f92672>.</span><span style=color:#a6e22e>java</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//pom其他信息 这个必须加上不然等会发布验证不会通过
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            pom <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;accessor&#39;</span><span style=color:#75715e>//项目名
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Bytecode framework for java, Invoke private field and method&#39;</span><span style=color:#75715e>//描述
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;https://github.com/Enaium/accessor/&#39;</span><span style=color:#75715e>//地址
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//协议
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                licenses <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                    license <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                        name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;The Apache License, Version 2.0&#39;</span>
+</span></span><span style=display:flex><span>                        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;http://www.apache.org/licenses/LICENSE-2.0.txt&#39;</span>
+</span></span><span style=display:flex><span>                    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//开发者信息
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                developers <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                    developer <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                        id <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;enaium&#39;</span>
+</span></span><span style=display:flex><span>                        name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Enaium&#39;</span>
+</span></span><span style=display:flex><span>                        email <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Enaium@outlook.com&#39;</span>
+</span></span><span style=display:flex><span>                    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//git地址
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                scm <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>                    connection <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;scm:git:https://github.com/Enaium/accessor.git&#39;</span>
+</span></span><span style=display:flex><span>                    developerConnection <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;scm:git:https://github.com/Enaium/accessor.git&#39;</span>
+</span></span><span style=display:flex><span>                    url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;https://github.com/Enaium/accessor/&#39;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>//签名 这个放到最后
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>signing <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    sign publishing<span style=color:#f92672>.</span><span style=color:#a6e22e>publications</span><span style=color:#f92672>.</span><span style=color:#a6e22e>mavenJava</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>在用户根目录的<code>.gradle</code>里配置<code>gradle.properties</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-properties data-lang=properties><span style=display:flex><span><span style=color:#a6e22e>signing.keyId</span><span style=color:#f92672>=</span><span style=color:#e6db74>id</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>signing.password</span><span style=color:#f92672>=</span><span style=color:#e6db74>密码</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>signing.secretKeyRingFile</span><span style=color:#f92672>=</span><span style=color:#e6db74>文件路径.gpg</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ossrhUsername</span><span style=color:#f92672>=</span><span style=color:#e6db74>账户名</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ossrhPassword</span><span style=color:#f92672>=</span><span style=color:#e6db74>密码</span>
+</span></span></code></pre></div><p>下载工具</p><p><a href=www.gpgtools.org>GPG</a></p><p><a href=https://www.gpg4win.org/thanks-for-download.html>GPG for Win</a></p><p>打开 kleopatra</p><p>创建</p><p><a href=https://imgtu.com/i/cggLY8><img src=https://z3.ax1x.com/2021/04/15/cggLY8.png alt=cggLY8.png></a></p><p><a href=https://imgtu.com/i/cggzOs><img src=https://z3.ax1x.com/2021/04/15/cggzOs.png alt=cggzOs.png></a></p><p>之后填上名字和邮箱</p><p><a href=https://imgtu.com/i/cg2Qk6><img src=https://z3.ax1x.com/2021/04/15/cg2Qk6.png alt=cg2Qk6.png></a></p><p>配置的ID填上后8位</p><p>导出</p><p><a href=https://imgtu.com/i/cg2YXd><img src=https://z3.ax1x.com/2021/04/15/cg2YXd.png alt=cg2YXd.png></a></p><p>加密导出</p><p><a href=https://imgtu.com/i/cgRlbn><img src=https://z3.ax1x.com/2021/04/15/cgRlbn.png alt=cgRlbn.png></a></p><p><a href=https://imgtu.com/i/cgRWKH><img src=https://z3.ax1x.com/2021/04/15/cgRWKH.png alt=cgRWKH.png></a></p><p>设置密码</p><p>管理员运行命令</p><pre tabindex=0><code>gpg --export-secret-keys -o 文件路径.gpg
+</code></pre><p>上传到服务器</p><pre tabindex=0><code>gpg --keyserver https://keys.openpgp.org --send-keys --send-keys 8位ID
+</code></pre><p>好了 刷新Gradle</p><h2 id=发布>发布</h2><p><a href=https://imgtu.com/i/cgolSP><img src=https://z3.ax1x.com/2021/04/15/cgolSP.png alt=cgolSP.png></a></p><p>在那个问题回复已经上传</p><p><a href=https://imgtu.com/i/cgoTmD><img src=https://z3.ax1x.com/2021/04/15/cgoTmD.png alt=cgoTmD.png></a></p><p>回复之后就访问</p><p><a href=https://s01.oss.sonatype.org/#stagingRepositories>https://s01.oss.sonatype.org/#stagingRepositories</a></p><p>输入账户密码登录</p><p>选中一个仓库<code>groud_id-xxxx</code>,点上方的Close</p><p><a href=https://imgtu.com/i/cgT891><img src=https://z3.ax1x.com/2021/04/15/cgT891.png alt=cgT891.png></a></p><p>如果成功的话再点,Close右边的release就行了</p><p>如果失败了的话点Activity产看信息</p><p><a href=https://imgtu.com/i/cgTaHe><img src=https://z3.ax1x.com/2021/04/15/cgTaHe.png alt=cgTaHe.png></a></p><p>过一会收到信息</p><p><a href=https://imgtu.com/i/cgT7vV><img src=https://z3.ax1x.com/2021/04/15/cgT7vV.png alt=cgT7vV.png></a></p><p>之后可以再 <a href=https://search.maven.org/>https://search.maven.org/</a> 搜索到包</p><p>如果升级版本或者在发布另一个仓库就不需要在创建问题了,直接上传就行,前提是group id不变</p><p>上传到Maven中央仓库是不是很麻烦</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2021-3-19-asm%E6%95%99%E7%A8%8B#5%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%B7%B7%E6%B7%86/>[ASM教程]#5字符串混淆</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2021-4-21-120%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84mybatis%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84crud/>120行代码手写一个简单的MyBatis实现简单的CRUD</a></div></div></div></div></div><footer><script src=/js/bootstrap.bundle.min.js></script></footer></body></html>

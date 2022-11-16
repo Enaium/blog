@@ -1,0 +1,246 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>[全民写端]#6添加Setting</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body><nav class="navbar bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's blog</a></div></nav><div class=mt-5></div><div id=content><div class=container><div class=card><div class=card-header>[全民写端]#6添加Setting</div><div class=card-body><div class=card-text><p>一. 写Setting类</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.coreium.setting<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cn.enaium.coreium.module.Module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.ArrayList<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Setting</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Module module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>boolean</span> toggle<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>double</span> currentValueDouble<span style=color:#f92672>,</span> minValueDouble<span style=color:#f92672>,</span> maxValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> currentValueInt<span style=color:#f92672>,</span> minValueInt<span style=color:#f92672>,</span> maxValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> currentValueFloat<span style=color:#f92672>,</span> minValueFloat<span style=color:#f92672>,</span> maxValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> ArrayList<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span> modes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String currentMode<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Category category<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> Category <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        BOOLEAN<span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>        VALUE_INT<span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>        VALUE_DOUBLE<span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>        VALUE_FLOAT<span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>        MODE<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Setting</span><span style=color:#f92672>(</span>Module module<span style=color:#f92672>,</span> String name<span style=color:#f92672>,</span> <span style=color:#66d9ef>boolean</span> toggle<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>toggle</span> <span style=color:#f92672>=</span> toggle<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span> <span style=color:#f92672>=</span> Category<span style=color:#f92672>.</span><span style=color:#a6e22e>BOOLEAN</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Setting</span><span style=color:#f92672>(</span>Module module<span style=color:#f92672>,</span> String name<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> currentValueInt<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> minValueInt<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> maxValueInt<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueInt</span> <span style=color:#f92672>=</span> currentValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueInt</span> <span style=color:#f92672>=</span> minValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueInt</span> <span style=color:#f92672>=</span> maxValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span> <span style=color:#f92672>=</span> Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_INT</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Setting</span><span style=color:#f92672>(</span>Module module<span style=color:#f92672>,</span> String name<span style=color:#f92672>,</span> <span style=color:#66d9ef>double</span> currentValueDouble<span style=color:#f92672>,</span> <span style=color:#66d9ef>double</span> minValueDouble<span style=color:#f92672>,</span> <span style=color:#66d9ef>double</span> maxValueDouble<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueDouble</span> <span style=color:#f92672>=</span> currentValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueDouble</span> <span style=color:#f92672>=</span> minValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueDouble</span> <span style=color:#f92672>=</span> maxValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span> <span style=color:#f92672>=</span> Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_DOUBLE</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Setting</span><span style=color:#f92672>(</span>Module module<span style=color:#f92672>,</span> String name<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> currentValueFloat<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> minValueFloat<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> maxValueFloat<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueFloat</span> <span style=color:#f92672>=</span> currentValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueFloat</span> <span style=color:#f92672>=</span> minValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueFloat</span> <span style=color:#f92672>=</span> maxValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span> <span style=color:#f92672>=</span> Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_FLOAT</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Setting</span><span style=color:#f92672>(</span>Module m<span style=color:#f92672>,</span> String n<span style=color:#f92672>,</span> String currentMode<span style=color:#f92672>,</span> ArrayList<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span> modes<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> m<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> n<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentMode</span> <span style=color:#f92672>=</span> currentMode<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>modes</span> <span style=color:#f92672>=</span> modes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span> <span style=color:#f92672>=</span> Category<span style=color:#f92672>.</span><span style=color:#a6e22e>MODE</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> Module <span style=color:#a6e22e>getModule</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setModule</span><span style=color:#f92672>(</span>Module module<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>module</span> <span style=color:#f92672>=</span> module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getName</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setName</span><span style=color:#f92672>(</span>String name<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span> <span style=color:#f92672>=</span> name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isToggle</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> toggle<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setToggle</span><span style=color:#f92672>(</span><span style=color:#66d9ef>boolean</span> toggle<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>toggle</span> <span style=color:#f92672>=</span> toggle<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>double</span> <span style=color:#a6e22e>getCurrentValueDouble</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> currentValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCurrentValueDouble</span><span style=color:#f92672>(</span><span style=color:#66d9ef>double</span> currentValueDouble<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueDouble</span> <span style=color:#f92672>=</span> currentValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>double</span> <span style=color:#a6e22e>getMinValueDouble</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> minValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMinValueDouble</span><span style=color:#f92672>(</span><span style=color:#66d9ef>double</span> minValueDouble<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueDouble</span> <span style=color:#f92672>=</span> minValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>double</span> <span style=color:#a6e22e>getMaxValueDouble</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> maxValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxValueDouble</span><span style=color:#f92672>(</span><span style=color:#66d9ef>double</span> maxValueDouble<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueDouble</span> <span style=color:#f92672>=</span> maxValueDouble<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getCurrentValueInt</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> currentValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCurrentValueInt</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> currentValueInt<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueInt</span> <span style=color:#f92672>=</span> currentValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getMinValueInt</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> minValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMinValueInt</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> minValueInt<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueInt</span> <span style=color:#f92672>=</span> minValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getMaxValueInt</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> maxValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxValueInt</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> maxValueInt<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueInt</span> <span style=color:#f92672>=</span> maxValueInt<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getCurrentValueFloat</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> currentValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCurrentValueFloat</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> currentValueFloat<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentValueFloat</span> <span style=color:#f92672>=</span> currentValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getMinValueFloat</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> minValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMinValueFloat</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> minValueFloat<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>minValueFloat</span> <span style=color:#f92672>=</span> minValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getMaxValueFloat</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> maxValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxValueFloat</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> maxValueFloat<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>maxValueFloat</span> <span style=color:#f92672>=</span> maxValueFloat<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> ArrayList<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getModes</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> modes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setModes</span><span style=color:#f92672>(</span>ArrayList<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span> modes<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>modes</span> <span style=color:#f92672>=</span> modes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getCurrentMode</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> currentMode<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCurrentMode</span><span style=color:#f92672>(</span>String currentMode<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>currentMode</span> <span style=color:#f92672>=</span> currentMode<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isBoolean</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span><span style=color:#f92672>.</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>Category<span style=color:#f92672>.</span><span style=color:#a6e22e>BOOLEAN</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isValueInt</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span><span style=color:#f92672>.</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_INT</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isValueDouble</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span><span style=color:#f92672>.</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_DOUBLE</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isValueFloat</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span><span style=color:#f92672>.</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>Category<span style=color:#f92672>.</span><span style=color:#a6e22e>VALUE_FLOAT</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isMode</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>category</span><span style=color:#f92672>.</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>Category<span style=color:#f92672>.</span><span style=color:#a6e22e>MODE</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>二. 写SettingManager</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.coreium.setting<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cn.enaium.coreium.module.Module<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.ArrayList<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SettingManager</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> ArrayList<span style=color:#f92672>&lt;</span>Setting<span style=color:#f92672>&gt;</span> settings<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>SettingManager</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>settings</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ArrayList<span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>addSetting</span><span style=color:#f92672>(</span>Setting s<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>settings</span><span style=color:#f92672>.</span><span style=color:#a6e22e>add</span><span style=color:#f92672>(</span>s<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> ArrayList<span style=color:#f92672>&lt;</span>Setting<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getSettings</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>settings</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> ArrayList<span style=color:#f92672>&lt;</span>Setting<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getSettingsForModule</span><span style=color:#f92672>(</span>Module m<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        ArrayList<span style=color:#f92672>&lt;</span>Setting<span style=color:#f92672>&gt;</span> settings <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ArrayList<span style=color:#f92672>&lt;</span>Setting<span style=color:#f92672>&gt;();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>Setting s <span style=color:#f92672>:</span> <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>settings</span><span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>s<span style=color:#f92672>.</span><span style=color:#a6e22e>getModule</span><span style=color:#f92672>().</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span>m<span style=color:#f92672>))</span>
+</span></span><span style=display:flex><span>                settings<span style=color:#f92672>.</span><span style=color:#a6e22e>add</span><span style=color:#f92672>(</span>s<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>settings<span style=color:#f92672>.</span><span style=color:#a6e22e>isEmpty</span><span style=color:#f92672>())</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>null</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> settings<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>三. 添加在Start</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>    <span style=color:#f92672>[...]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> SettingManager settingManager<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>start</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>[...]</span>
+</span></span><span style=display:flex><span>        settingManager <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> SettingManager<span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>[...]</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span></code></pre></div></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF#5%E8%87%AA%E5%8A%A8%E7%96%BE%E8%B7%91/>[全民写端]#5自动疾跑</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF#7%E6%B7%BB%E5%8A%A0command/>[全民写端]#7添加Command</a></div></div></div></div></div><footer><script src=/js/bootstrap.bundle.min.js></script></footer></body></html>
