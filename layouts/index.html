@@ -6,8 +6,8 @@
         {{ $url := .Permalink }}
         {{ $url = replace $url "#" "%23" }}
         <li class="list-group-item">
-            <div class="d-flex flex-column">
-                <a href="{{ $url }}">{{ .Title }}</a>
+            <div class="d-flex justify-content-between text-muted">
+                <a href="{{ $url }}" class="fs-2 text-reset text-decoration-none">{{ .Title }}</a>
                 <span>{{ .Date | time.Format ":date_long" }}</span>
             </div>
         </li>

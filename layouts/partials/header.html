@@ -1,9 +1,27 @@
-<nav class="navbar bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <img src="https://simpleicons.org/icons/github.svg" alt="Logo" width="30" height="24"
-                class="d-inline-block align-text-top">
-            {{ .Site.Params.title }}
-        </a>
+<nav class="navbar navbar-expand-lg bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="https://simpleicons.org/icons/github.svg" alt="Logo" width="30" height="24"
+        class="d-inline-block align-text-top">
+      {{ .Site.Params.title }}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        {{ $currentLink := .Permalink }}
+        {{ with .Site.GetPage "/" }}
+        {{ range .Pages }}
+        {{ if .IsPage }}
+        <li class="nav-item">
+          <a class="nav-link {{ if eq .Permalink $currentLink }} fw-bold {{ end }}" aria-current="page" href="{{ .Permalink }}">{{ .Title }}</a>
+        </li>
+        {{ end }}
+        {{ end }}
+        {{ end }}
+      </ul>
     </div>
+  </div>
 </nav>
