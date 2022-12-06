@@ -12,7 +12,7 @@ Enaium's Blog</a>
 </span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>file</span>.listFiles().isNotEmpty()) {
 </span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (f <span style=color:#66d9ef>in</span> <span style=color:#66d9ef>file</span>.listFiles()) {
 </span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> (f.name.endsWith(<span style=color:#e6db74>&#34;.jar&#34;</span>) {<span style=color:#75715e>//判断文件后缀是否为.jar
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                        <span style=color:#66d9ef>val</span> u = URLClassLoader(arrayOf&lt;URL&gt;(f.toURL()), Thread.currentThread().contextClassLoader)<span style=color:#75715e>//加载Jar
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                        <span style=color:#66d9ef>val</span> u = URLClassLoader(arrayOf&lt;URL&gt;(f.toURL()), <span style=color:#a6e22e>Thread</span>.currentThread().contextClassLoader)<span style=color:#75715e>//加载Jar
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>                        plugins.add(u.loadClass(<span style=color:#e6db74>&#34;cn.enaium.plugin.Test&#34;</span>).newInstance() <span style=color:#66d9ef>as</span> PluginInitializer)<span style=color:#75715e>//加载主类
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    }
 </span></span><span style=display:flex><span>                }
