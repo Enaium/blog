@@ -35,7 +35,7 @@ date: 2023-02-03T15:42:31+08:00
 
 ## 配置
 
-首先呢这个插件有一个配置,在Agent同级目录下放入`keep-gradle-version.properties`文件即可
+首先呢这个插件有一个配置,在Agent同级目录下的`config`文件夹里面放入`keep-gradle-version.properties`文件即可
 
 ```properties
 #默认 7.6, Gradle的版本
