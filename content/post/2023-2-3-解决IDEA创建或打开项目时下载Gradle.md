@@ -45,3 +45,5 @@ open=true
 ```
 
 这样IDEA无论在创建或打开一个项目时使用指定的版本了
+
+[视频](https://www.bilibili.com/video/BV1Ye4y1N7Km)
