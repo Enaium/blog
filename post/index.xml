@@ -6,7 +6,7 @@
 cafully-plugin-asm 这个是ASM插件,用来生成和修改字节码
 接下来下载解决这个问题的插件
 KeepGradleVersion
-配置 首先呢这个插件有一个配置,在Agent同级目录下放入keep-gradle-version.properties文件即可
+配置 首先呢这个插件有一个配置,在Agent同级目录下的config文件夹里面放入keep-gradle-version.properties文件即可
 #默认 7.6, Gradle的版本 version=7.6 #默认 false, 是否在当打开一个项目时使用指定的版本 open=true 这样IDEA无论在创建或打开一个项目时使用指定的版本了
 视频</description></item><item><title>Hugo教程#5遍历页面</title><link>https://blog.enaium.cn/post/2022-12-7-hugo%E6%95%99%E7%A8%8B#5%E9%81%8D%E5%8E%86%E9%A1%B5%E9%9D%A2/</link><pubDate>Wed, 07 Dec 2022 11:28:02 +0800</pubDate><guid>https://blog.enaium.cn/post/2022-12-7-hugo%E6%95%99%E7%A8%8B#5%E9%81%8D%E5%8E%86%E9%A1%B5%E9%9D%A2/</guid><description>引言 前面几期视频学习了一些布局和模板语法,其实Hugo的最终用法就是来写个人博客,需要遍历出所有的博客来呈现在网站的主页,Markdown文件都会创建一个页面,所以只需要把每个页面的地址遍历出来就行了
 创建页面 首先在content/post创建多个页面,以此类推创建4个页面
