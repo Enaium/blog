@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html>
-{{- partial "head.html" . -}}
+  {{- partial "head.html" . -}}
 
-<body class="d-flex flex-column justify-content-between min-vh-100">
+  <body class="d-flex flex-column justify-content-between min-vh-100">
     {{- partial "header.html" . -}}
-    <div style="flex:1">
-        {{- block "main" . }}{{- end }}
-    </div>
+    <div style="flex: 1">{{- block "main" . }}{{- end }}</div>
     {{- partial "footer.html" . -}}
-</body>
-
+  </body>
 </html>
