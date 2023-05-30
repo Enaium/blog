@@ -1,0 +1,527 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Jimmer VS MyBatisPlus查询自关联表</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog</a>
+<button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Jimmer VS MyBatisPlus查询自关联表</div><div class=card-body><div class=card-text><p>本文是对<code>Jimmer</code>文档中<a href=https://babyfish-ct.github.io/jimmer/zh/docs/jimmer-sql/query/fetcher#%E8%87%AA%E5%85%B3%E8%81%94%E9%80%92%E5%BD%92%E6%8A%93%E5%8F%96>对象抓取器-自关联递归抓取</a>部分的介绍,之后会对比<code>MyBatisPlus</code>的查询自关联表的能力。</p><blockquote><p>对象抓取器是 jimmer-sql 一个非常强大的特征，具备可媲美 GraphQL 的能力。
+即使用户不采用任何 GraphQL 相关的技术栈，也能在 SQL 查询层面得到和 GraphQL 相似的对象图查询能力。</p></blockquote><h2 id=准备数据库和实体类>准备数据库和实体类</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> tree_node(
+</span></span><span style=display:flex><span>    node_id bigint <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    name varchar(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    parent_id bigint
+</span></span><span style=display:flex><span>);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> tree_node
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>add</span> <span style=color:#66d9ef>constraint</span> pk_tree_node
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>(node_id);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> tree_node
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>add</span> <span style=color:#66d9ef>constraint</span> uq_tree_node
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>unique</span>(parent_id, name);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> tree_node
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>add</span> <span style=color:#66d9ef>constraint</span> fk_tree_node__parent
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>foreign</span> <span style=color:#66d9ef>key</span>(parent_id)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>references</span> tree_node(node_id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>insert</span> <span style=color:#66d9ef>into</span> tree_node(
+</span></span><span style=display:flex><span>    node_id, name, parent_id
+</span></span><span style=display:flex><span>) <span style=color:#66d9ef>values</span>
+</span></span><span style=display:flex><span>    (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;Home&#39;</span>, <span style=color:#66d9ef>null</span>),
+</span></span><span style=display:flex><span>        (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;Food&#39;</span>, <span style=color:#ae81ff>1</span>),
+</span></span><span style=display:flex><span>            (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;Drinks&#39;</span>, <span style=color:#ae81ff>2</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>4</span>, <span style=color:#e6db74>&#39;Coca Cola&#39;</span>, <span style=color:#ae81ff>3</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>5</span>, <span style=color:#e6db74>&#39;Fanta&#39;</span>, <span style=color:#ae81ff>3</span>),
+</span></span><span style=display:flex><span>            (<span style=color:#ae81ff>6</span>, <span style=color:#e6db74>&#39;Bread&#39;</span>, <span style=color:#ae81ff>2</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>7</span>, <span style=color:#e6db74>&#39;Baguette&#39;</span>, <span style=color:#ae81ff>6</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>8</span>, <span style=color:#e6db74>&#39;Ciabatta&#39;</span>, <span style=color:#ae81ff>6</span>),
+</span></span><span style=display:flex><span>        (<span style=color:#ae81ff>9</span>, <span style=color:#e6db74>&#39;Clothing&#39;</span>, <span style=color:#ae81ff>1</span>),
+</span></span><span style=display:flex><span>            (<span style=color:#ae81ff>10</span>, <span style=color:#e6db74>&#39;Woman&#39;</span>, <span style=color:#ae81ff>9</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>11</span>, <span style=color:#e6db74>&#39;Casual wear&#39;</span>, <span style=color:#ae81ff>10</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>12</span>, <span style=color:#e6db74>&#39;Dress&#39;</span>, <span style=color:#ae81ff>11</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>13</span>, <span style=color:#e6db74>&#39;Miniskirt&#39;</span>, <span style=color:#ae81ff>11</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>14</span>, <span style=color:#e6db74>&#39;Jeans&#39;</span>, <span style=color:#ae81ff>11</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>15</span>, <span style=color:#e6db74>&#39;Formal wear&#39;</span>, <span style=color:#ae81ff>10</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>16</span>, <span style=color:#e6db74>&#39;Suit&#39;</span>, <span style=color:#ae81ff>15</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>17</span>, <span style=color:#e6db74>&#39;Shirt&#39;</span>, <span style=color:#ae81ff>15</span>),
+</span></span><span style=display:flex><span>            (<span style=color:#ae81ff>18</span>, <span style=color:#e6db74>&#39;Man&#39;</span>, <span style=color:#ae81ff>9</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>19</span>, <span style=color:#e6db74>&#39;Casual wear&#39;</span>, <span style=color:#ae81ff>18</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>20</span>, <span style=color:#e6db74>&#39;Jacket&#39;</span>, <span style=color:#ae81ff>19</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>21</span>, <span style=color:#e6db74>&#39;Jeans&#39;</span>, <span style=color:#ae81ff>19</span>),
+</span></span><span style=display:flex><span>                (<span style=color:#ae81ff>22</span>, <span style=color:#e6db74>&#39;Formal wear&#39;</span>, <span style=color:#ae81ff>18</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>23</span>, <span style=color:#e6db74>&#39;Suit&#39;</span>, <span style=color:#ae81ff>22</span>),
+</span></span><span style=display:flex><span>                    (<span style=color:#ae81ff>24</span>, <span style=color:#e6db74>&#39;Shirt&#39;</span>, <span style=color:#ae81ff>22</span>)
+</span></span><span style=display:flex><span>;
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Entity</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>TreeNode</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Id</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Column</span><span style=color:#f92672>(</span>name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;NODE_ID&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>long</span> <span style=color:#a6e22e>id</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    String <span style=color:#a6e22e>name</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Null</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@ManyToOne</span>
+</span></span><span style=display:flex><span>    TreeNode <span style=color:#a6e22e>parent</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@OneToMany</span><span style=color:#f92672>(</span>mappedBy <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;parent&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>childNodes</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h2 id=指定查询的深度>指定查询的深度</h2><p>我们可以看到，这是一个自关联的表，每个节点都有一个父节点，也可以有多个子节点。</p><p>使用 Jimmer 的<code>Fetcher</code>功能，我们可以很容易的查询出这个表的所有节点,并且可以很容易的控制查询的深度,还有条件查询。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>TreeNodeTable node <span style=color:#f92672>=</span> TreeNodeTable<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> treeNodes <span style=color:#f92672>=</span> sqlClient
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>createQuery</span><span style=color:#f92672>(</span>node<span style=color:#f92672>)</span><span style=color:#75715e>//创建一个查询
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>node<span style=color:#f92672>.</span><span style=color:#a6e22e>parent</span><span style=color:#f92672>().</span><span style=color:#a6e22e>isNull</span><span style=color:#f92672>())</span><span style=color:#75715e>//查询条件,这里查询出所有的根节点,也就是parent_id为null的节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>select</span><span style=color:#f92672>(</span><span style=color:#75715e>//查询的字段
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        node<span style=color:#f92672>.</span><span style=color:#a6e22e>fetch</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>            TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>()</span><span style=color:#75715e>//查询节点的名称
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>childNodes</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>                    TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>(),</span><span style=color:#75715e>//查询子节点的名称
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    it <span style=color:#f92672>-&gt;</span> it<span style=color:#f92672>.</span><span style=color:#a6e22e>depth</span><span style=color:#f92672>(</span><span style=color:#ae81ff>2</span><span style=color:#f92672>)</span><span style=color:#75715e>//查询子节点的深度,这里查询2层
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+</span></span></code></pre></div><p>如果你使用<code>Kotlin</code>,那么你可以这样写</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> treeNodes = sqlClient
+</span></span><span style=display:flex><span>    .createQuery(TreeNode<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>where</span>(table.parent.isNull())<span style=color:#75715e>//查询条件,这里查询出所有的根节点,也就是parent_id为null的节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        select(
+</span></span><span style=display:flex><span>            table.fetchBy {
+</span></span><span style=display:flex><span>                allScalarFields()<span style=color:#75715e>//查询节点的所有字段
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                childNodes({
+</span></span><span style=display:flex><span>                    depth(<span style=color:#ae81ff>2</span>)<span style=color:#75715e>//查询子节点的深度,这里查询2层
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                }) {
+</span></span><span style=display:flex><span>                    allScalarFields()<span style=color:#75715e>//查询子节点的所有字段
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    .execute()
+</span></span></code></pre></div><h3 id=生成的-sql-语句>生成的 SQL 语句</h3><h4 id=第-0-层>第 0 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>is</span> <span style=color:#66d9ef>null</span>
+</span></span></code></pre></div><h4 id=第-1-层>第 1 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h4 id=第-2-层>第 2 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h3 id=查询的结果>查询的结果</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Home&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>9</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Clothing&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>18</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Man&#34;</span> },
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>10</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Woman&#34;</span> }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Food&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>6</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Bread&#34;</span> },
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>3</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Drinks&#34;</span> }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=查询无限层级的树>查询无限层级的树</h2><p>如果你想查询无限层级的树,那么你可以这样写</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>TreeNodeTable node <span style=color:#f92672>=</span> TreeNodeTable<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> treeNodes <span style=color:#f92672>=</span> sqlClient
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>createQuery</span><span style=color:#f92672>(</span>node<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>node<span style=color:#f92672>.</span><span style=color:#a6e22e>parent</span><span style=color:#f92672>().</span><span style=color:#a6e22e>isNull</span><span style=color:#f92672>())</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>select</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>        node<span style=color:#f92672>.</span><span style=color:#a6e22e>fetch</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>            TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>childNodes</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>                    TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>(),</span>
+</span></span><span style=display:flex><span>                    it <span style=color:#f92672>-&gt;</span> it<span style=color:#f92672>.</span><span style=color:#a6e22e>recursive</span><span style=color:#f92672>()</span><span style=color:#75715e>//查询无限层级的树,这里不需要指定深度,也就是把depth()方法去掉换成recursive()方法
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> treeNodes = sqlClient
+</span></span><span style=display:flex><span>    .createQuery(TreeNode<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>where</span>(table.parent.isNull())
+</span></span><span style=display:flex><span>        select(
+</span></span><span style=display:flex><span>            table.fetchBy {
+</span></span><span style=display:flex><span>                allScalarFields()
+</span></span><span style=display:flex><span>                childNodes({
+</span></span><span style=display:flex><span>                    recursive()
+</span></span><span style=display:flex><span>                }) {
+</span></span><span style=display:flex><span>                    allScalarFields()
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    .execute()
+</span></span></code></pre></div><h3 id=生成的-sql-语句-1>生成的 SQL 语句</h3><h4 id=第-0-层-1>第 0 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>is</span> <span style=color:#66d9ef>null</span>
+</span></span></code></pre></div><h4 id=第-1-层-1>第 1 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h4 id=第-2-层-1>第 2 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h4 id=第-3-层>第 3 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h4 id=第-4-层>第 4 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h4 id=第-5-层>第 5 层</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID,
+</span></span><span style=display:flex><span>    tb_1_.NODE_ID,
+</span></span><span style=display:flex><span>    tb_1_.NAME
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span> TREE_NODE <span style=color:#66d9ef>as</span> tb_1_
+</span></span><span style=display:flex><span><span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>    tb_1_.PARENT_ID <span style=color:#66d9ef>in</span> (<span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>, <span style=color:#f92672>?</span>)
+</span></span></code></pre></div><h3 id=查询结果>查询结果</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Home&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>9</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Clothing&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>18</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Man&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>19</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Casual wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>20</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jacket&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>21</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jeans&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            },
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>22</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Formal wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>24</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Shirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>23</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Suit&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>10</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Woman&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>11</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Casual wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>12</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Dress&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>14</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jeans&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>13</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Miniskirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            },
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>15</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Formal wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>17</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Shirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>16</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Suit&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Food&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>6</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Bread&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>7</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Baguette&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>8</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Ciabatta&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>3</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Drinks&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>4</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Coca Cola&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>5</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Fanta&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=每个查询的节点是否递归>每个查询的节点是否递归</h2><p>如果你想每个查询的节点是否递归,那么你可以这样写</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>TreeNodeTable node <span style=color:#f92672>=</span> TreeNodeTable<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> treeNodes <span style=color:#f92672>=</span> sqlClient
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>createQuery</span><span style=color:#f92672>(</span>node<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>node<span style=color:#f92672>.</span><span style=color:#a6e22e>parent</span><span style=color:#f92672>().</span><span style=color:#a6e22e>isNull</span><span style=color:#f92672>())</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>select</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>        node<span style=color:#f92672>.</span><span style=color:#a6e22e>fetch</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>            TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>.</span><span style=color:#a6e22e>childNodes</span><span style=color:#f92672>(</span>
+</span></span><span style=display:flex><span>                    TreeNodeFetcher<span style=color:#f92672>.</span><span style=color:#a6e22e>$</span><span style=color:#f92672>.</span><span style=color:#a6e22e>name</span><span style=color:#f92672>(),</span>
+</span></span><span style=display:flex><span>                    it <span style=color:#f92672>-&gt;</span> it<span style=color:#f92672>.</span><span style=color:#a6e22e>recursive</span><span style=color:#f92672>(</span>args <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>                        <span style=color:#f92672>!</span>args<span style=color:#f92672>.</span><span style=color:#a6e22e>getEntity</span><span style=color:#f92672>().</span><span style=color:#a6e22e>name</span><span style=color:#f92672>().</span><span style=color:#a6e22e>equals</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;Clothing&#34;</span><span style=color:#f92672>)</span><span style=color:#75715e>//每个查询的节点是否递归,这里可以根据实体的属性来判断是否递归
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>.</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> treeNodes = sqlClient
+</span></span><span style=display:flex><span>    .createQuery(TreeNode<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>where</span>(table.parent.isNull())
+</span></span><span style=display:flex><span>        select(
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            table.fetchBy {
+</span></span><span style=display:flex><span>                allScalarFields()
+</span></span><span style=display:flex><span>                childNodes({
+</span></span><span style=display:flex><span>                    recursive {
+</span></span><span style=display:flex><span>                        entity.name <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#34;Clothing&#34;</span><span style=color:#75715e>//每个查询的节点是否递归,这里可以根据实体的属性来判断是否递归
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    }
+</span></span><span style=display:flex><span>                }) {
+</span></span><span style=display:flex><span>                    allScalarFields()
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    .execute()
+</span></span></code></pre></div><p>这样就可以实现每个查询的节点是否递归了</p><h2 id=使用-mybatisplus-来查询树形结构>使用 MybatisPlus 来查询树形结构</h2><h3 id=定义实体>定义实体</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Data</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@TableName</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;tree_node&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TreeNode</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@TableId</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Long nodeId<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String name<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@TableField</span><span style=color:#f92672>(</span>exist <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> childNodes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h3 id=定义-mapper>定义 Mapper</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Mapper</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>TreeNodeMapper</span> <span style=color:#66d9ef>extends</span> BaseMapper<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h3 id=查询树形结构的-service>查询树形结构的 Service</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Service</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@AllArgsConstructor</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TreeNodeService</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> TreeNodeMapper treeNodeMapper<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getTree</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 查询根节点列表
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> rootNodes <span style=color:#f92672>=</span> selectRoots<span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 遍历根节点，递归查询每个节点的子孙节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>TreeNode rootNode <span style=color:#f92672>:</span> rootNodes<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>rootNode<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> rootNodes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>TreeNode node<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 查询子节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> children <span style=color:#f92672>=</span> selectByParentId<span style=color:#f92672>(</span>node<span style=color:#f92672>.</span><span style=color:#a6e22e>getNodeId</span><span style=color:#f92672>());</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 遍历子节点，递归查询子节点的子孙节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>TreeNode child <span style=color:#f92672>:</span> children<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>child<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        node<span style=color:#f92672>.</span><span style=color:#a6e22e>setChildNodes</span><span style=color:#f92672>(</span>children<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>selectRoots</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        QueryWrapper<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> wrapper <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> QueryWrapper<span style=color:#f92672>&lt;&gt;();</span>
+</span></span><span style=display:flex><span>        wrapper<span style=color:#f92672>.</span><span style=color:#a6e22e>isNull</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;parent_id&#34;</span><span style=color:#f92672>);</span><span style=color:#75715e>// 查询根节点，parent_id为null
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>return</span> treeNodeMapper<span style=color:#f92672>.</span><span style=color:#a6e22e>selectList</span><span style=color:#f92672>(</span>wrapper<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>selectByParentId</span><span style=color:#f92672>(</span>Long parentId<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        QueryWrapper<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> wrapper <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> QueryWrapper<span style=color:#f92672>&lt;&gt;();</span>
+</span></span><span style=display:flex><span>        wrapper<span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;parent_id&#34;</span><span style=color:#f92672>,</span> parentId<span style=color:#f92672>);</span><span style=color:#75715e>// 查询子节点，parent_id为当前节点的id
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>return</span> treeNodeMapper<span style=color:#f92672>.</span><span style=color:#a6e22e>selectList</span><span style=color:#f92672>(</span>wrapper<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h4 id=查询结果-1>查询结果</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Home&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>9</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Clothing&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>18</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Man&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>19</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Casual wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>20</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jacket&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>21</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jeans&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            },
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>22</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Formal wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>24</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Shirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>23</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Suit&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>10</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Woman&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>11</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Casual wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>12</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Dress&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>14</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Jeans&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>13</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Miniskirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            },
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>15</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Formal wear&#34;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>17</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Shirt&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>                { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>16</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Suit&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>              ]
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Food&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>6</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Bread&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>7</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Baguette&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>8</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Ciabatta&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>3</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Drinks&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>4</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Coca Cola&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>            { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>5</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Fanta&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>          ]
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=查询树形结构的-service-并指定查询深度>查询树形结构的 Service 并指定查询深度</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Service</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@AllArgsConstructor</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TreeNodeService</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> TreeNodeMapper treeNodeMapper<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getTree</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> depth<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 查询根节点列表
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> rootNodes <span style=color:#f92672>=</span> selectRoots<span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 遍历根节点，递归查询每个节点的子孙节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>TreeNode rootNode <span style=color:#f92672>:</span> rootNodes<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>rootNode<span style=color:#f92672>,</span> depth<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> rootNodes<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>TreeNode node<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> maxDepth<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> currentDepth<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>currentDepth <span style=color:#f92672>&gt;=</span> maxDepth<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e>// 当前深度达到最大深度，终止递归并返回结果
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            node<span style=color:#f92672>.</span><span style=color:#a6e22e>setChildNodes</span><span style=color:#f92672>(</span>Collections<span style=color:#f92672>.</span><span style=color:#a6e22e>emptyList</span><span style=color:#f92672>());</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 查询子节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> children <span style=color:#f92672>=</span> selectByParentId<span style=color:#f92672>(</span>node<span style=color:#f92672>.</span><span style=color:#a6e22e>getNodeId</span><span style=color:#f92672>());</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 遍历子节点，递归查询子节点的子孙节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>TreeNode child <span style=color:#f92672>:</span> children<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>getChildren</span><span style=color:#f92672>(</span>child<span style=color:#f92672>,</span> maxDepth<span style=color:#f92672>,</span> currentDepth <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        node<span style=color:#f92672>.</span><span style=color:#a6e22e>setChildNodes</span><span style=color:#f92672>(</span>children<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>selectRoots</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        QueryWrapper<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> wrapper <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> QueryWrapper<span style=color:#f92672>&lt;&gt;();</span>
+</span></span><span style=display:flex><span>        wrapper<span style=color:#f92672>.</span><span style=color:#a6e22e>isNull</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;parent_id&#34;</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> treeNodeMapper<span style=color:#f92672>.</span><span style=color:#a6e22e>selectList</span><span style=color:#f92672>(</span>wrapper<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>selectByParentId</span><span style=color:#f92672>(</span>Long parentId<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>        QueryWrapper<span style=color:#f92672>&lt;</span>TreeNode<span style=color:#f92672>&gt;</span> wrapper <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> QueryWrapper<span style=color:#f92672>&lt;&gt;();</span>
+</span></span><span style=display:flex><span>        wrapper<span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;parent_id&#34;</span><span style=color:#f92672>,</span> parentId<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> treeNodeMapper<span style=color:#f92672>.</span><span style=color:#a6e22e>selectList</span><span style=color:#f92672>(</span>wrapper<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h4 id=查询结果-2>查询结果</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Home&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>9</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Clothing&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>18</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Man&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>10</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Woman&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Food&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;childNodes&#34;</span>: [
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>6</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Bread&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] },
+</span></span><span style=display:flex><span>        { <span style=color:#f92672>&#34;nodeId&#34;</span>: <span style=color:#ae81ff>3</span>, <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;Drinks&#34;</span>, <span style=color:#f92672>&#34;childNodes&#34;</span>: [] }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=查询树形结构的-service-并指定查询深度和查询条件>查询树形结构的 Service 并指定查询深度和查询条件</h3><p>不好意思，这个功能我还没想好怎么用 MybatisPlus 实现，所以这里就不写了。</p><h2 id=总结>总结</h2><p>这么一对比，使用<code>MybatisPlus</code>的代码量确实多了不少并且很复杂,又是递归又是递归计数等等,而<code>Jimmer</code>使用了<code>Fetcher</code>就会更容易的查出所有多层节点,并且代码量也非常少</p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2022 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
