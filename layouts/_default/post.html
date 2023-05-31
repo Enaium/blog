@@ -5,10 +5,10 @@
     <div class="card-body">
       <div class="card-text">{{ .Content }}</div>
       <div class="d-flex justify-content-between">
-        {{with .PrevInSection}}
-        <a class="text-reset" href="{{.Permalink}}">{{ .Title }}</a>
-        {{end}} {{with .NextInSection}}
-        <a class="text-reset" href="{{.Permalink}}">{{ .Title }}</a>
+        {{with .PrevInSection}} {{ $url := .Permalink }} {{ $url = replace $url "#" "%23" }}
+        <a class="text-reset" href="{{ $url }}">{{ .Title }}</a>
+        {{end}} {{with .NextInSection}} {{ $url := .Permalink }} {{ $url = replace $url "#" "%23" }}
+        <a class="text-reset" href="{{ $url }}">{{ .Title }}</a>
         {{end}}
       </div>
     </div>
