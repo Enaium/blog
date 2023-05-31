@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Java革命性ORM框架Jimmer简单介绍"
 date: 2023-05-27T10:35:44+08:00
 ---

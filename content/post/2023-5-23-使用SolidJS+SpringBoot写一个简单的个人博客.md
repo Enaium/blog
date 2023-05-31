@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "使用SolidJS+SpringBoot写一个简单的个人博客"
 date: 2023-05-23T12:24:52+08:00
 ---

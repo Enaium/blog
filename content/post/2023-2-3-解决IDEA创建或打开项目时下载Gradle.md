@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "解决IDEA创建或打开项目时下载Gradle"
 date: 2023-02-03T15:42:31+08:00
 ---

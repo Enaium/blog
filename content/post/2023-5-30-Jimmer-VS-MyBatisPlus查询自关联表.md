@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Jimmer VS MyBatisPlus查询自关联表"
 date: 2023-05-30T09:48:17+08:00
 ---
