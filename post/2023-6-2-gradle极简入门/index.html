@@ -1,0 +1,240 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Gradle极简入门</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog</a>
+<button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Gradle极简入门</div><div class=card-body><div class=card-text><h2 id=什么是-gradle>什么是 Gradle</h2><p><code>Gradle</code>是一个基于<code>Apache Ant</code>和<code>Apache Maven</code>概念的项目自动化构建工具。它使用一种基于<code>Groovy</code>的特定领域语言(<code>DSL</code>)来声明项目设置，而不是传统的<code>XML</code>。<code>Gradle</code>构建脚本是用<code>Groovy</code>编写的，也可以使用<code>Kotlin</code>编写，两者都是基于<code>JVM</code>的语言，</p><h2 id=安装-gradle>安装 Gradle</h2><p>在开始之前，想必大家已经学会了<code>Java</code>或者<code>Kotlin</code>，现在大家都在使用<code>Android Studio</code>开发<code>Android</code>应用，<code>Android Studio</code>是基于<code>IntelliJ IDEA</code>开发的，但现在不从<code>Android Studio</code>的角度来讲，也不从<code>IntelliJ IDEA</code>的角度来讲，而是从<code>Gradle</code>的角度来讲，所以我们需要去官网下载<code>Gradle</code>，然后在<code>IntelliJ IDEA</code>中去使用<code>Gradle</code>。</p><p>首先去官网下载<code>Gradle</code>，下载地址：<a href=https://gradle.org/releases/>https://gradle.org/releases/</a>，之后点击最新版本中的<code>binary-only</code>，这会直接下载一个<code>zip</code>压缩包，下载完成后解压到一个目录，然后再配置环境变量到<code>bin</code>目录，这样就可以在<code>Terminal</code>中使用<code>gradle</code>命令了，因为<code>Java</code>跨平台的缘故，在其他的操作系统上配置环境变量的方式都是大相不差的，这里我就不再赘述了，如果不会配置环境变量的话，可以去网上搜索一下，这里我就不再赘述了。</p><p>配置好环境变量之后，打开<code>Terminal</code>，输入<code>gradle -v</code>，如果出现下面的信息，说明<code>Gradle</code>安装成功了。</p><pre tabindex=0><code>------------------------------------------------------------
+Gradle 8.1
+------------------------------------------------------------
+
+Build time:   2023-04-12 12:07:45 UTC
+Revision:     40ba32cde9d6daf2b92c39376d2758909dd6b813
+
+Kotlin:       1.8.10
+Groovy:       3.0.15
+Ant:          Apache Ant(TM) version 1.10.11 compiled on July 10 2021
+JVM:          17.0.6 (BellSoft 17.0.6+10-LTS)
+OS:           Windows 10 10.0 amd64
+</code></pre><h2 id=创建-hello-world-项目>创建 Hello World 项目</h2><p>创建一个文件夹，然后在文件夹中打开<code>Terminal</code>，输入<code>gradle init</code>，之后按照我的步骤来。</p><pre tabindex=0><code>Select type of project to generate:
+  1: basic
+  2: application
+  3: library
+  4: Gradle plugin
+Enter selection (default: basic) [1..4] 2 // 选择 application
+
+Select implementation language:
+  1: C++
+  2: Groovy
+  3: Java
+  4: Kotlin
+  5: Scala
+  6: Swift
+Enter selection (default: Java) [1..6] 3 // 选择 Java
+
+Generate multiple subprojects for application? (default: no) [yes, no] // 默认 no
+
+Select build script DSL:
+  1: Groovy
+  2: Kotlin
+Enter selection (default: Groovy) [1..2] 2 // 选择 Kotlin
+
+Select test framework:
+  1: JUnit 4
+  2: TestNG
+  3: Spock
+  4: JUnit Jupiter
+Enter selection (default: JUnit Jupiter) [1..4] //默认 JUnit Jupiter
+
+Project name (default: gradle_learn):
+Source package (default: gradle_learn): cn.enaium
+Enter target version of Java (min. 7) (default: 17): // 默认 17
+Generate build using new APIs and behavior (some features may change in the next minor release)? (default: no) [yes, no] // 默认 no
+
+
+&gt; Task :init
+Get more help with your project: https://docs.gradle.org/8.1/samples/sample_building_java_applications.html
+
+BUILD SUCCESSFUL in 32s // 构建成功
+2 actionable tasks: 2 executed
+</code></pre><p>如果最后出现<code>BUILD SUCCESSFUL</code>，说明项目创建成功了，现在我们来看一下项目的结构，这里先简单的介绍一下，后面会详细的介绍。</p><pre tabindex=0><code>│  .gitattributes // git 配置文件
+│  .gitignore // git 配置文件
+│  gradlew // gradle 脚本,当你没有安装 gradle 的时候，可以使用这个脚本来构建项目
+│  gradlew.bat // windows 下的 gradlew 脚本
+│  settings.gradle.kts // gradle 的settings配置文件
+│  
+├─.gradle
+├─app // 项目模块,这是一个子项目
+│  │  build.gradle.kts // app 模块的 build 配置文件
+│  │  
+│  └─src // app 模块的源码
+│      ├─main
+│      │  ├─java
+│      │  │  └─cn
+│      │  │      └─enaium
+│      │  │              App.java
+│      │  │              
+│      │  └─resources
+│      └─test
+│          ├─java
+│          │  └─cn
+│          │      └─enaium
+│          │              AppTest.java
+│          │              
+│          └─resources
+└─gradle // gradle 的wrapper配置文件,当你没有安装 gradle 的时候，脚本会自使用wrapper来下载 gradle
+    └─wrapper
+            gradle-wrapper.jar
+            gradle-wrapper.properties // gradle 的wrapper配置文件,下载的 gradle 版本，下载地址等
+</code></pre><p>运行项目，打开<code>Terminal</code>，输入<code>gradle run</code>，如果出现下面的信息，说明项目运行成功了，这里项目中自带了一个<code>Guava</code>库和<code>JUnit</code>库，如果嫌下载太慢的话，可以自己去<code>build.gradle.kts</code>中删除掉。</p><pre tabindex=0><code>&gt; Task :app:run                                                                                                         
+Hello World!
+
+BUILD SUCCESSFUL in 10s
+2 actionable tasks: 2 executed
+</code></pre><p>删掉</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>dependencies {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Use JUnit Jupiter for testing.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    testImplementation(<span style=color:#e6db74>&#34;org.junit.jupiter:junit-jupiter:5.9.1&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// This dependency is used by the application.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    implementation(<span style=color:#e6db74>&#34;com.google.guava:guava:31.1-jre&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.named&lt;Test&gt;(<span style=color:#e6db74>&#34;test&#34;</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Use JUnit Platform for unit tests.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    useJUnitPlatform()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=项目结构>项目结构</h2><h3 id=settingsgradlekts>settings.gradle.kts</h3><p><code>settings.gradle.kts</code>是<code>Gradle</code>的配置文件，这个文件中配置了项目的名称和模块，这里的模块指的是<code>app</code>模块，这个模块是<code>Gradle</code>默认创建的，如果你想创建其他的模块，可以在这里配置。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>//这个是gradle创建时自带的一个插件，这个插件可以自动下载jdk
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>plugins {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Apply the foojay-resolver plugin to allow automatic download of JDKs
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    id(<span style=color:#e6db74>&#34;org.gradle.toolchains.foojay-resolver-convention&#34;</span>) version <span style=color:#e6db74>&#34;0.4.0&#34;</span><span style=color:#75715e>//插件的ID和版本，这里的插件会从Gradle的插件仓库中下载，结构和Maven仓库类似
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>rootProject.name = <span style=color:#e6db74>&#34;gradle_learn&#34;</span><span style=color:#75715e>//项目名称
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>include(<span style=color:#e6db74>&#34;app&#34;</span>)<span style=color:#75715e>//包含的模块
+</span></span></span></code></pre></div><h3 id=buildgradlekts>build.gradle.kts</h3><p>在大部分情况下，都没有使用<code>App</code>最为子模块(除了<code>Android</code>项目)，也就是直接从其中的<code>src</code>开始，项目结构如下。</p><pre tabindex=0><code>│  build.gradle.kts // build 配置文件
+│  settings.gradle.kts// settings 配置文件
+│  
+├─gradle
+│  └─wrapper
+│          gradle-wrapper.jar
+│          gradle-wrapper.properties
+│          
+└─src // 源码
+    ├─main
+    └─test
+</code></pre><p>但基本上都差不多，因为每个项目中都会有<code>build.gradle.kts</code>，这就是当前项目的<code>build</code>配置文件，这个文件中配置了项目的<code>build</code>信息，比如项目的<code>group</code>，<code>version</code>，<code>dependencies</code>等。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>plugins {<span style=color:#75715e>// 当前项目使用的插件，这里如果有子项目，子项目也会使用这里的插件
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// Apply the application plugin to add support for building a CLI application in Java.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    application <span style=color:#75715e>// 应用插件，这个插件会自动创建一个`run`任务，用于运行项目
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>repositories {<span style=color:#75715e>// 项目的仓库，这里的仓库是用于下载依赖的，这里的仓库是`Maven`仓库，也就是`Maven Central`
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// Use Maven Central for resolving dependencies.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    mavenCentral()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencies {<span style=color:#75715e>// 项目的依赖，这里的依赖是`Maven`仓库中的依赖，这里的依赖是`JUnit`和`Guava`
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// Use JUnit Jupiter for testing.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    testImplementation(<span style=color:#e6db74>&#34;org.junit.jupiter:junit-jupiter:5.9.1&#34;</span>)<span style=color:#75715e>// 测试依赖，testImplementation是测试依赖，implementation是应用依赖
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// This dependency is used by the application.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    implementation(<span style=color:#e6db74>&#34;com.google.guava:guava:31.1-jre&#34;</span>)<span style=color:#75715e>// 应用依赖，其中的字符串是`Maven`仓库中的依赖，使用分号分割，第一个是`group`，第二个是`name`，第三个是`version`
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Apply a specific Java toolchain to ease working on different environments.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>java {<span style=color:#75715e>// java的配置，这里配置了java的版本
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    toolchain {
+</span></span><span style=display:flex><span>        languageVersion.<span style=color:#66d9ef>set</span>(<span style=color:#a6e22e>JavaLanguageVersion</span>.of(<span style=color:#ae81ff>17</span>))<span style=color:#75715e>// java的版本
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.named&lt;Test&gt;(<span style=color:#e6db74>&#34;test&#34;</span>) {<span style=color:#75715e>// test任务的配置，这里配置了test任务的使用的测试框架
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// Use JUnit Platform for unit tests.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    useJUnitPlatform()<span style=color:#75715e>// 使用JUnit作为测试框架
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>//Application插件的配置，这里配置了mainClass，也就是项目的入口类
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>application {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Define the main class for the application.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    mainClass.<span style=color:#66d9ef>set</span>(<span style=color:#e6db74>&#34;cn.enaium.App&#34;</span>)<span style=color:#75715e>// 入口类
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></code></pre></div><h3 id=gradle-wrapperproperties>gradle-wrapper.properties</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-properties data-lang=properties><span style=display:flex><span><span style=color:#75715e># distributionBase 就是下载的gradle的存放位置，如果环境中没有配置GRADLE_USER_HOME，那么就会使用默认的位置，也就是当前用户的目录下</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>distributionBase</span><span style=color:#f92672>=</span><span style=color:#e6db74>GRADLE_USER_HOME</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># distributionPath 就是下载的gradle的存放位置，也就是distributionBase的目录中的wrapper/dists目录</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>distributionPath</span><span style=color:#f92672>=</span><span style=color:#e6db74>wrapper/dists</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># distributionUrl 就是下载的gradle的地址，这里的地址是gradle的官方地址，也就是https://services.gradle.org/distributions/gradle-8.1-bin.zip</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>distributionUrl</span><span style=color:#f92672>=</span><span style=color:#e6db74>https\://services.gradle.org/distributions/gradle-8.1-bin.zip</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># networkTimeout 就是下载gradle的超时时间，单位是毫秒</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>networkTimeout</span><span style=color:#f92672>=</span><span style=color:#e6db74>10000</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 和上面同理</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>zipStoreBase</span><span style=color:#f92672>=</span><span style=color:#e6db74>GRADLE_USER_HOME</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>zipStorePath</span><span style=color:#f92672>=</span><span style=color:#e6db74>wrapper/dists</span>
+</span></span></code></pre></div><h3 id=src>src</h3><pre tabindex=0><code>├─main
+│  ├─java
+│  │  └─cn
+│  │      └─enaium
+│  └─resources
+└─test
+    ├─java
+    │  └─cn
+    │      └─enaium
+    └─resources
+</code></pre><p>这个目录下的内容就是项目的源码了，这里的<code>main</code>和<code>test</code>两个都是源码目录，只不过<code>main</code>是项目的源码，<code>test</code>是项目的测试源码，这两个目录下都有<code>java</code>和<code>resources</code>两个目录，<code>java</code>目录下存放的是<code>java</code>源码，<code>resources</code>目录下存放的是资源文件，比如<code>properties</code>文件，<code>xml</code>文件等，这里都是固定的格式，如果你想要自定义，可以在<code>build.gradle.kts</code>中配置，但本篇文章是简单的入门，所以就不介绍了。</p><h2 id=命令任务>命令/任务</h2><h3 id=gradle-tasks>gradle tasks</h3><p>这个命令是查看当前项目的所有任务，这个命令会列出所有的任务，包括<code>Gradle</code>自带的任务，比如<code>build</code>，<code>clean</code>等，还有<code>App</code>模块自带的任务，比如<code>run</code>，<code>test</code>等，这里只介绍一下比较常用的命令，其他的命令可以自行查看。</p><pre tabindex=0><code>&gt; Task :tasks //任务的名称，这里是tasks，也就是说查看所有任务也是一个任务                                                                                                           
+
+------------------------------------------------------------
+Tasks runnable from root project &#39;gradle_learn&#39;
+------------------------------------------------------------
+
+Application tasks// 任务的Group，这里是Application，这个是Application插件自带的任务
+-----------------
+run - Runs this project as a JVM application // 任务的名称
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+build - Assembles and tests this project.
+buildDependents - Assembles and tests this project and all projects that depend on it.
+buildNeeded - Assembles and tests this project and all projects it depends on.
+classes - Assembles main classes.
+clean - Deletes the build directory.
+jar - Assembles a jar archive containing the main classes.
+testClasses - Assembles test classes.
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build.
+wrapper - Generates Gradle wrapper files.
+
+Distribution tasks
+------------------
+assembleDist - Assembles the main distributions
+distTar - Bundles the project as a distribution.
+distZip - Bundles the project as a distribution.
+installDist - Installs the project as a distribution as-is.
+
+Documentation tasks
+-------------------
+javadoc - Generates Javadoc API documentation for the main source code.
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project &#39;gradle_learn&#39;.
+dependencies - Displays all dependencies declared in root project &#39;gradle_learn&#39;.
+dependencyInsight - Displays the insight into a specific dependency in root project &#39;gradle_learn&#39;.
+help - Displays a help message.
+javaToolchains - Displays the detected java toolchains.
+kotlinDslAccessorsReport - Prints the Kotlin code for accessing the currently available project extensions and conventions.
+outgoingVariants - Displays the outgoing variants of root project &#39;gradle_learn&#39;.
+projects - Displays the sub-projects of root project &#39;gradle_learn&#39;.
+properties - Displays the properties of root project &#39;gradle_learn&#39;.
+resolvableConfigurations - Displays the configurations that can be resolved in root project &#39;gradle_learn&#39;.
+tasks - Displays the tasks runnable from root project &#39;gradle_learn&#39; (some of the displayed tasks may belong to subprojects).
+
+Verification tasks
+------------------
+check - Runs all checks.
+test - Runs the test suite.
+
+To see all tasks and more detail, run gradle tasks --all
+
+To see more detail about a task, run gradle help --task &lt;task&gt;
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed
+</code></pre><h3 id=gradle-run>gradle run</h3><p>这个命令是<code>Application</code>插件专有的命令，这个命令会运行<code>Application</code>插件配置的入口类，这里的入口类是<code>cn.enaium.App</code>，也就是<code>build.gradle.kts</code>中配置的<code>mainClass</code>。</p><h3 id=gradle-init>gradle init</h3><p>也就是本篇文章最开始所用到的任务，这个任务会生成一个<code>gradle</code>项目。</p><h3 id=gradle-build>gradle build</h3><p>构建项目，这个命令会执行<code>build.gradle.kts</code>中配置的<code>build</code>任务，这个命令会生成一个<code>build</code>目录，这个目录下存放的是构建后的文件，比如<code>jar</code>文件，<code>class</code>文件等。</p><h2 id=intellij-idea>IntelliJ IDEA</h2><h3 id=导入项目>导入项目</h3><p>打开<code>IntelliJ IDEA</code>，点击<code>Open</code>，选择项目所在的目录，点击<code>OK</code>，这样就可以导入项目了。</p><h3 id=配置gradle>配置Gradle</h3><p>基本上大多数的项目都不需要特意配置<code>Gradle</code>，打开设置中<code>File</code>> <code>Settings</code>> <code>Build, Execution, Deployment</code>> <code>Build Tools</code>> <code>Gradle</code>，这里就是关于<code>Gradle</code>的配置，其中<code>Gradle JVM</code>是<code>Gradle</code>的<code>JVM</code>配置，也就是运行<code>Gradle</code>的<code>JDK</code>版本，之后打开<code>IntelliJ IDEA</code>右侧的<code>Gradle</code>，可以看到所有的项目模块还有所有任务，并且项目中所用到的依赖都会在这里显示出来，如果你想要运行某个任务，可以在这里双击，也可以在<code>Terminal</code>中输入<code>gradle &lt;task></code>，比如<code>gradle run</code>，这样就可以运行<code>run</code>任务了。</p><h2 id=总结>总结</h2><p>本篇文章主要介绍了<code>Gradle</code>的基本使用，包括<code>Gradle</code>的安装，<code>Gradle</code>的目录结构，<code>Gradle</code>的命令/任务，<code>IntelliJ IDEA</code>的配置，<code>Gradle</code>的配置，<code>Gradle</code>的使用，<code>Gradle</code>的插件，<code>Gradle</code>的依赖，<code>Gradle</code>的<code>JVM</code>配置，但是本篇文章只是简单的介绍了一下，如果想要深入了解，可以查看<a href=https://docs.gradle.org/current/userguide/userguide.html>Gradle官方文档</a>。</p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2022 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
