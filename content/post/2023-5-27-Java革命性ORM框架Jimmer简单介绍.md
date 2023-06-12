@@ -227,7 +227,7 @@ private static final Fetcher<BookStore> WITH_ALL_BOOKS_FETCHER =
                     //...省略
 ```
 
-接着看戏生成的`SQL`代码和查询结果,这里照样省略其他查询只关注标量字段和计算属性
+接着看下生成的`SQL`代码和查询结果,这里照样省略其他查询只关注标量字段和计算属性
 
 ```sql
 select

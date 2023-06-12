@@ -81,7 +81,7 @@ public interface TreeNode {
 
 我们可以看到，这是一个自关联的表，每个节点都有一个父节点，也可以有多个子节点。
 
-使用 Jimmer 的`Fetcher`功能，我们可以很容易的查询出这个表的所有节点,并且可以很容易的控制查询的深度,还有条件查询。
+使用 Jimmer 的`Fetcher`功能，我们可以很容易地查询出这个表的所有节点,并且可以很容易的控制查询的深度,还有条件查询。
 
 ```java
 TreeNodeTable node = TreeNodeTable.$;
