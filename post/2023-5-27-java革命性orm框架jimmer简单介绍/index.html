@@ -95,7 +95,7 @@ Enaium's Blog</a>
 </span></span><span style=display:flex><span>                    <span style=color:#f92672>.</span><span style=color:#a6e22e>allScalarFields</span><span style=color:#f92672>()</span>
 </span></span><span style=display:flex><span>                    <span style=color:#f92672>.</span><span style=color:#a6e22e>avgPrice</span><span style=color:#f92672>()</span><span style=color:#75715e>//这里就是查询计算属性
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    <span style=color:#75715e>//...省略
-</span></span></span></code></pre></div><p>接着看戏生成的<code>SQL</code>代码和查询结果,这里照样省略其他查询只关注标量字段和计算属性</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span></span></code></pre></div><p>接着看下生成的<code>SQL</code>代码和查询结果,这里照样省略其他查询只关注标量字段和计算属性</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
 </span></span><span style=display:flex><span>    tb_1_.ID,
 </span></span><span style=display:flex><span>    coalesce(
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>avg</span>(tb_2_.PRICE), <span style=color:#f92672>?</span> <span style=color:#75715e>/* 0 */</span>
