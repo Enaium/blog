@@ -78,7 +78,8 @@ date: 2024-01-09T21:50:27+08:00
                 "fabricloader": ">=0.15.0",
 ```
 
-- 修改`modid.mixins.json`为`awesome.mixins.json`。
+- 修改`modid.mixins.json`为`awesome.mixins.json`
+- 修改`assets/modid/icon.png`为`assets/awesome/icon.png`
 - 修改`ExampleMod.java`中的日志名称
 
 ```diff
