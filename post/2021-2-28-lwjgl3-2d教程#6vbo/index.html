@@ -1,80 +1,81 @@
-<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>[LWJGL3 2D教程]#6VBO</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
-Enaium's Blog</a>
-<button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
-<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>[LWJGL3 2D教程]#6VBO</div><div class=card-body><div class=card-text><p>创建一个<code>Model</code>类</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Model</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> draw_count<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> v_id<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> t_id<span style=color:#f92672>;</span>
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>[LWJGL3 2D教程]#6VBO</title>
+<link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>[LWJGL3 2D教程]#6VBO</div><div class=card-body><div class=card-text><p>创建一个<code>Model</code>类</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Model</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> draw_count;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> v_id;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> t_id;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Model</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> vertices<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> tex_coords<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        draw_count <span style=color:#f92672>=</span> vertices<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>3</span><span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Model</span>(<span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> vertices, <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> tex_coords) {
+</span></span><span style=display:flex><span>        draw_count <span style=color:#f92672>=</span> vertices.<span style=color:#a6e22e>length</span> <span style=color:#f92672>/</span> 3;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        v_id <span style=color:#f92672>=</span> glGenBuffers<span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> v_id<span style=color:#f92672>);</span><span style=color:#75715e>//绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glBufferData<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> createFloatBuffer<span style=color:#f92672>(</span>vertices<span style=color:#f92672>),</span> GL_STATIC_DRAW<span style=color:#f92672>);</span><span style=color:#75715e>//静态绘制
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        t_id <span style=color:#f92672>=</span> glGenBuffers<span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> t_id<span style=color:#f92672>);</span><span style=color:#75715e>//绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glBufferData<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> createFloatBuffer<span style=color:#f92672>(</span>tex_coords<span style=color:#f92672>),</span> GL_STATIC_DRAW<span style=color:#f92672>);</span><span style=color:#75715e>//静态绘制
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>        v_id <span style=color:#f92672>=</span> glGenBuffers();
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, v_id);<span style=color:#75715e>//绑定</span>
+</span></span><span style=display:flex><span>        glBufferData(GL_ARRAY_BUFFER, createFloatBuffer(vertices), GL_STATIC_DRAW);<span style=color:#75715e>//静态绘制</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>);</span><span style=color:#75715e>//取消绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>render</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        glEnableClientState<span style=color:#f92672>(</span>GL_VERTEX_ARRAY<span style=color:#f92672>);</span><span style=color:#75715e>//启用顶点数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glEnableClientState<span style=color:#f92672>(</span>GL_TEXTURE_COORD_ARRAY<span style=color:#f92672>);</span><span style=color:#75715e>//启用坐标数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> v_id<span style=color:#f92672>);</span><span style=color:#75715e>//绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glVertexPointer<span style=color:#f92672>(</span><span style=color:#ae81ff>3</span><span style=color:#f92672>,</span> GL_FLOAT<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>);</span><span style=color:#75715e>//顶点
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> t_id<span style=color:#f92672>);</span><span style=color:#75715e>//绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glTexCoordPointer<span style=color:#f92672>(</span><span style=color:#ae81ff>2</span><span style=color:#f92672>,</span> GL_FLOAT<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>);</span><span style=color:#75715e>// 坐标
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        glDrawArrays<span style=color:#f92672>(</span>GL_TRIANGLES<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> draw_count<span style=color:#f92672>);</span><span style=color:#75715e>//绘制数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        glBindBuffer<span style=color:#f92672>(</span>GL_ARRAY_BUFFER<span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>);</span><span style=color:#75715e>//取消绑定
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>        glDisableClientState<span style=color:#f92672>(</span>GL_VERTEX_ARRAY<span style=color:#f92672>);</span><span style=color:#75715e>//禁用顶点数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        glDisableClientState<span style=color:#f92672>(</span>GL_TEXTURE_COORD_ARRAY<span style=color:#f92672>);</span><span style=color:#75715e>//禁用坐标数组
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>        t_id <span style=color:#f92672>=</span> glGenBuffers();
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, t_id);<span style=color:#75715e>//绑定</span>
+</span></span><span style=display:flex><span>        glBufferData(GL_ARRAY_BUFFER, createFloatBuffer(tex_coords), GL_STATIC_DRAW);<span style=color:#75715e>//静态绘制</span>
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//创建缓冲区
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>private</span> FloatBuffer <span style=color:#a6e22e>createFloatBuffer</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> data<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        FloatBuffer buffer <span style=color:#f92672>=</span> BufferUtils<span style=color:#f92672>.</span><span style=color:#a6e22e>createFloatBuffer</span><span style=color:#f92672>(</span>data<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, 0);<span style=color:#75715e>//取消绑定</span>
+</span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        buffer<span style=color:#f92672>.</span><span style=color:#a6e22e>put</span><span style=color:#f92672>(</span>data<span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>render</span>() {
+</span></span><span style=display:flex><span>        glEnableClientState(GL_VERTEX_ARRAY);<span style=color:#75715e>//启用顶点数组</span>
+</span></span><span style=display:flex><span>        glEnableClientState(GL_TEXTURE_COORD_ARRAY);<span style=color:#75715e>//启用坐标数组</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        buffer<span style=color:#f92672>.</span><span style=color:#a6e22e>flip</span><span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> buffer<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>Texture texture <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Texture<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;/hero.png&#34;</span><span style=color:#f92672>);</span>
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, v_id);<span style=color:#75715e>//绑定</span>
+</span></span><span style=display:flex><span>        glVertexPointer(3, GL_FLOAT, 0, 0);<span style=color:#75715e>//顶点</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>//2个三角
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> vertices <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>float</span><span style=color:#f92672>[]{</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//左上
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//右上
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//右下
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//右下
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//左下
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0.5f</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span><span style=color:#75715e>//左上
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#f92672>};</span>
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, t_id);<span style=color:#75715e>//绑定</span>
+</span></span><span style=display:flex><span>        glTexCoordPointer(2, GL_FLOAT, 0, 0);<span style=color:#75715e>// 坐标</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> textures <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>float</span><span style=color:#f92672>[]{</span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>        glDrawArrays(GL_TRIANGLES, 0, draw_count);<span style=color:#75715e>//绘制数组</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>                <span style=color:#ae81ff>0</span><span style=color:#f92672>,</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>};</span>
+</span></span><span style=display:flex><span>        glBindBuffer(GL_ARRAY_BUFFER, 0);<span style=color:#75715e>//取消绑定</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        Model model <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Model<span style=color:#f92672>(</span>vertices<span style=color:#f92672>,</span> textures<span style=color:#f92672>);</span>
-</span></span></code></pre></div><p>绘制</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>texture<span style=color:#f92672>.</span><span style=color:#a6e22e>bind</span><span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>model<span style=color:#f92672>.</span><span style=color:#a6e22e>render</span><span style=color:#f92672>();</span>
+</span></span><span style=display:flex><span>        glDisableClientState(GL_VERTEX_ARRAY);<span style=color:#75715e>//禁用顶点数组</span>
+</span></span><span style=display:flex><span>        glDisableClientState(GL_TEXTURE_COORD_ARRAY);<span style=color:#75715e>//禁用坐标数组</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//创建缓冲区</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> FloatBuffer <span style=color:#a6e22e>createFloatBuffer</span>(<span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> data) {
+</span></span><span style=display:flex><span>        FloatBuffer buffer <span style=color:#f92672>=</span> BufferUtils.<span style=color:#a6e22e>createFloatBuffer</span>(data.<span style=color:#a6e22e>length</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        buffer.<span style=color:#a6e22e>put</span>(data);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        buffer.<span style=color:#a6e22e>flip</span>();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> buffer;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>Texture texture <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Texture(<span style=color:#e6db74>&#34;/hero.png&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//2个三角</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> vertices <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span>{
+</span></span><span style=display:flex><span>                <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, 0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//左上</span>
+</span></span><span style=display:flex><span>                0.<span style=color:#a6e22e>5f</span>, 0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//右上</span>
+</span></span><span style=display:flex><span>                0.<span style=color:#a6e22e>5f</span>, <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//右下</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                0.<span style=color:#a6e22e>5f</span>, <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//右下</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//左下</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>-</span>0.<span style=color:#a6e22e>5f</span>, 0.<span style=color:#a6e22e>5f</span>, 0,<span style=color:#75715e>//左上</span>
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span> textures <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>float</span><span style=color:#f92672>[]</span>{
+</span></span><span style=display:flex><span>                0, 0,
+</span></span><span style=display:flex><span>                1, 0,
+</span></span><span style=display:flex><span>                1, 1,
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                1, 1,
+</span></span><span style=display:flex><span>                0, 1,
+</span></span><span style=display:flex><span>                0, 0
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        Model model <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Model(vertices, textures);
+</span></span></code></pre></div><p>绘制</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>texture.<span style=color:#a6e22e>bind</span>();
+</span></span><span style=display:flex><span>model.<span style=color:#a6e22e>render</span>();
 </span></span></code></pre></div></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2021-2-23-%E8%87%AA%E5%86%99%E4%B8%80%E4%B8%AAeventbus/>自写一个EventBus</a>
-<a class=text-reset href=https://blog.enaium.cn/post/2021-3-2-asm%E6%95%99%E7%A8%8B%231%E5%88%86%E6%9E%90%E7%B1%BB/>[ASM教程]#1分析类</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2022 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
+<a class=text-reset href=https://blog.enaium.cn/post/2021-3-2-asm%E6%95%99%E7%A8%8B%231%E5%88%86%E6%9E%90%E7%B1%BB/>[ASM教程]#1分析类</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>

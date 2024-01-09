@@ -1,67 +1,68 @@
-<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Client 教程 #3 添加自定义Command</title><link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
-Enaium's Blog</a>
-<button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
-<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Client 教程 #3 添加自定义Command</div><div class=card-body><div class=card-text><h2 id=添加chatutils>添加ChatUtils</h2><p>先在<code>cn.enaium.excel</code>里新建一个包<code>utils</code></p><p>然后创建一个<code>ChatUtils.java</code>类</p><p>内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.excel.utils<span style=color:#f92672>;</span>
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Client 教程 #3 添加自定义Command</title>
+<link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Client 教程 #3 添加自定义Command</div><div class=card-body><div class=card-text><h2 id=添加chatutils>添加ChatUtils</h2><p>先在<code>cn.enaium.excel</code>里新建一个包<code>utils</code></p><p>然后创建一个<code>ChatUtils.java</code>类</p><p>内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.excel.utils;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.MinecraftClient<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.gui.hud.ChatHud<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.text.LiteralText<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.text.Text<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.MinecraftClient;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.gui.hud.ChatHud;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.text.LiteralText;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.text.Text;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#75715e>/**
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @Author Enaium
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @Date 2020/1/5 12:54
 </span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ChatUtils</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ChatUtils</span> {
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>component</span><span style=color:#f92672>(</span>Text component<span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        ChatHud chatHud <span style=color:#f92672>=</span> MinecraftClient<span style=color:#f92672>.</span><span style=color:#a6e22e>getInstance</span><span style=color:#f92672>().</span><span style=color:#a6e22e>inGameHud</span><span style=color:#f92672>.</span><span style=color:#a6e22e>getChatHud</span><span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>        LiteralText prefix <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> LiteralText<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;\u00a7c[\u00a76Excel\u00a7c]\u00a7r &#34;</span><span style=color:#f92672>);</span>
-</span></span><span style=display:flex><span>        chatHud<span style=color:#f92672>.</span><span style=color:#a6e22e>addMessage</span><span style=color:#f92672>(</span>prefix<span style=color:#f92672>.</span><span style=color:#a6e22e>append</span><span style=color:#f92672>(</span>component<span style=color:#f92672>));</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>component</span>(Text component)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        ChatHud chatHud <span style=color:#f92672>=</span> MinecraftClient.<span style=color:#a6e22e>getInstance</span>().<span style=color:#a6e22e>inGameHud</span>.<span style=color:#a6e22e>getChatHud</span>();
+</span></span><span style=display:flex><span>        LiteralText prefix <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> LiteralText(<span style=color:#e6db74>&#34;\u00a7c[\u00a76Excel\u00a7c]\u00a7r &#34;</span>);
+</span></span><span style=display:flex><span>        chatHud.<span style=color:#a6e22e>addMessage</span>(prefix.<span style=color:#a6e22e>append</span>(component));
+</span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>message</span><span style=color:#f92672>(</span>String message<span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        component<span style=color:#f92672>(</span><span style=color:#66d9ef>new</span> LiteralText<span style=color:#f92672>(</span>message<span style=color:#f92672>));</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><h2 id=添加自定义command>添加自定义command</h2><p>先在<code>cn.enaium.excel</code>里新建一个包<code>command</code></p><p>下载<a href=/assets/fabricclient/command.zip><img src=/assets/icon/zip.png alt=command.zip></a></p><p>将压缩包里面的内容全部放进去</p><p><img src=/assets/fabricclient/2020-1-5-1.png alt=a></p><p>然后再<code>Excel.java</code>里添加<code>command</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>    <span style=color:#66d9ef>public</span> CommandManager commandManager<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>message</span>(String message)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        component(<span style=color:#66d9ef>new</span> LiteralText(message));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=添加自定义command>添加自定义command</h2><p>先在<code>cn.enaium.excel</code>里新建一个包<code>command</code></p><p>下载<a href=/assets/fabricclient/command.zip><img src=/assets/icon/zip.png alt=command.zip></a></p><p>将压缩包里面的内容全部放进去</p><p><img src=/assets/fabricclient/2020-1-5-1.png alt=a></p><p>然后再<code>Excel.java</code>里添加<code>command</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>    <span style=color:#66d9ef>public</span> CommandManager commandManager;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>onEnable</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        commandManager <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> CommandManager<span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>        commandManager<span style=color:#f92672>.</span><span style=color:#a6e22e>loadCommands</span><span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
-</span></span></code></pre></div><h2 id=注入mixin>注入Mixin</h2><p>在mixin包里面新建一个<code>ClientPlayerEntityMixin.java</code>类</p><p>内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.excel.mixin<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>onEnable</span>() {
+</span></span><span style=display:flex><span>        commandManager <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> CommandManager();
+</span></span><span style=display:flex><span>        commandManager.<span style=color:#a6e22e>loadCommands</span>();
+</span></span><span style=display:flex><span>    }
+</span></span></code></pre></div><h2 id=注入mixin>注入Mixin</h2><p>在mixin包里面新建一个<code>ClientPlayerEntityMixin.java</code>类</p><p>内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> cn.enaium.excel.mixin;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cn.enaium.excel.Excel<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.network.ClientPlayerEntity<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.Mixin<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.At<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.Inject<span style=color:#f92672>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.callback.CallbackInfo<span style=color:#f92672>;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cn.enaium.excel.Excel;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.client.network.ClientPlayerEntity;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.Mixin;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.At;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.Inject;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#75715e>/**
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @Author Enaium
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @Date 2020/1/5 13:27
 </span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@Mixin</span><span style=color:#f92672>(</span>ClientPlayerEntity<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ClientPlayerEntityMixin</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Mixin</span>(ClientPlayerEntity.<span style=color:#a6e22e>class</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ClientPlayerEntityMixin</span> {
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Inject</span><span style=color:#f92672>(</span>at <span style=color:#f92672>=</span> <span style=color:#a6e22e>@At</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;HEAD&#34;</span><span style=color:#f92672>),</span>
-</span></span><span style=display:flex><span>            method <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sendChatMessage(Ljava/lang/String;)V&#34;</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>            cancellable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>onSendChatMessage</span><span style=color:#f92672>(</span>String message<span style=color:#f92672>,</span> CallbackInfo info<span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>Excel<span style=color:#f92672>.</span><span style=color:#a6e22e>INSTANCE</span><span style=color:#f92672>.</span><span style=color:#a6e22e>commandManager</span><span style=color:#f92672>.</span><span style=color:#a6e22e>processCommand</span><span style=color:#f92672>(</span>message<span style=color:#f92672>))</span>
-</span></span><span style=display:flex><span>            info<span style=color:#f92672>.</span><span style=color:#a6e22e>cancel</span><span style=color:#f92672>();</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Inject</span>(at <span style=color:#f92672>=</span> <span style=color:#a6e22e>@At</span>(<span style=color:#e6db74>&#34;HEAD&#34;</span>),
+</span></span><span style=display:flex><span>            method <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sendChatMessage(Ljava/lang/String;)V&#34;</span>,
+</span></span><span style=display:flex><span>            cancellable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>onSendChatMessage</span>(String message, CallbackInfo info)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (Excel.<span style=color:#a6e22e>INSTANCE</span>.<span style=color:#a6e22e>commandManager</span>.<span style=color:#a6e22e>processCommand</span>(message))
+</span></span><span style=display:flex><span>            info.<span style=color:#a6e22e>cancel</span>();
+</span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>添加到<code>mixin.json</code>里面</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>  <span style=color:#e6db74>&#34;client&#34;</span><span style=color:#f92672>:</span> <span style=color:#f92672>[</span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ExampleMixin&#34;</span><span style=color:#f92672>,</span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;MinecraftClientMixin&#34;</span><span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>添加到<code>mixin.json</code>里面</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>  <span style=color:#e6db74>&#34;client&#34;</span>: <span style=color:#f92672>[</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ExampleMixin&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;MinecraftClientMixin&#34;</span>,
 </span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ClientPlayerEntityMixin&#34;</span>
-</span></span><span style=display:flex><span>  <span style=color:#f92672>],</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>]</span>,
 </span></span></code></pre></div><p>启动</p><p><img src=/assets/fabricclient/2020-1-5-2.png alt=a></p><p>输入<code>-</code>或者<code>-help</code> 输入返回的信息不会在控制台出现</p><p>完成</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%232-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%92%8C%E7%9B%AE%E5%BD%95%E5%90%8D%E6%B7%BB%E5%8A%A0run%E5%92%8Cstop/>Minecraft Fabric Client 教程 #2 修改文件和目录名添加run和stop</a>
-<a class=text-reset href=https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/>解决IDEA Push rejected问题</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2022 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
+<a class=text-reset href=https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/>解决IDEA Push rejected问题</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
