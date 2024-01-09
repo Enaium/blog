@@ -57,7 +57,6 @@ Enaium's Blog
 </span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.entity.player.PlayerEntity;
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.item.Item;
 </span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.item.ItemStack;
-</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.sound.SoundEvent;
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.sound.SoundEvents;
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.util.Hand;
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.util.TypedActionResult;
@@ -84,4 +83,20 @@ Enaium's Blog
 </span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+    public static final Item END_HEART =
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            Registry.register(Registries.ITEM, new Identifier(&#34;awesome&#34;, &#34;end_heart&#34;),
 </span></span></span><span style=display:flex><span><span style=color:#a6e22e>+                    new EndHeartItem(new FabricItemSettings()));
-</span></span></span></code></pre></div></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
+</span></span></span></code></pre></div><h2 id=添加物品组>添加物品组</h2><h3 id=直接添加>直接添加</h3><p>其实我们可以直接添加到现有的物品组里，比如<code>ItemGroups.BUILDING_BLOCKS</code>，这样就会出现在方块物品组里。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>ItemGroupEvents.<span style=color:#a6e22e>modifyEntriesEvent</span>(ItemGroups.<span style=color:#a6e22e>BUILDING_BLOCKS</span>).<span style=color:#a6e22e>register</span>(content <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>    	content.<span style=color:#a6e22e>add</span>(END_HEART);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//添加到钻石块后面</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//content.addAfter(Items.DIAMOND_BLOCK, END_HEART);</span>
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></div><h3 id=创建物品组>创建物品组</h3><p>和注册物品一样，我们需要一个<code>ItemGroup</code>对象，然后在<code>ExampleMod</code>类中调用<code>Registry.register</code>方法来注册物品组。</p><p>使用<code>FabricItemGroup.builder()</code>来创建一个<code>FabricItemGroup.Builder</code>对象，然后调用<code>icon</code>方法来设置物品组的图标，<code>displayName</code>方法来设置物品组的名字，<code>entries</code>方法来设置物品组的物品。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff><span style=display:flex><span>     public static final Item END_HEART =
+</span></span><span style=display:flex><span>             Registry.register(Registries.ITEM, new Identifier(&#34;awesome&#34;, &#34;end_heart&#34;),
+</span></span><span style=display:flex><span>                     new EndHeartItem(new FabricItemSettings()));
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+    private static final ItemGroup ITEM_GROUP = Registry.register(Registries.ITEM_GROUP, new Identifier(&#34;awesome&#34;, &#34;item_group&#34;), FabricItemGroup.builder()
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            .icon(() -&gt; new ItemStack(END_HEART))
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            .displayName(Text.translatable(&#34;itemGroup.awesome.item_group&#34;))
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            .entries((context, entries) -&gt; entries.add(END_HEART))
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            .build());
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public void onInitialize() {
+</span></span></code></pre></div><p><img src=/assets/fabric2024/4-3.png alt=4-3></p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
