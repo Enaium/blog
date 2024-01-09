@@ -1,0 +1,123 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric模组开发教程#2 了解模组和项目</title>
+<link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric模组开发教程#2 了解模组和项目</div><div class=card-body><div class=card-text><h2 id=前言>前言</h2><p>在上篇文章中我们已经完成了开发环境的配置，这篇文章我们将会介绍一下模组和项目的基本信息。</p><h2 id=目录结构>目录结构</h2><p>点击左上角的<code>Project</code>按钮，可以看到项目的目录结构，之后我们展开<code>src</code>中的所有文件夹。</p><pre tabindex=0><code>├─client
+│  ├─java
+│  │  └─com
+│  │      └─example
+│  │          │  ExampleModClient.java
+│  │          │
+│  │          └─mixin
+│  │              └─client
+│  │                      ExampleClientMixin.java
+│  │
+│  └─resources
+│          modid.client.mixins.json
+│
+└─main
+    ├─java
+    │  └─com
+    │      └─example
+    │          │  ExampleMod.java
+    │          │
+    │          └─mixin
+    │                  ExampleMixin.java
+    │
+    └─resources
+        │  fabric.mod.json
+        │  modid.mixins.json
+        │
+        └─assets
+            └─modid
+                    icon.png
+</code></pre><p>我们可以看到<code>src</code>下有两个文件夹，<code>client</code>和<code>main</code>，这两个文件夹分别对应客户端和任意端，他们分别有自己的<code>java</code>和<code>resources</code>文件夹，<code>java</code>文件夹中存放的是 Java 代码，<code>resources</code>文件夹中存放的是资源文件。</p><h2 id=模组信息>模组信息</h2><p>在<code>main</code>文件夹下的<code>resources</code>文件夹中有一个<code>fabric.mod.json</code>文件，这个文件就是模组的信息文件，我们可以在这里修改模组的信息。</p><pre tabindex=0><code>{
+	&#34;schemaVersion&#34;: 1,
+	&#34;id&#34;: &#34;modid&#34;,
+	&#34;version&#34;: &#34;${version}&#34;,
+	&#34;name&#34;: &#34;Example mod&#34;,
+	&#34;description&#34;: &#34;This is an example description! Tell everyone what your mod is about!&#34;,
+	&#34;authors&#34;: [
+		&#34;Me!&#34;
+	],
+	&#34;contact&#34;: {
+		&#34;homepage&#34;: &#34;https://fabricmc.net/&#34;,
+		&#34;sources&#34;: &#34;https://github.com/FabricMC/fabric-example-mod&#34;
+	},
+	&#34;license&#34;: &#34;CC0-1.0&#34;,
+	&#34;icon&#34;: &#34;assets/modid/icon.png&#34;,
+	&#34;environment&#34;: &#34;*&#34;,
+	&#34;entrypoints&#34;: {
+		&#34;main&#34;: [
+			&#34;com.example.ExampleMod&#34;
+		],
+		&#34;client&#34;: [
+			&#34;com.example.ExampleModClient&#34;
+		]
+	},
+	&#34;mixins&#34;: [
+		&#34;modid.mixins.json&#34;,
+		{
+			&#34;config&#34;: &#34;modid.client.mixins.json&#34;,
+			&#34;environment&#34;: &#34;client&#34;
+		}
+	],
+	&#34;depends&#34;: {
+		&#34;fabricloader&#34;: &#34;&gt;=0.15.0&#34;,
+		&#34;minecraft&#34;: &#34;~1.20.4&#34;,
+		&#34;java&#34;: &#34;&gt;=17&#34;,
+		&#34;fabric-api&#34;: &#34;*&#34;
+	},
+	&#34;suggests&#34;: {
+		&#34;another-mod&#34;: &#34;*&#34;
+	}
+}
+</code></pre><h3 id=基本信息>基本信息</h3><p>模组的基本信息包括<code>id</code>、<code>version</code>、<code>name</code>、<code>description</code>、<code>authors</code>、<code>contact</code>、<code>license</code>、<code>icon</code>。</p><ul><li><code>id</code>：模组的 ID，必须是小写字母不能包含空格和特殊字符。</li><li><code>version</code>：模组的版本。</li><li><code>name</code>：模组的名称。</li><li><code>description</code>：模组的描述。</li><li><code>authors</code>：模组的作者。</li><li><code>contact</code>：模组的联系方式，包括<code>homepage</code>和<code>sources</code>。</li><li><code>license</code>：模组的开源协议。</li><li><code>icon</code>：模组的图标，路径为<code>assets/modid/icon.png</code>，<code>modid</code>为模组的 ID。</li></ul><h3 id=其他信息>其他信息</h3><ul><li><code>environment</code>：模组的运行环境，<code>*</code>代表所有环境，<code>client</code>代表客户端，<code>server</code>代表任意端。</li><li><code>entrypoints</code>：模组的入口点，<code>main</code>代表任意端，<code>client</code>代表客户端，它们的值为入口点的类名。</li><li><code>mixins</code>：模组的<code>mixin</code>配置，这里先不介绍，后面会详细介绍。</li><li><code>depends</code>：模组的依赖，<code>fabricloader</code>代表 Fabric 的版本，<code>minecraft</code>代表 Minecraft 的版本，<code>java</code>代表 Java 的版本，<code>fabric-api</code>代表 Fabric API 的版本。</li><li><code>suggests</code>：模组的建议依赖，和<code>depends</code>一样，只是这里的依赖不是必须的。</li></ul><h2 id=项目信息>项目信息</h2><p>上面已经介绍了模组的信息，这里我们来介绍一下项目的信息，这里由于太过复杂，所以只介绍关键的部分。</p><h3 id=buildgradle><code>build.gradle</code></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span><span style=color:#75715e>//模组版本
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>version <span style=color:#f92672>=</span> project<span style=color:#f92672>.</span><span style=color:#a6e22e>mod_version</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>//模组的包名
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>group <span style=color:#f92672>=</span> project<span style=color:#f92672>.</span><span style=color:#a6e22e>maven_group</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>loom <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//分开不同环境的源码
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    splitEnvironmentSourceSets<span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	mods <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>		<span style=color:#75715e>//模组ID
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#e6db74>&#34;modid&#34;</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>			<span style=color:#75715e>//任意端
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>			sourceSet sourceSets<span style=color:#f92672>.</span><span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span>			<span style=color:#75715e>//客户端
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>			sourceSet sourceSets<span style=color:#f92672>.</span><span style=color:#a6e22e>client</span>
+</span></span><span style=display:flex><span>		<span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>	<span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>dependencies <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//游戏
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	minecraft <span style=color:#e6db74>&#34;com.mojang:minecraft:${project.minecraft_version}&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//混淆映射
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	mappings <span style=color:#e6db74>&#34;net.fabricmc:yarn:${project.yarn_mappings}:v2&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//模组加载器
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	modImplementation <span style=color:#e6db74>&#34;net.fabricmc:fabric-loader:${project.loader_version}&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//模组API
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	modImplementation <span style=color:#e6db74>&#34;net.fabricmc.fabric-api:fabric-api:${project.fabric_version}&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-groovy data-lang=groovy><span style=display:flex><span>java <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//打包源码
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	withSourcesJar<span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//源文件的JDK版本
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	sourceCompatibility <span style=color:#f92672>=</span> JavaVersion<span style=color:#f92672>.</span><span style=color:#a6e22e>VERSION_17</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>//编译产物的JDK版本
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	targetCompatibility <span style=color:#f92672>=</span> JavaVersion<span style=color:#f92672>.</span><span style=color:#a6e22e>VERSION_17</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><h3 id=gradleproperties><code>gradle.properties</code></h3><p>这个是构建脚本的配置文件，里面包含了很多变量，上面介绍的<code>build.gradle</code>中的变量都是从这里读取的。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-properties data-lang=properties><span style=display:flex><span><span style=color:#a6e22e>minecraft_version</span><span style=color:#f92672>=</span><span style=color:#e6db74>1.20.4</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>yarn_mappings</span><span style=color:#f92672>=</span><span style=color:#e6db74>1.20.4+build.1</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>loader_version</span><span style=color:#f92672>=</span><span style=color:#e6db74>0.15.0</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>mod_version</span><span style=color:#f92672>=</span><span style=color:#e6db74>1.0.0</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>maven_group</span><span style=color:#f92672>=</span><span style=color:#e6db74>com.example</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>archives_base_name</span><span style=color:#f92672>=</span><span style=color:#e6db74>modid</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>fabric_version</span><span style=color:#f92672>=</span><span style=color:#e6db74>0.91.1+1.20.4</span>
+</span></span></code></pre></div></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
