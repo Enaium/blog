@@ -111,7 +111,6 @@ package com.example.items;
 +import net.minecraft.entity.player.PlayerEntity;
  import net.minecraft.item.Item;
 +import net.minecraft.item.ItemStack;
-+import net.minecraft.sound.SoundEvent;
 +import net.minecraft.sound.SoundEvents;
 +import net.minecraft.util.Hand;
 +import net.minecraft.util.TypedActionResult;
@@ -148,3 +147,39 @@ PlayerEntity对象的`playSound`方法可以播放音效，第一个参数是音
 +            Registry.register(Registries.ITEM, new Identifier("awesome", "end_heart"),
 +                    new EndHeartItem(new FabricItemSettings()));
 ```
+
+## 添加物品组
+
+### 直接添加
+
+其实我们可以直接添加到现有的物品组里，比如`ItemGroups.BUILDING_BLOCKS`，这样就会出现在方块物品组里。
+
+```java
+ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(content -> {
+    	content.add(END_HEART);
+        //添加到钻石块后面
+        //content.addAfter(Items.DIAMOND_BLOCK, END_HEART);
+});
+```
+
+### 创建物品组
+
+和注册物品一样，我们需要一个`ItemGroup`对象，然后在`ExampleMod`类中调用`Registry.register`方法来注册物品组。
+
+使用`FabricItemGroup.builder()`来创建一个`FabricItemGroup.Builder`对象，然后调用`icon`方法来设置物品组的图标，`displayName`方法来设置物品组的名字，`entries`方法来设置物品组的物品。
+
+```diff
+     public static final Item END_HEART =
+             Registry.register(Registries.ITEM, new Identifier("awesome", "end_heart"),
+                     new EndHeartItem(new FabricItemSettings()));
++    private static final ItemGroup ITEM_GROUP = Registry.register(Registries.ITEM_GROUP, new Identifier("awesome", "item_group"), FabricItemGroup.builder()
++            .icon(() -> new ItemStack(END_HEART))
++            .displayName(Text.translatable("itemGroup.awesome.item_group"))
++            .entries((context, entries) -> entries.add(END_HEART))
++            .build());
+
+     @Override
+     public void onInitialize() {
+```
+
+![4-3](/assets/fabric2024/4-3.png)
