@@ -1,5 +1,5 @@
 ---
-title: "2024 1 9 Minecraft Fabric模组开发教程#8 添加武器"
+title: "Minecraft Fabric模组开发教程#8 添加武器"
 date: 2024-01-10T16:00:24+08:00
 ---
 
