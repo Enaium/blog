@@ -63,9 +63,9 @@ public enum EndArmorMaterial implements ArmorMaterial {
 之后仿照`net.minecraft.item.ArmorMaterials`枚举类完成这些方法。
 
 ```diff
++import com.example.ExampleMod;
  import net.minecraft.item.ArmorItem;
  import net.minecraft.item.ArmorMaterial;
-+import net.minecraft.item.Items;
  import net.minecraft.recipe.Ingredient;
  import net.minecraft.sound.SoundEvent;
 +import net.minecraft.sound.SoundEvents;
@@ -81,7 +81,7 @@ public enum EndArmorMaterial implements ArmorMaterial {
 +        map.put(ArmorItem.Type.LEGGINGS, 2);
 +        map.put(ArmorItem.Type.CHESTPLATE, 3);
 +        map.put(ArmorItem.Type.HELMET, 1);
-+    }), 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> Ingredient.ofItems(Items.LEATHER));
++    }), 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> Ingredient.ofItems(ExampleMod.END_HEART));
 +
 +    private static final EnumMap<ArmorItem.Type, Integer> BASE_DURABILITY = Util.make(new EnumMap<>(ArmorItem.Type.class), (map) -> {
 +        map.put(ArmorItem.Type.BOOTS, 13);
