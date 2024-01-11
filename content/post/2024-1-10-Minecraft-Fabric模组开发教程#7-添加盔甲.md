@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#7 添加盔甲"
 date: 2024-01-10T14:53:56+08:00
 ---

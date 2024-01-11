@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#2 了解模组和项目"
 date: 2024-01-09T21:18:20+08:00
 ---

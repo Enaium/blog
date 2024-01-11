@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#6 多语言 合成表 提示"
 date: 2024-01-10T02:49:55+08:00
 ---

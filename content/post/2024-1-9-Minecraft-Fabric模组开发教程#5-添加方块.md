@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#5 添加方块"
 date: 2024-01-10T01:53:12+08:00
 ---

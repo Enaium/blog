@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#3 编写简单的代码"
 date: 2024-01-09T21:50:27+08:00
 ---

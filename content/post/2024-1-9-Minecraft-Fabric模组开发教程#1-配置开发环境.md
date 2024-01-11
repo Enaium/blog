@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#1 配置开发环境"
 date: 2024-01-09T18:17:05+08:00
 ---
