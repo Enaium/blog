@@ -47,6 +47,6 @@ public static final FireBoomEnchantment FIRE_BOOM = Registry.register(Registries
 
 附魔师在在原材料的最后
 
-![9-1](/assets/faric2024/9-1.png)
+![9-1](/assets/fabric2024/9-1.png)
 
-![9-2](/assets/faric2024/9-2.png)
+![9-2](/assets/fabric2024/9-2.png)
