@@ -124,7 +124,7 @@ public enum EndToolMaterial implements ToolMaterial {
 
 ### 武器物品
 
-![end_sword](/assets/fabric2024/end)
+![end_sword](/assets/fabric2024/end_sword.png)
 
 ```json
 {
