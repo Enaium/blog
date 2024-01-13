@@ -164,9 +164,9 @@ public enum EndArmorMaterial implements ArmorMaterial {
 ## 注册盔甲物品
 
 ```java
-public static final Item END_HELMET = Registry.register(Registries.ITEM, newIdentifier("awesome", "end_helmet"), new ArmorItem(EndArmorMaterial.END,ArmorItem.Type.HELMET, new FabricItemSettings()));
-public static final Item END_CHESTPLATE = Registry.register(Registries.ITEM,new Identifier("awesome", "end_chestplate"), new ArmorItem(EndArmorMaterialEND, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
-public static final Item END_LEGGINGS = Registry.register(Registries.ITEM,new Identifier("awesome", "end_leggings"), new ArmorItem(EndArmorMaterialEND, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
+public static final Item END_HELMET = Registry.register(Registries.ITEM, new Identifier("awesome", "end_helmet"), new ArmorItem(EndArmorMaterial.END,ArmorItem.Type.HELMET, new FabricItemSettings()));
+public static final Item END_CHESTPLATE = Registry.register(Registries.ITEM,new Identifier("awesome", "end_chestplate"), new ArmorItem(EndArmorMaterial.END, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
+public static final Item END_LEGGINGS = Registry.register(Registries.ITEM,new Identifier("awesome", "end_leggings"), new ArmorItem(EndArmorMaterial.END, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
 public static final Item END_BOOTS = Registry.register(Registries.ITEM, new Identifier("awesome", "end_boots"), new ArmorItem(EndArmorMaterial.END, ArmorItem.Type.BOOTS, new FabricItemSettings()));
 ```
 
