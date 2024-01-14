@@ -276,3 +276,6 @@ public static final RegistryKey<PlacedFeature> END_HEART_ORE_PLACED_FEATURE = Re
 ```java
 BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Feature.UNDERGROUND_ORES, END_HEART_ORE_PLACED_FEATURE);
 ```
+
+![10-5](/assets/fabric2024/10-5.png)
+![10-6](/assets/fabric2024/10-6.png)
