@@ -5,7 +5,7 @@ date: 2024-01-15T15:45:08+08:00
 
 ## 前言
 
-本教程将会教你如何添加流体，什么是流体呢？就是像水、岩浆这样的东西，我们将会添加一种新的流体。
+本教程将会教你如何添加流体，什么是流体呢？就是像水、熔岩这样的东西，我们将会添加一种新的流体。
 
 ## 创建流体
 
@@ -143,7 +143,7 @@ public static class Still extends EndWaterFluid {
 ```java
 public static final FlowableFluid STILL_END_WATER = Registry.register(Registries.FLUID, new Identifier("awesome", "end_water"), new EndWaterFluid.Still());
 public static final FlowableFluid FLOWING_END_WATER = Registry.register(Registries.FLUID, new Identifier("awesome", "flowing_end_water"), new EndWaterFluid.Flowing());
-public static final Item END_WATER_BUCKET = Registry.register(Registries.ITEM, new Identifier("awesome", "end_water_bucket"), new BucketItem(STILL_END_WATER, new FabricItemSettings().recipeRemainder(Items.BUCKET).maxCount(0)));
+public static final Item END_WATER_BUCKET = Registry.register(Registries.ITEM, new Identifier("awesome", "end_water_bucket"), new BucketItem(STILL_END_WATER, new FabricItemSettings().recipeRemainder(Items.BUCKET).maxCount(1)));
 public static final Block END_WATER = Registry.register(Registries.BLOCK, new Identifier("awesome", "end_water"), new FluidBlock(STILL_END_WATER, FabricBlockSettings.copy(Blocks.WATER)));
 ```
 
