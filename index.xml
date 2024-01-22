@@ -475,6 +475,4 @@ END_HEART //要注册的物品的变量名
 发现是一个紫色方块 而且 名字是 item.endarmor.end_heart 紫色方块是没用纹理(材质)
 接下来要添加纹理 需要的文件</description></item><item><title>Minecraft Fabric 教程 #1 开发环境配置</title><link>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-#1-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sun, 15 Dec 2019 17:50:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-#1-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>需要 JAVA8+ 和 IDE
 首先下载github 上的项目 fabric-example-mod 有以下方法:
-用IDE 克隆 库 直接导入IDE 运行bat ./gradlew genSources然后导入IDE 推荐使用IDEA</description></item><item><title>解决Github release 被墙问题</title><link>https://blog.enaium.cn/post/2019-12-14-%E8%A7%A3%E5%86%B3github-release-%E8%A2%AB%E5%A2%99%E9%97%AE%E9%A2%98/</link><pubDate>Sat, 14 Dec 2019 19:46:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-14-%E8%A7%A3%E5%86%B3github-release-%E8%A2%AB%E5%A2%99%E9%97%AE%E9%A2%98/</guid><description>添加hosts52.216.186.155 github-production-release-asset-2e65be.s3.amazonaws.com就好了
-Windwos 位置 c:\windows\system32\drivers\etc\
-Linux 位置 /etc</description></item></channel></rss>
+用IDE 克隆 库 直接导入IDE 运行bat ./gradlew genSources然后导入IDE 推荐使用IDEA</description></item></channel></rss>
