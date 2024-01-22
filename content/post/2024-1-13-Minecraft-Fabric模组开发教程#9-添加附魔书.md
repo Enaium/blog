@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#9 添加附魔书"
 date: 2024-01-13T15:17:47+08:00
 ---

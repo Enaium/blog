@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#11 添加流体"
 date: 2024-01-15T15:45:08+08:00
 ---

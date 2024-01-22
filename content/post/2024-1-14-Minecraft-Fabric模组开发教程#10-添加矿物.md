@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Minecraft Fabric模组开发教程#10 添加矿物"
 date: 2024-01-14T14:44:09+08:00
 ---
