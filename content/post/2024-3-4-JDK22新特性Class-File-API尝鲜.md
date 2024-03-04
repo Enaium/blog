@@ -179,7 +179,7 @@ final Method setName = o.getClass().getMethod("setName", String.class);
 setName.invoke(o, "This is enaium's class file");
 System.out.println(getName.invoke(o));
 ```
-这里我们使用`URLClassLoader`加载刚才创建好的`class`文件，之后我吗就可以使用反射调用里面的方法了。
+这里我们使用`URLClassLoader`加载刚才创建好的`class`文件，之后我们就可以使用反射调用里面的方法了。
 
 ## 总结
 
