@@ -4,7 +4,7 @@ title: "Java革命性ORM框架Jimmer简单介绍"
 date: 2023-05-27T10:35:44+08:00
 ---
 
-本文使用`Jimmer`的[官方用例](https://github.com/babyfish-ct/jimmer/tree/main/example/java/jimmer-sql)来介绍`Jimmer`的使用方法,`Jimmer`同时支持`Java`和`Kotlin`,本文使用`Java`来介绍,实际上`Kotlin`比`Java`使用起来更方便,这里为了方便大家理解,使用`Java`来介绍,本篇文章只是对`Jimmer`的一个简单介绍,更多的内容请参考[官方文档](https://babyfish-ct.github.io/jimmer/)
+本文使用`Jimmer`的[官方用例](https://github.com/babyfish-ct/jimmer/tree/main/example/java/jimmer-sql)来介绍`Jimmer`的使用方法,`Jimmer`同时支持`Java`和`Kotlin`,本文使用`Java`来介绍,实际上`Kotlin`比`Java`使用起来更方便,这里为了方便大家理解,使用`Java`来介绍,本篇文章只是对`Jimmer`的一个简单介绍,更多的内容请参考[官方文档](https://babyfish-ct.gitee.io/jimmer-doc/)
 
 这里开始就不从实体类开始介绍了,这里简单的把用到的三张表之间的关系介绍一下:
 
@@ -466,4 +466,4 @@ public List<@FetchBy("SIMPLE_FETCHER") BookStore> findSimpleStores() {
 
 这里使用了`FetchBy`注解,其中的值就是当前类的`Fetcher`常量,如果`Fetcher`不在当前的类下,可以指定注解中的`ownerType`来指定`Fetcher`所在的类.
 
-好了,`Jimmer`的基本使用就介绍完了,如果想了解更多的使用方法,可以查看`Jimmer`的[文档](https://babyfish-ct.github.io/jimmer/),也可以观看`Jimmer`作者录制的视频教程[Jimmer0.6x: 前后端免对接+spring starter，让REST媲美GraphQL](https://www.bilibili.com/video/BV1wD4y1L7xr),[Jimmer-0.7之计算属性](https://www.bilibili.com/video/BV1NM4y1C78H)
+好了,`Jimmer`的基本使用就介绍完了,如果想了解更多的使用方法,可以查看`Jimmer`的[文档](https://babyfish-ct.gitee.io/jimmer-doc/),也可以观看`Jimmer`作者录制的视频教程[Jimmer0.6x: 前后端免对接+spring starter，让REST媲美GraphQL](https://www.bilibili.com/video/BV1wD4y1L7xr),[Jimmer-0.7之计算属性](https://www.bilibili.com/video/BV1NM4y1C78H)
