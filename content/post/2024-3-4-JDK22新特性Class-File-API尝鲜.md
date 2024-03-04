@@ -10,7 +10,7 @@ date: 2024-03-04T12:14:18+08:00
 
 ## 安装
 
-我们先需要在[jdk.java.net](https://jdk.java.net/22/)JDK22，之后再`IntelliJ IDEA`中开启`22(Preview)`，之后就可以使用`Class-File API`了。
+我们先需要在[jdk.java.net](https://jdk.java.net/22/)下载JDK22，之后再`IntelliJ IDEA`中开启`22(Preview)`，之后就可以使用`Class-File API`了。
 
 ## 使用
 
