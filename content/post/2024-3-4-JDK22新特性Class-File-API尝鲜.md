@@ -145,10 +145,12 @@ methodBuilder.withCode(codeBuilder -> {
 现在我们可以创建一个方法用来获取刚才创建好的字段。
 
 ```java
-methodBuilder.withCode(codeBuilder -> {
-    codeBuilder.aload(codeBuilder.receiverSlot());
-    codeBuilder.getfield(ClassDesc.of(name), "name", ClassDesc.ofDescriptor("Ljava/lang/String;"));
-    codeBuilder.areturn();
+classBuilder.withMethod("getName", MethodTypeDesc.ofDescriptor("()Ljava/lang/String;"), ClassFile.ACC_PUBLIC, methodBuilder -> {
+    methodBuilder.withCode(codeBuilder -> {
+        codeBuilder.aload(codeBuilder.receiverSlot());
+        codeBuilder.getfield(ClassDesc.of(name), "name", ClassDesc.ofDescriptor("Ljava/lang/String;"));
+        codeBuilder.areturn();
+    });
 });
 ```
 
