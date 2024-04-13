@@ -1,0 +1,427 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>使用Kotlin进行全栈开发 Ktor+Kotlin/JS</title>
+<link rel=stylesheet href=/css/bootstrap.min.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=https://simpleicons.org/icons/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>About</a></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>使用Kotlin进行全栈开发 Ktor+Kotlin/JS</div><div class=card-body><div class=card-text><h2 id=前言>前言</h2><p>本文将介绍如何使用 Kotlin 全栈技术栈<code>Ktor</code>+<code>Kotlin/JS</code>来构建一个简单的全栈应用。</p><h2 id=准备工作>准备工作</h2><h3 id=创建项目>创建项目</h3><p>首先我们需要创建一个<code>Kotlin</code>项目，之后继续在其中新建两个子项目，一个是<code>Kotlin/JS</code>项目，另一个是<code>Ktor</code>项目。</p><h3 id=添加依赖和插件>添加依赖和插件</h3><p>这里我使用了<code>Gradle</code>的<code>calalog</code>，在项目中的<code>gradle</code>目录下创建一个<code>libs.versions.toml</code>文件，用于管理项目中的依赖版本。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span>[<span style=color:#a6e22e>versions</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>jimmer</span> = <span style=color:#e6db74>&#34;0.0.9&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin</span> = <span style=color:#e6db74>&#34;1.9.23&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor</span> = <span style=color:#e6db74>&#34;2.3.9&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ksp</span> = <span style=color:#e6db74>&#34;1.9.23-1.0.20&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>coroutines</span> = <span style=color:#e6db74>&#34;1.8.0&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>serialization</span> = <span style=color:#e6db74>&#34;1.6.3&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>wrappers</span> = <span style=color:#e6db74>&#34;1.0.0-pre.729&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>logback</span> = <span style=color:#e6db74>&#34;1.5.3&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>postgresql</span> = <span style=color:#e6db74>&#34;42.7.3&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>hikari</span> = <span style=color:#e6db74>&#34;5.1.0&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>koin</span> = <span style=color:#e6db74>&#34;3.5.6&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>libraries</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-server-core</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-server-core-jvm&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-server-netty</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-server-netty-jvm&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-server-cors</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-server-cors&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-server-content-negotiation</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-server-content-negotiation&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-serialization-jsackson</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-serialization-jackson&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor-server-config-yaml</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.ktor:ktor-server-config-yaml&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>logback</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;ch.qos.logback:logback-classic&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;logback&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlinx-coroutines-core</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlinx:kotlinx-coroutines-core&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;coroutines&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlinx-serialization-json</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlinx:kotlinx-serialization-json&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;serialization&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-wrappers</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;wrappers&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-wrappers-react</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin-wrappers:kotlin-react&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-wrappers-react-dom</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin-wrappers:kotlin-react-dom&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-wrappers-emotion</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin-wrappers:kotlin-emotion&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>postgresql</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.postgresql:postgresql&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;postgresql&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>hikari</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;com.zaxxer:HikariCP&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;hikari&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>koin</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;io.insert-koin:koin-ktor&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;koin&#34;</span> }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>bundles</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>api</span> = [<span style=color:#e6db74>&#39;ktor-server-core&#39;</span>, <span style=color:#e6db74>&#39;ktor-server-netty&#39;</span>, <span style=color:#e6db74>&#39;ktor-server-cors&#39;</span>, <span style=color:#e6db74>&#39;ktor-server-content-negotiation&#39;</span>, <span style=color:#e6db74>&#39;ktor-serialization-jsackson&#39;</span>, <span style=color:#e6db74>&#39;ktor-server-config-yaml&#39;</span>, <span style=color:#e6db74>&#39;logback&#39;</span>, <span style=color:#e6db74>&#39;postgresql&#39;</span>, <span style=color:#e6db74>&#39;hikari&#39;</span>, <span style=color:#e6db74>&#39;koin&#39;</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>app</span> = [<span style=color:#e6db74>&#39;kotlinx-coroutines-core&#39;</span>, <span style=color:#e6db74>&#39;kotlinx-serialization-json&#39;</span>, <span style=color:#e6db74>&#39;kotlin-wrappers-react&#39;</span>, <span style=color:#e6db74>&#39;kotlin-wrappers-react-dom&#39;</span>, <span style=color:#e6db74>&#39;kotlin-wrappers-emotion&#39;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>plugins</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>jimmer</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;cn.enaium.jimmer.gradle&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;jimmer&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-jvm</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin.jvm&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;kotlin&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-multiplatform</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin.multiplatform&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;kotlin&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ktor</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;io.ktor.plugin&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ktor&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ksp</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;com.google.devtools.ksp&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;ksp&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-plugin-serialization</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin.plugin.serialization&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;kotlin&#34;</span> }
+</span></span></code></pre></div><p>之后我们分别在前端和后端项目中的<code>build.gradle.kts</code>文件中引入这些依赖和插件。</p><h4 id=后端>后端</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>plugins {
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.jvm)
+</span></span><span style=display:flex><span>    alias(libs.plugins.ktor)
+</span></span><span style=display:flex><span>    alias(libs.plugins.ksp)
+</span></span><span style=display:flex><span>    alias(libs.plugins.jimmer)
+</span></span><span style=display:flex><span>    application
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>group = <span style=color:#e6db74>&#34;cn.enaium&#34;</span>
+</span></span><span style=display:flex><span>version = <span style=color:#e6db74>&#34;1.0.0&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>application {
+</span></span><span style=display:flex><span>    mainClass = <span style=color:#e6db74>&#34;cn.enaium.TodoKt&#34;</span>
+</span></span><span style=display:flex><span>    applicationDefaultJvmArgs = listOf(<span style=color:#e6db74>&#34;-Dio.ktor.development=</span><span style=color:#e6db74>${extra[&#34;development&#34;] ?: &#34;false&#34;}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencies {
+</span></span><span style=display:flex><span>    implementation(libs.bundles.api)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里有一个配置，添加到<code>gradle.properties</code>文件中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-properties data-lang=properties><span style=display:flex><span><span style=color:#a6e22e>development</span><span style=color:#f92672>=</span><span style=color:#e6db74>true</span>
+</span></span></code></pre></div><h4 id=前端>前端</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>plugins {
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.multiplatform)
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.plugin.serialization)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>kotlin {
+</span></span><span style=display:flex><span>    js {
+</span></span><span style=display:flex><span>        browser {
+</span></span><span style=display:flex><span>            commonWebpackConfig {
+</span></span><span style=display:flex><span>                cssSupport {
+</span></span><span style=display:flex><span>                    enabled.<span style=color:#66d9ef>set</span>(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        binaries.executable()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    sourceSets {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> jsMain <span style=color:#66d9ef>by</span> getting {
+</span></span><span style=display:flex><span>            dependencies {
+</span></span><span style=display:flex><span>                implementation(project.dependencies.enforcedPlatform(libs.kotlin.wrappers))
+</span></span><span style=display:flex><span>                implementation(libs.bundles.app)
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里需要将前端项目的<code>src/main</code>改为<code>src/jsMain</code>。</p><p>最后进入到根项目的<code>settings.gradle.kts</code>文件中添加以下代码。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>pluginManagement {
+</span></span><span style=display:flex><span>    repositories {
+</span></span><span style=display:flex><span>        maven(<span style=color:#e6db74>&#34;https://maven.pkg.jetbrains.space/public/p/compose/dev&#34;</span>)
+</span></span><span style=display:flex><span>        google()
+</span></span><span style=display:flex><span>        gradlePluginPortal()
+</span></span><span style=display:flex><span>        mavenCentral()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencyResolutionManagement {
+</span></span><span style=display:flex><span>    repositories {
+</span></span><span style=display:flex><span>        google()
+</span></span><span style=display:flex><span>        mavenCentral()
+</span></span><span style=display:flex><span>        maven(<span style=color:#e6db74>&#34;https://maven.pkg.jetbrains.space/public/p/compose/dev&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>还有<code>gradle.build.kts</code>文件中只保留以下代码。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>plugins {
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.jvm) apply <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.multiplatform) apply <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>好了，现在我们的项目已经准备好了。</p><h2 id=编写代码>编写代码</h2><h3 id=后端-1>后端</h3><p>首先创建配置文件<code>src/main/resources/application.yml</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>ktor</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>deployment</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>port</span>: <span style=color:#ae81ff>8080</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>application</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>modules</span>:
+</span></span><span style=display:flex><span>      - <span style=color:#ae81ff>cn.enaium.TodoKt.module</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>jdbc</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>driver</span>: <span style=color:#e6db74>&#39;org.postgresql.Driver&#39;</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>url</span>: <span style=color:#e6db74>&#39;jdbc:postgresql://localhost:5432/postgres?currentSchema=todo&#39;</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>username</span>: <span style=color:#e6db74>&#39;postgres&#39;</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>password</span>: <span style=color:#e6db74>&#39;postgres&#39;</span>
+</span></span></code></pre></div><p>之后创建<code>logback</code>配置文件<code>src/main/resources/logback.xml</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;configuration&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;appender</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;encoder&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;pattern&gt;</span>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span style=color:#f92672>&lt;/pattern&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/encoder&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/appender&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;root</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;trace&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;appender-ref</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/root&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;logger</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;org.eclipse.jetty&#34;</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;logger</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;io.netty&#34;</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/configuration&gt;</span>
+</span></span></code></pre></div><p>还有创建数据库。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>drop</span> <span style=color:#66d9ef>schema</span> <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>exists</span> todo <span style=color:#66d9ef>cascade</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>schema</span> todo;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>drop</span> <span style=color:#66d9ef>table</span> <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>exists</span> todo.task;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> todo.task
+</span></span><span style=display:flex><span>(
+</span></span><span style=display:flex><span>    id         uuid <span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>,
+</span></span><span style=display:flex><span>    name       text <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    start_time <span style=color:#66d9ef>timestamp</span> <span style=color:#66d9ef>default</span> now(),
+</span></span><span style=display:flex><span>    end_time   <span style=color:#66d9ef>timestamp</span>
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>之后创建一个主类<code>cn.enaium.Todo</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>(args: Array&lt;String&gt;) = <span style=color:#a6e22e>EngineMain</span>.main(args)
+</span></span></code></pre></div><p>之后编写一个扩展函数<code>cn.enaium.Todo.module</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.module() {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>安装一些插件</p><h4 id=koin>Koin</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>install(Koin) {
+</span></span><span style=display:flex><span>    modules(module {
+</span></span><span style=display:flex><span>        single&lt;ApplicationEnvironment&gt; { environment }
+</span></span><span style=display:flex><span>    })
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=cors>CORS</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>install(CORS) {
+</span></span><span style=display:flex><span>    allowMethod(<span style=color:#a6e22e>HttpMethod</span>.Options)
+</span></span><span style=display:flex><span>    allowMethod(<span style=color:#a6e22e>HttpMethod</span>.Post)
+</span></span><span style=display:flex><span>    allowMethod(<span style=color:#a6e22e>HttpMethod</span>.Get)
+</span></span><span style=display:flex><span>    allowHeader(<span style=color:#a6e22e>HttpHeaders</span>.AccessControlAllowOrigin)
+</span></span><span style=display:flex><span>    allowHeader(<span style=color:#a6e22e>HttpHeaders</span>.ContentType)
+</span></span><span style=display:flex><span>    anyHost()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=jackson>Jackson</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>install(ContentNegotiation) {
+</span></span><span style=display:flex><span>    jackson {
+</span></span><span style=display:flex><span>        registerModules(ImmutableModule())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=jimmer>Jimmer</h4><p>接下来配置一下<code>Jimmer</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>sql</span>(environment: ApplicationEnvironment): KSqlClient {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> newKSqlClient {
+</span></span><span style=display:flex><span>        setConnectionManager {
+</span></span><span style=display:flex><span>            HikariPool(HikariConfig().apply {
+</span></span><span style=display:flex><span>                driverClassName = environment.config.<span style=color:#66d9ef>property</span>(<span style=color:#e6db74>&#34;jdbc.driver&#34;</span>).getString()
+</span></span><span style=display:flex><span>                jdbcUrl = environment.config.<span style=color:#66d9ef>property</span>(<span style=color:#e6db74>&#34;jdbc.url&#34;</span>).getString()
+</span></span><span style=display:flex><span>                username = environment.config.<span style=color:#66d9ef>property</span>(<span style=color:#e6db74>&#34;jdbc.username&#34;</span>).getString()
+</span></span><span style=display:flex><span>                password = environment.config.<span style=color:#66d9ef>property</span>(<span style=color:#e6db74>&#34;jdbc.password&#34;</span>).getString()
+</span></span><span style=display:flex><span>                maximumPoolSize = <span style=color:#ae81ff>10</span>
+</span></span><span style=display:flex><span>                connectionTimeout = <span style=color:#ae81ff>30000</span>
+</span></span><span style=display:flex><span>            }).connection.use {
+</span></span><span style=display:flex><span>                proceed(<span style=color:#66d9ef>it</span>)
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        setDialect(PostgresDialect())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>之后添加到<code>Koin</code>中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>single&lt;KSqlClient&gt; { sql(<span style=color:#66d9ef>get</span>()) }
+</span></span></code></pre></div><p>编写一个<code>Task</code>实体类。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>package</span> cn.enaium.entity
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.Entity
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.GeneratedValue
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.Id
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.Table
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.meta.UUIDIdGenerator
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> java.util.*
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Entity</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Table</span>(name = <span style=color:#e6db74>&#34;task&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>Task</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Id</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@GeneratedValue</span>(generatorType = UUIDIdGenerator<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> id: UUID
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> name: String
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> startTime: Date
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> endTime: Date?
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接下来就可以编写<code>Service</code>了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>package</span> cn.enaium.service
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> cn.enaium.entity.Task
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> cn.enaium.entity.endTime
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> cn.enaium.entity.startTime
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.kt.KSqlClient
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.babyfish.jimmer.sql.kt.ast.expression.isNotNull
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TodoServe</span>(<span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> sql: KSqlClient) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getTasks</span>(): List&lt;Task&gt; {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> sql.createQuery(Task<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>) {
+</span></span><span style=display:flex><span>            orderBy(table.endTime.isNotNull(), table.startTime)
+</span></span><span style=display:flex><span>            select(table)
+</span></span><span style=display:flex><span>        }.execute()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>saveTask</span>(task: Task) {
+</span></span><span style=display:flex><span>        sql.save(task)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里我们添加两个方法<code>getTasks</code>和<code>saveTask</code>，<code>getTasks</code>用于获取所有任务并按照创建时间和是否完成排序，<code>saveTask</code>用于保存任务，之后还是添加到<code>Koin</code>中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>single&lt;TodoServe&gt; { TodoServe(<span style=color:#66d9ef>get</span>()) }
+</span></span></code></pre></div><p>之后我们在<code>module</code>添加路由。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> todoServe <span style=color:#66d9ef>by</span> inject&lt;TodoServe&gt;()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>routing {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>get</span>(<span style=color:#e6db74>&#34;/task&#34;</span>) {
+</span></span><span style=display:flex><span>        call.respond(todoServe.getTasks())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    post(<span style=color:#e6db74>&#34;/task&#34;</span>) {
+</span></span><span style=display:flex><span>        todoServe.saveTask(call.receive())
+</span></span><span style=display:flex><span>        call.response.status(<span style=color:#a6e22e>HttpStatusCode</span>.OK)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=前端-1>前端</h3><p>首先在<code>src/jsMain/resources/index.html</code>中添加以下代码，这里需要注意的是<code>app.js</code>，这个文件名称需要和前端的项目名称一致。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-html data-lang=html><span style=display:flex><span><span style=color:#75715e>&lt;!doctype html&gt;</span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>html</span> <span style=color:#a6e22e>lang</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;en&#34;</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>head</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>meta</span> <span style=color:#a6e22e>charset</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;UTF-8&#34;</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>title</span>&gt;Hello, Kotlin/JS!&lt;/<span style=color:#f92672>title</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>head</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>body</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>id</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;root&#34;</span>&gt;&lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>script</span> <span style=color:#a6e22e>src</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;app.js&#34;</span>&gt;&lt;/<span style=color:#f92672>script</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>body</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>html</span>&gt;
+</span></span></code></pre></div><p>之后写一个<code>main</code>函数。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>import</span> react.dom.client.createRoot
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> web.dom.document
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> container = document.getElementById(<span style=color:#e6db74>&#34;root&#34;</span>) <span style=color:#f92672>?:</span> error(<span style=color:#e6db74>&#34;Couldn&#39;t find root container!&#34;</span>)
+</span></span><span style=display:flex><span>    createRoot(container).render(<span style=color:#a6e22e>App</span>.create())
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>val</span> App = FC {
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>然后就可以编写组件了。</p><p>首先需要创建两个<code>data</code>类，一个是<code>Task</code>，另一个是<code>TaskInput</code>，<code>Task</code>用于展示任务，<code>TaskInput</code>用于请求。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#a6e22e>@Serializable</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Task</span>(<span style=color:#66d9ef>val</span> id: String, <span style=color:#66d9ef>var</span> name: String, <span style=color:#66d9ef>val</span> startTime: Long, <span style=color:#66d9ef>val</span> endTime: Long?) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>copy</span>(name: String = <span style=color:#66d9ef>this</span>.name, startTime: Long = <span style=color:#66d9ef>this</span>.startTime, endTime: Long? = <span style=color:#66d9ef>this</span>.endTime) =
+</span></span><span style=display:flex><span>        Task(id, name, startTime, endTime)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toInput</span>() = TaskInput(id, name, startTime, endTime)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Serializable</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TaskInput</span>(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> id: String? = <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> name: String? = <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> startTime: Long? = <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> endTime: Long? = <span style=color:#66d9ef>null</span>
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>之后编写请求函数，使用<code>fetch</code>发送请求。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> coroutine = CoroutineScope(window.asCoroutineDispatcher())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>suspend</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>fetchTasks</span>(): List&lt;Task&gt; {
+</span></span><span style=display:flex><span>    window.fetch(<span style=color:#e6db74>&#34;http://localhost:8080/task&#34;</span>).await().let {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>it</span>.status <span style=color:#f92672>!=</span> <span style=color:#ae81ff>200.</span>toShort()) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>throw</span> Exception(<span style=color:#e6db74>&#34;Failed to fetch&#34;</span>)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>Json</span>.decodeFromDynamic&lt;List&lt;Task&gt;&gt;(<span style=color:#66d9ef>it</span>.json().await())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>suspend</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>saveTask</span>(task: TaskInput) {
+</span></span><span style=display:flex><span>    window.fetch(
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;http://localhost:8080/task&#34;</span>,
+</span></span><span style=display:flex><span>        RequestInit(
+</span></span><span style=display:flex><span>            method = <span style=color:#e6db74>&#34;POST&#34;</span>,
+</span></span><span style=display:flex><span>            body = <span style=color:#a6e22e>Json</span>.encodeToString(<span style=color:#a6e22e>TaskInput</span>.serializer(), task),
+</span></span><span style=display:flex><span>            headers = json(<span style=color:#e6db74>&#34;Content-Type&#34;</span> to <span style=color:#e6db74>&#34;application/json&#34;</span>)
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    ).await().let {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>it</span>.status <span style=color:#f92672>!=</span> <span style=color:#ae81ff>200.</span>toShort()) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>throw</span> Exception(<span style=color:#e6db74>&#34;Failed to save&#34;</span>)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=taskitem>TaskItem</h4><p>编写一个<code>TaskItem</code>组件，用于展示任务，编辑任务，完成任务，逻辑就是点击<code>Edit</code>按钮可以编辑任务，按<code>Enter</code>保存，按<code>Escape</code>取消，点击<code>Finish</code>按钮完成任务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>external</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>TaskItemProps</span> : Props {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> task: Task
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>val</span> TaskItem = FC&lt;TaskItemProps&gt; { props <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> editState <span style=color:#66d9ef>by</span> useState(<span style=color:#66d9ef>false</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> taskState <span style=color:#66d9ef>by</span> useState&lt;TaskInput&gt;()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    useEffect(listOf(taskState)) {
+</span></span><span style=display:flex><span>        taskState<span style=color:#f92672>?.</span>let {
+</span></span><span style=display:flex><span>            coroutine.launch {
+</span></span><span style=display:flex><span>                saveTask(<span style=color:#66d9ef>it</span>)
+</span></span><span style=display:flex><span>                window.location.reload()
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    div {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (editState) {
+</span></span><span style=display:flex><span>            input {
+</span></span><span style=display:flex><span>                defaultValue = props.task.name
+</span></span><span style=display:flex><span>                onKeyUp = {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>it</span>.asDynamic().key <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;Enter&#34;</span>) {
+</span></span><span style=display:flex><span>                        taskState = props.task.copy(name = <span style=color:#66d9ef>it</span>.target.asDynamic().<span style=color:#66d9ef>value</span> <span style=color:#66d9ef>as</span> String).toInput()
+</span></span><span style=display:flex><span>                        editState = <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>it</span>.asDynamic().key <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;Escape&#34;</span>) {
+</span></span><span style=display:flex><span>                        editState = <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            div {
+</span></span><span style=display:flex><span>                css {
+</span></span><span style=display:flex><span>                    color = <span style=color:#66d9ef>if</span> (props.task.endTime <span style=color:#f92672>==</span> <span style=color:#66d9ef>null</span>) Color(<span style=color:#e6db74>&#34;red&#34;</span>) <span style=color:#66d9ef>else</span> Color(<span style=color:#e6db74>&#34;green&#34;</span>)
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                div {
+</span></span><span style=display:flex><span>                    +props.task.id
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                div {
+</span></span><span style=display:flex><span>                    +props.task.name
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>                div {
+</span></span><span style=display:flex><span>                    +kotlin.js.Date(props.task.startTime).toLocaleString()
+</span></span><span style=display:flex><span>                    props.task.endTime<span style=color:#f92672>?.</span>let {
+</span></span><span style=display:flex><span>                        +<span style=color:#e6db74>&#34; - &#34;</span>
+</span></span><span style=display:flex><span>                        +kotlin.js.Date(<span style=color:#66d9ef>it</span>).toLocaleString()
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            button {
+</span></span><span style=display:flex><span>                +<span style=color:#e6db74>&#34;Edit&#34;</span>
+</span></span><span style=display:flex><span>                onClick = {
+</span></span><span style=display:flex><span>                    editState = !editState
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            button {
+</span></span><span style=display:flex><span>                +<span style=color:#e6db74>&#34;Finish&#34;</span>
+</span></span><span style=display:flex><span>                onClick = {
+</span></span><span style=display:flex><span>                    taskState = props.task.copy(endTime = Date().getTime().toLong()).toInput()
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=app>App</h4><p>最后编写<code>App</code>组件，获取任务列表，添加任务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> App = FC {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> tasksState <span style=color:#66d9ef>by</span> useState(emptyList&lt;Task&gt;())
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> taskState <span style=color:#66d9ef>by</span> useState&lt;TaskInput&gt;()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    useEffectOnce {
+</span></span><span style=display:flex><span>        coroutine.launch {
+</span></span><span style=display:flex><span>            tasksState = fetchTasks()
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    useEffect(listOf(taskState)) {
+</span></span><span style=display:flex><span>        taskState<span style=color:#f92672>?.</span>let {
+</span></span><span style=display:flex><span>            coroutine.launch {
+</span></span><span style=display:flex><span>                saveTask(<span style=color:#66d9ef>it</span>)
+</span></span><span style=display:flex><span>                window.location.reload()
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    div {
+</span></span><span style=display:flex><span>        input {
+</span></span><span style=display:flex><span>            css {
+</span></span><span style=display:flex><span>                fontSize = <span style=color:#ae81ff>24.</span>px
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            onKeyUp = {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>it</span>.asDynamic().key <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;Enter&#34;</span>) {
+</span></span><span style=display:flex><span>                    taskState = TaskInput(name = <span style=color:#66d9ef>it</span>.target.asDynamic().<span style=color:#66d9ef>value</span> <span style=color:#66d9ef>as</span> String)
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        div {
+</span></span><span style=display:flex><span>            css {
+</span></span><span style=display:flex><span>                marginTop = <span style=color:#ae81ff>10.</span>px
+</span></span><span style=display:flex><span>                display = <span style=color:#a6e22e>Display</span>.flex
+</span></span><span style=display:flex><span>                flexDirection = <span style=color:#a6e22e>FlexDirection</span>.column
+</span></span><span style=display:flex><span>                gap = <span style=color:#ae81ff>10.</span>px
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            tasksState.forEach {
+</span></span><span style=display:flex><span>                TaskItem {
+</span></span><span style=display:flex><span>                    key = <span style=color:#66d9ef>it</span>.id
+</span></span><span style=display:flex><span>                    task = <span style=color:#66d9ef>it</span>
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=运行>运行</h2><p>前端和后端默认端口都是<code>8080</code>，所以先运行后端，之后运行前端。</p><p>后端使用<code>application</code>插件的<code>run</code>任务，前端使用<code>jsBrowserDevelopmentRun</code>任务。</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-3-4-jdk22%E6%96%B0%E7%89%B9%E6%80%A7class-file-api%E5%B0%9D%E9%B2%9C/>JDK22新特性Class-File API尝鲜</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
