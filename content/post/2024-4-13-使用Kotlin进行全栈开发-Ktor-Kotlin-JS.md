@@ -16,7 +16,7 @@ date: 2024-04-13T21:50:28+08:00
 
 ### 添加依赖和插件
 
-这里我使用了`Gradle`的`calalog`，在项目中的`gradle`目录下创建一个`libs.versions.toml`文件，用于管理项目中的依赖版本。
+这里我使用了`Gradle`的`catalog`，在项目中的`gradle`目录下创建一个`libs.versions.toml`文件，用于管理项目中的依赖版本。
 
 ```toml
 [versions]
