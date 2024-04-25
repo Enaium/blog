@@ -32,8 +32,16 @@
             <img alt="Logo" width="30" height="24" src="/assets/language.svg" />
           </a>
           <ul class="dropdown-menu">
-            {{ range .Translations }} 
-              <li><a class="dropdown-item" title="{{ .Language.LanguageName }}" href="{{ .Permalink }}" aria-label="{{ i18n "ariaTranslation" }}{{ .Language.LanguageName }}">{{ .Language.LanguageName }}</a></li>
+            {{ range .Translations }}
+            <li>
+              <a
+                class="dropdown-item"
+                title="{{ .Language.LanguageName }}"
+                href="{{ .Permalink }}"
+                aria-label="{{ .Language.LanguageName }}"
+                >{{ .Language.LanguageName }}</a
+              >
+            </li>
             {{ end }}
           </ul>
         </li>
