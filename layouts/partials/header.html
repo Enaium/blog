@@ -1,13 +1,7 @@
 <nav class="navbar navbar-expand-lg bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      <img
-        src="https://simpleicons.org/icons/github.svg"
-        alt="Logo"
-        width="30"
-        height="24"
-        class="d-inline-block align-text-top"
-      />
+      <img src="/assets/github.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top" />
       {{ .Site.Params.title }}
     </a>
     <button
@@ -32,7 +26,18 @@
             >{{ .Title }}</a
           >
         </li>
-        {{ end }} {{ end }} {{ end }}
+        {{ end }} {{ end }} {{ end }} {{ if .Site.IsMultiLingual }}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+            <img alt="Logo" width="30" height="24" src="/assets/language.svg" />
+          </a>
+          <ul class="dropdown-menu">
+            {{ range .Translations }} 
+              <li><a class="dropdown-item" title="{{ .Language.LanguageName }}" href="{{ .Permalink }}" aria-label="{{ i18n "ariaTranslation" }}{{ .Language.LanguageName }}">{{ .Language.LanguageName }}</a></li>
+            {{ end }}
+          </ul>
+        </li>
+        {{ end }}
       </ul>
     </div>
   </div>
