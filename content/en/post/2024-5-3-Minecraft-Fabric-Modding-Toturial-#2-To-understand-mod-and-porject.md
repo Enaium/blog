@@ -1,5 +1,5 @@
 ---
-title: "Minecraft Fabric Modding Toturial #2 to Understand Mod and Porject"
+title: "Minecraft Fabric Modding Toturial #2 To Understand Mod and Porject"
 date: 2024-05-03T03:33:38+08:00
 ---
 
