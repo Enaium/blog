@@ -1,0 +1,93 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Modding Toturial #3 To Write Some Simple Code</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/about/>About</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Modding Toturial #3 To Write Some Simple Code</div><div class=card-body><div class=card-text><h2 id=preface>Preface</h2><p>In the previous article, we have known the mod and project structure, in this article, we will write some simple code.</p><h2 id=modify-the-mod-information>Modify the Mod Information</h2><p>First, we need delete some useless file.</p><h3 id=delete-the-client-folder>Delete the <code>client</code> folder</h3><p>We have to modify other files after delete the <code>client</code> folder.</p><ul><li>Delete the <code>client</code> in the <code>gradle.build</code> file, because we don&rsquo;t need to split the client and server, so we can delete the <code>loom</code> block in the <code>gradle.build</code> file.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span><span style=color:#f92672>-loom {
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-    splitEnvironmentSourceSets()
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-       mods {
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-               &#34;modid&#34; {
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-                       sourceSet sourceSets.main
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-                       sourceSet sourceSets.client
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-               }
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-       }
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-}
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span> dependencies {
+</span></span><span style=display:flex><span>        // To change the versions see the gradle.properties file
+</span></span><span style=display:flex><span>        minecraft &#34;com.mojang:minecraft:${project.minecraft_version}&#34;
+</span></span></code></pre></div><ul><li>Delete the <code>client</code> in the <code>src/main/resources/fabric.mod.json</code> file.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span>        &#34;entrypoints&#34;: {
+</span></span><span style=display:flex><span>                &#34;main&#34;: [
+</span></span><span style=display:flex><span>                        &#34;com.example.ExampleMod&#34;
+</span></span><span style=display:flex><span><span style=color:#f92672>-               ],
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-               &#34;client&#34;: [
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-                       &#34;com.example.ExampleModClient&#34;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span>                ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        &#34;mixins&#34;: [
+</span></span><span style=display:flex><span><span style=color:#f92672>-               &#34;modid.mixins.json&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-               {
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-                       &#34;config&#34;: &#34;modid.client.mixins.json&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-                       &#34;environment&#34;: &#34;client&#34;
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-               }
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+               &#34;modid.mixins.json&#34;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        ],
+</span></span><span style=display:flex><span>        &#34;depends&#34;: {
+</span></span><span style=display:flex><span>                &#34;fabricloader&#34;: &#34;&gt;=0.15.10&#34;,
+</span></span></code></pre></div><h3 id=modify-the-fabricmodjson-file>Modify the <code>fabric.mod.json</code> file</h3><ul><li>Change <code>id</code>, <code>name</code>, <code>description</code>, <code>authors</code>, <code>icon</code> in the <code>fabric.mod.json</code> file.</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span>        &#34;schemaVersion&#34;: 1,
+</span></span><span style=display:flex><span><span style=color:#f92672>-       &#34;id&#34;: &#34;modid&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+       &#34;id&#34;: &#34;awesome&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        &#34;version&#34;: &#34;${version}&#34;,
+</span></span><span style=display:flex><span><span style=color:#f92672>-       &#34;name&#34;: &#34;Example mod&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672>-       &#34;description&#34;: &#34;This is an example description! Tell everyone what your mod is about!&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+       &#34;name&#34;: &#34;Awesome&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+       &#34;description&#34;: &#34;This is an awesome mod!&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        &#34;authors&#34;: [
+</span></span><span style=display:flex><span><span style=color:#f92672>-               &#34;Me!&#34;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+               &#34;Enaium&#34;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        ],
+</span></span><span style=display:flex><span>        &#34;contact&#34;: {
+</span></span><span style=display:flex><span>                &#34;homepage&#34;: &#34;https://fabricmc.net/&#34;,
+</span></span><span style=display:flex><span>                &#34;sources&#34;: &#34;https://github.com/FabricMC/fabric-example-mod&#34;
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        &#34;license&#34;: &#34;CC0-1.0&#34;,
+</span></span><span style=display:flex><span><span style=color:#f92672>-       &#34;icon&#34;: &#34;assets/modid/icon.png&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+       &#34;icon&#34;: &#34;assets/awesome/icon.png&#34;,
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        &#34;environment&#34;: &#34;*&#34;,
+</span></span><span style=display:flex><span>        &#34;entrypoints&#34;: {
+</span></span><span style=display:flex><span>                &#34;main&#34;: [
+</span></span><span style=display:flex><span><span style=color:#75715e>@@ -20,7 +20,7 @@
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                ]
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        &#34;mixins&#34;: [
+</span></span><span style=display:flex><span><span style=color:#f92672>-               &#34;modid.mixins.json&#34;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+               &#34;awesome.mixins.json&#34;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        ],
+</span></span><span style=display:flex><span>        &#34;depends&#34;: {
+</span></span><span style=display:flex><span>                &#34;fabricloader&#34;: &#34;&gt;=0.15.10&#34;,
+</span></span></code></pre></div><ul><li><p>Rename the <code>modid.mixins.json</code> file to <code>awesome.mixins.json</code>.</p></li><li><p>Rename the <code>assets/modid</code> folder to <code>assets/awesome</code>.</p></li><li><p>Change the log name in the <code>ExampleMod.java</code> file.</p></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span>public class ExampleMod implements ModInitializer {
+</span></span><span style=display:flex><span>        // This logger is used to write text to the console and the log file.
+</span></span><span style=display:flex><span>        // It is considered best practice to use your mod id as the logger&#39;s name.
+</span></span><span style=display:flex><span>        // That way, it&#39;s clear which mod wrote info, warnings, and errors.
+</span></span><span style=display:flex><span><span style=color:#f92672>-    public static final Logger LOGGER = LoggerFactory.getLogger(&#34;modid&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+    public static final Logger LOGGER = LoggerFactory.getLogger(&#34;awesome&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> 
+</span></span><span style=display:flex><span>        @Override
+</span></span><span style=display:flex><span>        public void onInitialize() {
+</span></span></code></pre></div><h2 id=to-write-code>To Write Code</h2><p>Add a log in the <code>ExampleMixin</code> class.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span> package com.example.mixin;
+</span></span><span style=display:flex><span> 
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import com.example.ExampleMod;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.server.MinecraftServer;
+</span></span><span style=display:flex><span> import org.spongepowered.asm.mixin.Mixin;
+</span></span><span style=display:flex><span> import org.spongepowered.asm.mixin.injection.At;
+</span></span><span style=display:flex><span><span style=color:#75715e>@@ -11,5 +12,6 @@ public class ExampleMixin {
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        @Inject(at = @At(&#34;HEAD&#34;), method = &#34;loadWorld&#34;)
+</span></span><span style=display:flex><span>        private void init(CallbackInfo info) {
+</span></span><span style=display:flex><span>                // This code is injected into the start of MinecraftServer.loadWorld()V
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+               ExampleMod.LOGGER.info(&#34;Hello Mixin World!&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>        }
+</span></span><span style=display:flex><span> }
+</span></span></code></pre></div><h2 id=test>Test</h2><p>Run the project, and load a world, you will see the log in the console.</p><pre tabindex=0><code>[16:43:56] [Server thread/INFO] (awesome) Hello Mixin World!
+</code></pre></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%232-to-understand-mod-and-porject/>Minecraft Fabric Modding Toturial #2 To Understand Mod and Porject</a>
+<a class=text-reset href=https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/>Minecraft Fabric Modding Toturial #4 Add an Item</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
