@@ -1,0 +1,72 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Modding Tutorial #5 Add a Block</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/about/>About</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Modding Tutorial #5 Add a Block</div><div class=card-body><div class=card-text><h2 id=register-a-block>Register a Block</h2><p>It is similar to registering an item, first, we need to declare a block, but a block has a <code>strength</code> property which is the time required for the player to mine a block.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> Block END_HEART_BLOCK  <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Block(Block.<span style=color:#a6e22e>Settings</span>.<span style=color:#a6e22e>create</span>().<span style=color:#a6e22e>strength</span>(4.<span style=color:#a6e22e>0f</span>));
+</span></span></code></pre></div><p>Next, we need to register the block, similar to registering an item, we need to register the block in the <code>onInitialize</code> method.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> Block END_HEART_BLOCK <span style=color:#f92672>=</span> Registry.<span style=color:#a6e22e>register</span>(Registries.<span style=color:#a6e22e>BLOCK</span>, <span style=color:#66d9ef>new</span> Identifier(<span style=color:#e6db74>&#34;awesome:end_heart_block&#34;</span>), <span style=color:#66d9ef>new</span> Block(Block.<span style=color:#a6e22e>Settings</span>.<span style=color:#a6e22e>create</span>().<span style=color:#a6e22e>strength</span>(4.<span style=color:#a6e22e>0f</span>)));
+</span></span></code></pre></div><p>Although we have registered the block, but we can not get the item of this block, because we have not registered the item of this block.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> Item END_HEART_BLOCK_ITEM <span style=color:#f92672>=</span> Registry.<span style=color:#a6e22e>register</span>(Registries.<span style=color:#a6e22e>ITEM</span>, <span style=color:#66d9ef>new</span> Identifier(<span style=color:#e6db74>&#34;awesome:end_heart_block&#34;</span>), <span style=color:#66d9ef>new</span> BlockItem(END_HEART_BLOCK, <span style=color:#66d9ef>new</span> Item.<span style=color:#a6e22e>Settings</span>()));
+</span></span></code></pre></div><h2 id=add-textures>Add Textures</h2><p>We need the block&rsquo;s state, model, item, and texture.</p><h3 id=block-state>Block State</h3><p>Location: <code>assets/awesome/blockstates/end_heart_block.json</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;variants&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;model&#34;</span>: <span style=color:#e6db74>&#34;awesome:block/end_heart_block&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=block-model>Block Model</h3><p>Location: <code>assets/awesome/models/block/end_heart_block.json</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;parent&#34;</span>: <span style=color:#e6db74>&#34;block/cube_all&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;textures&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;all&#34;</span>: <span style=color:#e6db74>&#34;awesome:block/end_heart_block&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=block-item-model>Block Item Model</h3><p>Location: <code>assets/awesome/models/item/end_heart_block.json</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;parent&#34;</span>: <span style=color:#e6db74>&#34;awesome:block/end_heart_block&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=block-texture>Block Texture</h3><p>Location: <code>assets/awesome/textures/block/end_heart_block.png</code></p><p><img alt=end_heart_block src=https://s2.loli.net/2024/05/11/Cow9HdE5FbVqMPT.png></p><h3 id=block-drop-items>Block Drop Items</h3><p>We need to configure a loot table of the block, it drops items when the block is broken.</p><p>It must have a <code>survives_explosion</code> condition, otherwise, the block is unable to drop items if it is broken by an explosion.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;minecraft:block&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;pools&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;rolls&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;entries&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;minecraft:item&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart_block&#34;</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ],
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;conditions&#34;</span>: [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>          <span style=color:#f92672>&#34;condition&#34;</span>: <span style=color:#e6db74>&#34;minecraft:survives_explosion&#34;</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=block-class>Block Class</h3><p>It similar item and we may also create a block class.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.blocks;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.block.Block;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>EndHeartBlock</span> <span style=color:#66d9ef>extends</span> Block {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>EndHeartBlock</span>(Settings settings) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>super</span>(settings);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Finally, we add the block to the item group.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span><span style=color:#a6e22e>+import com.example.blocks.EndHeartBlock;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import com.example.items.EndHeartItem;
+</span></span><span style=display:flex><span> import net.fabricmc.api.ModInitializer;
+</span></span><span style=display:flex><span> 
+</span></span><span style=display:flex><span><span style=color:#75715e>@@ -20,12 +21,15 @@ public class ExampleMod implements ModInitializer {
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>     public static final Logger LOGGER = LoggerFactory.getLogger(&#34;awesome&#34;);
+</span></span><span style=display:flex><span> 
+</span></span><span style=display:flex><span>        public static final Item END_HEART = Registry.register(Registries.ITEM, new Identifier(&#34;awesome:end_heart&#34;), new EndHeartItem(new Item.Settings()));
+</span></span><span style=display:flex><span><span style=color:#f92672>-    public static final Block END_HEART_BLOCK = Registry.register(Registries.BLOCK, new Identifier(&#34;awesome:end_heard_block&#34;), new Block(Block.Settings.create().strength(4.0f)));
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+    public static final Block END_HEART_BLOCK = Registry.register(Registries.BLOCK, new Identifier(&#34;awesome:end_heard_block&#34;), new EndHeartBlock(Block.Settings.create().strength(4.0f)));
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     public static final Item END_HEART_BLOCK_ITEM = Registry.register(Registries.ITEM, new Identifier(&#34;awesome:end_heart_block&#34;), new BlockItem(END_HEART_BLOCK, new Item.Settings()));
+</span></span><span style=display:flex><span>        public static final ItemGroup ITEM_GROUP = Registry.register(Registries.ITEM_GROUP, new Identifier(&#34;awesome:item_group&#34;), FabricItemGroup.builder()
+</span></span><span style=display:flex><span>                        .icon(() -&gt; new ItemStack(END_HEART))
+</span></span><span style=display:flex><span>                        .displayName(Text.literal(&#34;Awesome&#34;))
+</span></span><span style=display:flex><span><span style=color:#f92672>-                       .entries(((displayContext, entries) -&gt; entries.add(END_HEART)))
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+                       .entries(((displayContext, entries) -&gt; {
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+                entries.add(END_HEART);
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+                               entries.add(END_HEART_BLOCK);
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+            }))
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>                        .build());
+</span></span></code></pre></div><p><img alt=20240511021524 src=https://s2.loli.net/2024/05/11/XjQPeUMWiuYv83r.png></p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/>Minecraft Fabric Modding Toturial #4 Add an Item</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
