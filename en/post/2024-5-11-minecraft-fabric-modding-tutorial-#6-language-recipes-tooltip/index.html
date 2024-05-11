@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Modding Tutorial #6 Language Recipes Tooltip</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/about/>About</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Modding Tutorial #6 Language Recipes Tooltip</div><div class=card-body><div class=card-text><h2 id=language>Language</h2><p>We had added an item, an item group, and a block, but they do not have a name yet. Here, We can use a language file to provide a name for them.</p><p>We can create a language file <code>en_us.json</code> under the path <code>assets/awesome/lang</code>, it is an English language file.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;item.awesome.end_heart&#34;</span>: <span style=color:#e6db74>&#34;End Heart&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;item.awesome.end_heart_block&#34;</span>: <span style=color:#e6db74>&#34;End Heart Block&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;block.awesome.end_heart_block&#34;</span>: <span style=color:#e6db74>&#34;End Heart Block&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;itemGroup.awesome.item_group&#34;</span>: <span style=color:#e6db74>&#34;Awesome&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><img alt=20240511212016 src=https://s2.loli.net/2024/05/11/Pj8OohkJpaLfS7b.png></p><h2 id=recipes>Recipes</h2><p>The recipe is used to craft an item, Here, We can configure the recipe of the item.</p><p>Create a recipe file <code>end_heart_block.json</code> under the path <code>data/awesome/recipes</code>, which is used to craft the item <code>end_heart_block</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;minecraft:crafting_shaped&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;pattern&#34;</span>: [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;EEE&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;EEE&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;EEE&#34;</span>
+</span></span><span style=display:flex><span>  ],
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;key&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;E&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;item&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;result&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart_block&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;count&#34;</span>: <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>In this file, the type is the crafting type, the pattern is the put place of the item, the key is an alias of the items, and the result is the result of crafting the item.</p><p>Next, we need to create an item recipe file <code>end_heart.json</code> to decompose the item.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;minecraft:crafting_shapeless&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;ingredients&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;item&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart_block&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ],
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;result&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;count&#34;</span>: <span style=color:#ae81ff>9</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>In this file, the type is <code>crafting_shapeless</code>, it does not follow the put place. The <code>ingredients</code> are the required items for crafting, and the <code>result</code> is the result of crafting the item, the count is the number of the result.</p><p><img alt=20240511231146 src=https://s2.loli.net/2024/05/11/nzp3FYksuotEHvr.png>
+<img alt=20240511231213 src=https://s2.loli.net/2024/05/11/JMBrdhS5n8xTORa.png></p><h2 id=tooltip>Tooltip</h2><p>We can add a tooltip to the item, it shows when the mouse is over the item</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span> package com.example.items;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.client.item.TooltipType;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.entity.player.PlayerEntity;
+</span></span><span style=display:flex><span> import net.minecraft.item.Item;
+</span></span><span style=display:flex><span> import net.minecraft.item.ItemStack;
+</span></span><span style=display:flex><span> import net.minecraft.sound.SoundEvents;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.text.Text;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.util.Hand;
+</span></span><span style=display:flex><span> import net.minecraft.util.TypedActionResult;
+</span></span><span style=display:flex><span> import net.minecraft.world.World;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import java.util.List;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>
+</span></span><span style=display:flex><span> /**
+</span></span><span style=display:flex><span>  * @author Enaium
+</span></span><span style=display:flex><span>  */
+</span></span><span style=display:flex><span><span style=color:#75715e>@@ -25,9 +21,4 @@ public class EndHeartItem extends Item {
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>         user.playSound(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, 1.0F, 1.0F);
+</span></span><span style=display:flex><span>         return super.use(world, user, hand);
+</span></span><span style=display:flex><span>     }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    @Override
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    public void appendTooltip(ItemStack stack, TooltipContext context, List&lt;Text&gt; tooltip, TooltipType type) {
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        tooltip.add(Text.translatable(&#34;tooltip.awesome.end_heart&#34;));
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    }
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> }
+</span></span></code></pre></div><p>We can override the <code>appendTooltip</code> method to add a tooltip to the item.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;tooltip.awesome.end_heart&#34;</span>: <span style=color:#e6db74>&#34;End Heart&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Use the <code>Text.translatable</code> method to get the text from the language file.</p><p><img alt=20240511232139 src=https://s2.loli.net/2024/05/11/lgAhNxOTZzkGos6.png></p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/>Minecraft Fabric Modding Tutorial #5 Add a Block</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
