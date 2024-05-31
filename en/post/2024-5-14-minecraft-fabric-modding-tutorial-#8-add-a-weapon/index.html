@@ -1,0 +1,140 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Minecraft Fabric Modding Tutorial #8 Add a Weapon</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium's Blog
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/contact/>Contact</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/en/about/>About</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Minecraft Fabric Modding Tutorial #8 Add a Weapon</div><div class=card-body><div class=card-text><h2 id=tool-material>Tool Material</h2><p>First, we need to create a enum class, and implement the <code>ToolMaterial</code> interface, so we can use it to create a new weapon.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tool;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.block.Block;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.item.ToolMaterial;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.recipe.Ingredient;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> net.minecraft.registry.tag.TagKey;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> EndToolMaterial <span style=color:#66d9ef>implements</span> ToolMaterial {
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getDurability</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 0;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getMiningSpeedMultiplier</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 0;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getAttackDamage</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 0;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> TagKey<span style=color:#f92672>&lt;</span>Block<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getInverseTag</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getEnchantability</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 0;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> Ingredient <span style=color:#a6e22e>getRepairIngredient</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Next, we must complete the enum class <code>EndToolMaterial</code> by imitating the enum class<code>net.minecraft.item.ToolMaterials</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-patch data-lang=patch><span style=display:flex><span>package com.example.tool;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import com.example.ExampleMod;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+import com.google.common.base.Suppliers;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.block.Block;
+</span></span><span style=display:flex><span> import net.minecraft.item.ToolMaterial;
+</span></span><span style=display:flex><span> import net.minecraft.recipe.Ingredient;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import net.minecraft.registry.tag.BlockTags;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> import net.minecraft.registry.tag.TagKey;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>+import java.util.function.Supplier;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span> public enum EndToolMaterial implements ToolMaterial {
+</span></span><span style=display:flex><span><span style=color:#f92672>-    ;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+    END_HEART(BlockTags.INCORRECT_FOR_NETHERITE_TOOL, 2592, 17.0f, 4.0f, 15, () -&gt; Ingredient.ofItems(ExampleMod.END_HEART));
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final TagKey&lt;Block&gt; inverseTag;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final int itemDurability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final float miningSpeed;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final float attackDamage;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final int enchantability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private final Supplier&lt;Ingredient&gt; repairIngredient;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    private EndToolMaterial(TagKey&lt;Block&gt; inverseTag, int itemDurability, float miningSpeed, float attackDamage, int enchantability, Supplier&lt;Ingredient&gt; repairIngredient) {
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.inverseTag = inverseTag;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.itemDurability = itemDurability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.miningSpeed = miningSpeed;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.attackDamage = attackDamage;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.enchantability = enchantability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+        this.repairIngredient = Suppliers.memoize(repairIngredient::get);
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e>+    }
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public int getDurability() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return 0;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return itemDurability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public float getMiningSpeedMultiplier() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return 0;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return miningSpeed;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public float getAttackDamage() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return 0;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return attackDamage;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public TagKey&lt;Block&gt; getInverseTag() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return null;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return inverseTag;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public int getEnchantability() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return 0;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return enchantability;
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>     @Override
+</span></span><span style=display:flex><span>     public Ingredient getRepairIngredient() {
+</span></span><span style=display:flex><span><span style=color:#f92672>-        return null;
+</span></span></span><span style=display:flex><span><span style=color:#f92672></span><span style=color:#a6e22e>+        return repairIngredient.get();
+</span></span></span><span style=display:flex><span><span style=color:#a6e22e></span>     }
+</span></span><span style=display:flex><span> }
+</span></span></code></pre></div><h2 id=register-the-weapone>Register the Weapone</h2><p>It&rsquo;s different from the registration of the armor, we need to pass the damage value and the attack speed value to the <code>SwordItem</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> Item END_SWORD <span style=color:#f92672>=</span> Registry.<span style=color:#a6e22e>register</span>(Registries.<span style=color:#a6e22e>ITEM</span>, <span style=color:#66d9ef>new</span> Identifier(<span style=color:#e6db74>&#34;awesome:end_sword&#34;</span>), <span style=color:#66d9ef>new</span> SwordItem(EndToolMaterial.<span style=color:#a6e22e>END_HEART</span>, <span style=color:#66d9ef>new</span> Item.<span style=color:#a6e22e>Settings</span>().<span style=color:#a6e22e>attributeModifiers</span>(SwordItem.<span style=color:#a6e22e>createAttributeModifiers</span>(EndToolMaterial.<span style=color:#a6e22e>END_HEART</span>, 4, 0))));
+</span></span></code></pre></div><h2 id=texture>Texture</h2><p><img alt=end_sword src=https://s2.loli.net/2024/05/15/cbCt6N29sfZniIX.png></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;parent&#34;</span>: <span style=color:#e6db74>&#34;item/handheld&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;textures&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;layer0&#34;</span>: <span style=color:#e6db74>&#34;awesome:item/end_sword&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=recipe>Recipe</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;minecraft:crafting_shaped&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;pattern&#34;</span>: [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;E&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;E&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;S&#34;</span>
+</span></span><span style=display:flex><span>  ],
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;key&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;E&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;item&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_heart&#34;</span>
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;S&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;item&#34;</span>: <span style=color:#e6db74>&#34;minecraft:stick&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;result&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;item&#34;</span>: <span style=color:#e6db74>&#34;awesome:end_sword&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;count&#34;</span>: <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><img alt=20240515185100 src=https://s2.loli.net/2024/05/15/RzL4jvui5xSDB2H.png></p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
