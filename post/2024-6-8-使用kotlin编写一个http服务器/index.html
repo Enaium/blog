@@ -1,0 +1,154 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>使用Kotlin编写一个Http服务器</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>使用Kotlin编写一个Http服务器</div><div class=card-body><div class=card-text><h2 id=引言>引言</h2><p>在本文中，我们将使用 Kotlin 编写一个简单的 HTTP 服务器。我们将使用 Java 的 <code>ServerSocket</code> 类来实现这个服务器。我们将创建一个简单的服务器，它将监听端口 8000，并在接收到请求时返回一个简单的响应。</p><h2 id=http-的格式>Http 的格式</h2><p>HTTP 请求和响应都是文本格式的。HTTP 请求由请求行、请求头和请求体组成。HTTP 响应由状态行、响应头和响应体组成。</p><p>具体可以到 <a href=https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Messages>MDN</a> 查看。</p><h2 id=代码实现>代码实现</h2><p>首先我们需要创建一个<code>Method</code>枚举和一个<code>Version</code>枚举，用于表示请求的方法和版本。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Method</span> {
+</span></span><span style=display:flex><span>    GET,
+</span></span><span style=display:flex><span>    POST,
+</span></span><span style=display:flex><span>    UNKNOWN;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>companion</span> <span style=color:#66d9ef>object</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>parse</span>(method: String): Method =
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>when</span> (method) {
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;GET&#34;</span> <span style=color:#f92672>-&gt;</span> GET
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;POST&#34;</span> <span style=color:#f92672>-&gt;</span> POST
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>else</span> <span style=color:#f92672>-&gt;</span> UNKNOWN
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Version</span> {
+</span></span><span style=display:flex><span>    HTTP_1_1,
+</span></span><span style=display:flex><span>    UNKNOWN;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>companion</span> <span style=color:#66d9ef>object</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>parse</span>(version: String): Version = <span style=color:#66d9ef>when</span> (version) {
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;HTTP/1.1&#34;</span> <span style=color:#f92672>-&gt;</span> HTTP_1_1
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#f92672>-&gt;</span> UNKNOWN
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toString</span>(): String {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>when</span> (<span style=color:#66d9ef>this</span>) {
+</span></span><span style=display:flex><span>            HTTP_1_1 <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;HTTP/1.1&#34;</span>
+</span></span><span style=display:flex><span>            UNKNOWN <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;UNKNOWN&#34;</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>然后我们创建一个<code>HttpRequest</code>类，用于表示 HTTP 请求。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HttpRequest</span>(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> method: Method,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> path: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> version: Version,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> headers: Map&lt;String, String&gt;,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> body: String
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>接着我们为<code>HttpRequest</code>类添加一个静态方法<code>parse</code>，用于解析 HTTP 请求。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>companion</span> <span style=color:#66d9ef>object</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>parse</span>(reader: BufferedReader): HttpRequest {
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在<code>parse</code>方法中，我们首先读取请求行，然后读取请求头，最后读取请求体。</p><p>首先我们先来定义一些默认值。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>var</span> method = <span style=color:#a6e22e>Method</span>.UNKNOWN
+</span></span><span style=display:flex><span><span style=color:#66d9ef>var</span> path = <span style=color:#e6db74>&#34;&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>var</span> version = <span style=color:#a6e22e>Version</span>.UNKNOWN
+</span></span><span style=display:flex><span><span style=color:#66d9ef>val</span> headers = mutableMapOf&lt;String, String&gt;()
+</span></span><span style=display:flex><span><span style=color:#66d9ef>var</span> body = <span style=color:#e6db74>&#34;&#34;</span>
+</span></span></code></pre></div><p>然后我们读取请求的所有数据，不过需要注意这里不不能使用<code>readText</code>和<code>readLines</code>，这些方法会导致<code>Socket</code>被关闭。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> request = StringBuilder()
+</span></span><span style=display:flex><span><span style=color:#66d9ef>var</span> readed: String?
+</span></span><span style=display:flex><span><span style=color:#66d9ef>while</span> (reader.readLine().also { readed = <span style=color:#66d9ef>it</span> } <span style=color:#f92672>!=</span> <span style=color:#66d9ef>null</span> <span style=color:#f92672>&amp;&amp;</span> readed<span style=color:#f92672>!!</span>.isNotEmpty()) {
+</span></span><span style=display:flex><span>    request.append(readed).append(<span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着我们解析请求的数据。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>request.lines().forEachIndexed { index, line <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (index <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> splitWithSpace = line.split(<span style=color:#e6db74>&#34; &#34;</span>)
+</span></span><span style=display:flex><span>        method = <span style=color:#a6e22e>Method</span>.parse(splitWithSpace[<span style=color:#ae81ff>0</span>])
+</span></span><span style=display:flex><span>        path = splitWithSpace[<span style=color:#ae81ff>1</span>]
+</span></span><span style=display:flex><span>        version = <span style=color:#a6e22e>Version</span>.parse(splitWithSpace[<span style=color:#ae81ff>2</span>])
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (line.contains(<span style=color:#e6db74>&#34;: &#34;</span>)) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> split = line.split(<span style=color:#e6db74>&#34;: &#34;</span>)
+</span></span><span style=display:flex><span>        headers[split[<span style=color:#ae81ff>0</span>]] = split[<span style=color:#ae81ff>1</span>]
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (line.isEmpty()) {
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>        body = line
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>首先是第一行，我们使用空格分割，然后解析请求方法、路径和版本。然后是请求头，我们使用冒号空格分割，然后解析请求头。最后是请求体，如果不为空，我们就保存请求体。</p><p>最后我们将解析的数据返回。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>return</span> HttpRequest(
+</span></span><span style=display:flex><span>    method,
+</span></span><span style=display:flex><span>    path,
+</span></span><span style=display:flex><span>    version,
+</span></span><span style=display:flex><span>    headers,
+</span></span><span style=display:flex><span>    body
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>接着我们创建一个<code>HttpResponse</code>类，用于表示 HTTP 响应。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HttpResponse</span>(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> version: Version = <span style=color:#a6e22e>Version</span>.HTTP_1_1,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> statusCode: Int,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> statusText: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> headers: Map&lt;String, String&gt; = emptyMap(),
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> body: String = <span style=color:#e6db74>&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>然后我们为<code>HttpResponse</code>类重写<code>toString</code>方法，用于将响应转换为字符串。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toString</span>(): String {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        </span><span style=color:#e6db74>$version</span><span style=color:#e6db74> </span><span style=color:#e6db74>$statusCode</span><span style=color:#e6db74> </span><span style=color:#e6db74>$statusText</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        </span><span style=color:#e6db74>${headers.map { &#34;${it.key}</span><span style=color:#e6db74>: </span><span style=color:#e6db74>${it.value}</span><span style=color:#e6db74>&#34; }.joinToString(&#34;\n&#34;)}
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        </span><span style=color:#e6db74>$body</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>.trimIndent()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着我们创建一个<code>Handler</code>类型，用于处理请求。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>typealias</span> Handler = (HttpRequest) <span style=color:#f92672>-&gt;</span> HttpResponse
+</span></span></code></pre></div><p>然后我们创建一个<code>Route</code>类，用于表示路由。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Route</span>(<span style=color:#66d9ef>val</span> method: Method, <span style=color:#66d9ef>val</span> path: String, <span style=color:#66d9ef>val</span> handler: Handler)
+</span></span></code></pre></div><p>接着创建一个<code>Router</code>类，用于管理路由。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Router</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> routes = mutableListOf&lt;Route&gt;()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>get</span>(path: String, handler: Handler) {
+</span></span><span style=display:flex><span>        routes.add(Route(<span style=color:#a6e22e>Method</span>.GET, path, handler))
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>handle</span>(socket: ServerSocket) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在<code>Router</code>类中，我们定义了一个<code>routes</code>属性，用于保存所有的路由。然后我们定义了一个<code>get</code>方法，用于添加一个 GET 请求的路由。最后我们定义了一个<code>handle</code>方法，用于处理请求。</p><p>接着我们需要实现<code>handle</code>方法。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>handle</span>(socket: ServerSocket) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (<span style=color:#66d9ef>true</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> client = socket.accept()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> reader = client.getInputStream().bufferedReader()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> writer = client.getOutputStream().bufferedWriter()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> httpRequest = <span style=color:#a6e22e>HttpRequest</span>.parse(reader)
+</span></span><span style=display:flex><span>        routes.findLast { <span style=color:#66d9ef>it</span>.method <span style=color:#f92672>==</span> httpRequest.method <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>it</span>.path <span style=color:#f92672>==</span> httpRequest.path }<span style=color:#f92672>?.</span>let {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> toString = <span style=color:#66d9ef>it</span>.handler.invoke(httpRequest).toString()
+</span></span><span style=display:flex><span>            writer.write(toString)
+</span></span><span style=display:flex><span>            writer.flush()
+</span></span><span style=display:flex><span>        } <span style=color:#f92672>?:</span> let {
+</span></span><span style=display:flex><span>            writer.write(
+</span></span><span style=display:flex><span>                HttpResponse(
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>Version</span>.HTTP_1_1,
+</span></span><span style=display:flex><span>                    <span style=color:#ae81ff>404</span>,
+</span></span><span style=display:flex><span>                    <span style=color:#e6db74>&#34;NotFound&#34;</span>,
+</span></span><span style=display:flex><span>                    headers = mapOf(<span style=color:#e6db74>&#34;Content-Type&#34;</span> to <span style=color:#e6db74>&#34;text/html&#34;</span>),
+</span></span><span style=display:flex><span>                    body = <span style=color:#e6db74>&#34;&lt;h1&gt;404 Not Found&lt;/h1&gt;&#34;</span>
+</span></span><span style=display:flex><span>                ).toString()
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>            writer.flush()
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        client.close()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在<code>handle</code>方法中，我们首先创建一个<code>ServerSocket</code>，然后进入一个无限循环。在循环中，我们首先接受一个客户端连接，然后创建一个<code>BufferedReader</code>和一个<code>BufferedWriter</code>，用于读取请求和写入响应。然后我们解析请求，然后查找路由，如果找到了路由，我们就调用路由的处理函数，然后将响应写入到客户端。如果没有找到路由，我们就返回一个 404 响应。最后我们关闭客户端连接。</p><p>最后我们创建一个<code>Server</code>类，用于创建服务器。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HttpServer</span>(port: Int) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> serverSocket: ServerSocket = ServerSocket(port)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>start</span>() {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在<code>start</code>方法中，我们创建一个<code>Router</code>，然后添加一个路由，最后调用<code>Router</code>的<code>handle</code>方法。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> router = Router()
+</span></span><span style=display:flex><span>router.<span style=color:#66d9ef>get</span>(<span style=color:#e6db74>&#34;/&#34;</span>) { _ <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>    HttpResponse(<span style=color:#a6e22e>Version</span>.HTTP_1_1, <span style=color:#ae81ff>200</span>, <span style=color:#e6db74>&#34;OK&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>router.<span style=color:#66d9ef>get</span>(<span style=color:#e6db74>&#34;/hello&#34;</span>) { _ <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>    HttpResponse(
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>Version</span>.HTTP_1_1, <span style=color:#ae81ff>200</span>, <span style=color:#e6db74>&#34;OK&#34;</span>,
+</span></span><span style=display:flex><span>        headers = mapOf(<span style=color:#e6db74>&#34;Content-Type&#34;</span> to <span style=color:#e6db74>&#34;text/html&#34;</span>),
+</span></span><span style=display:flex><span>        body = <span style=color:#e6db74>&#34;&lt;h1&gt;Hello World!&lt;/h1&gt;&#34;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>router.handle(serverSocket)
+</span></span></code></pre></div><p>这样我们就完成了一个简单的 HTTP 服务器。</p><p>现在来测试一下我们的服务器。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    HttpServer(<span style=color:#ae81ff>8080</span>).start()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在终端中运行<code>main</code>函数，然后在浏览器中打开<code>http://localhost:8080</code>和<code>http://localhost:8080/hello</code>，你应该能看到一个简单的页面。</p><h2 id=总结>总结</h2><p>在本文中，我们使用 Kotlin 编写了一个简单的 HTTP 服务器。我们使用 Java 的 <code>ServerSocket</code> 类来实现这个服务器。我们创建了一个简单的服务器，它监听端口 8080，并在接收到请求时返回一个简单的响应。我们还创建了一个简单的路由系统，用于处理不同的请求。</p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
