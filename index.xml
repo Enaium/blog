@@ -1,20 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sun, 23 Jun 2024 22:12:39 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust实战开发 编写Minecraft启动器#1启动方法</title><link>https://blog.enaium.cn/post/2024-6-23-rust%E5%AE%9E%E6%88%98%E5%BC%80%E5%8F%91-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%231%E5%90%AF%E5%8A%A8%E6%96%B9%E6%B3%95/</link><pubDate>Sun, 23 Jun 2024 22:12:39 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-6-23-rust%E5%AE%9E%E6%88%98%E5%BC%80%E5%8F%91-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%231%E5%90%AF%E5%8A%A8%E6%96%B9%E6%B3%95/</guid><description>引言 想必大家都知道Minecraft这个游戏，它是一个非常有趣的游戏，有没有想过它是如何启动的呢？在本系列中，我们将使用Rust编写一个简单的Minecraft启动器。
-本系列文章涉及的Rust知识并不多，了解Rust的基本语法即可，如果你对Minecraft或者Java有一定了解，那么会更容易理解本系列的内容。
-启动方法 首先Minecarft是使用Java编写的，所以我们需要通过执行Java命令来启动Minecraft，并且也需要添加一些参数，比如游戏的一些资源文件，Java的一些参数等等。
-大概就像这样：
-java -Xmx10745m -cp &amp;#34;minecraft.jar;lib/*&amp;#34; -Djava.library.path=&amp;#34;natives&amp;#34; net.minecraft.client.main.Main --username yourname --version 1.21 下载资源 第一步我们需要下载Minecraft的资源文件，包括游戏本体、依赖库、资源文件。
-http://launchermeta.mojang.com/mc/game/version_manifest.json这个地址可以读取到游戏所有版本。
-https://piston-meta.mojang.com/v1/packages/&amp;lt;sha1&amp;gt;/&amp;lt;version&amp;gt;.json这个地址可以获取到游戏的配置信息。
-http://resources.download.minecraft.net/&amp;lt;sha1_first_two&amp;gt;/&amp;lt;sha1&amp;gt;这个地址可以获取到游戏的资源文件。
-https://libraries.minecraft.net/&amp;lt;group&amp;gt;/&amp;lt;artifact&amp;gt;/&amp;lt;version&amp;gt;/&amp;lt;artifact&amp;gt;-&amp;lt;version&amp;gt;.jar这个地址可以获取到游戏的依赖库。
-拼接命令 完成以上步骤后，我们就可以拼接命令了，首先是java的程序路径，然后是JVM参数，然后是classpath，接着是main方法的类路径，最后是Minecraft的参数。
-拼接完成之后就可以执行这个命令启动游戏了。
-项目结果 本项目分为 4 个模块：download, launch, model, parse。
-download模块用于下载游戏资源文件。
-launch模块用于启动游戏。
-model模块用建立游戏的数据模型。
-parse模块用于解析游戏的配置文件(可有可无，用来测试建立的模型是否正确)。
-流程 graph LR 建立资源模型 --&amp;gt; 解析资源配置 --&amp;gt; 下载游戏资源 --&amp;gt; 拼接启动命令 --&amp;gt; 启动游戏</description></item><item><title>使用Kotlin编写一个Http服务器</title><link>https://blog.enaium.cn/post/2024-6-8-%E4%BD%BF%E7%94%A8kotlin%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AAhttp%E6%9C%8D%E5%8A%A1%E5%99%A8/</link><pubDate>Sat, 08 Jun 2024 20:04:11 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-6-8-%E4%BD%BF%E7%94%A8kotlin%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AAhttp%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid><description>引言 在本文中，我们将使用 Kotlin 编写一个简单的 HTTP 服务器。我们将使用 Java 的 ServerSocket 类来实现这个服务器。我们将创建一个简单的服务器，它将监听端口 8000，并在接收到请求时返回一个简单的响应。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sat, 08 Jun 2024 20:04:11 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>使用Kotlin编写一个Http服务器</title><link>https://blog.enaium.cn/post/2024-6-8-%E4%BD%BF%E7%94%A8kotlin%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AAhttp%E6%9C%8D%E5%8A%A1%E5%99%A8/</link><pubDate>Sat, 08 Jun 2024 20:04:11 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-6-8-%E4%BD%BF%E7%94%A8kotlin%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AAhttp%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid><description>引言 在本文中，我们将使用 Kotlin 编写一个简单的 HTTP 服务器。我们将使用 Java 的 ServerSocket 类来实现这个服务器。我们将创建一个简单的服务器，它将监听端口 8000，并在接收到请求时返回一个简单的响应。
 Http 的格式 HTTP 请求和响应都是文本格式的。HTTP 请求由请求行、请求头和请求体组成。HTTP 响应由状态行、响应头和响应体组成。
 具体可以到 MDN 查看。
 代码实现 首先我们需要创建一个Method枚举和一个Version枚举，用于表示请求的方法和版本。
