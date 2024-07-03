@@ -38,17 +38,19 @@ pub struct Object {
 }
 ```
 
-游戏本体`game.rs`
+游戏本体`version.rs`
 
 ```rust
 use serde::Deserialize;
 
-use crate::library::Library;
+use crate::{asset::AssetIndex, library::Library};
 
 pub type Libraries = Vec<Library>;
 
 #[derive(Deserialize)]
-pub struct Game {
+pub struct Version {
+    #[serde(alias = "assetIndex")]
+    pub asset_index: AssetIndex,
     pub downloads: Download,
     pub id: String,
     pub libraries: Libraries,
