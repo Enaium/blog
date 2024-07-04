@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Rust入门实战 编写Minecraft启动器#2建立资源模型"
 date: 2024-06-30T23:33:28+08:00
 draft: true
@@ -140,4 +141,13 @@ pub struct Version {
     #[serde(alias = "releaseTime")]
     pub release_time: String,
 }
+```
+
+最后我们把这几个模块导入到`lib.rs`中。
+
+```rust
+pub mod asset;
+pub mod library;
+pub mod version;
+pub mod version_manifest;
 ```

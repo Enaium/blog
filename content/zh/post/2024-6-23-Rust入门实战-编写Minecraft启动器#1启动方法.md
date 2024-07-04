@@ -49,7 +49,7 @@ java -Xmx10745m -cp "minecraft.jar;lib/*" -Djava.library.path="natives" net.mine
 
 - `model`模块用建立游戏的数据模型。
 
-- `parse`模块用于解析游戏的配置文件(可有可无，用来测试建立的模型是否正确)。
+- `parse`模块用于解析游戏的配置文件。
 
 ## 流程
 
