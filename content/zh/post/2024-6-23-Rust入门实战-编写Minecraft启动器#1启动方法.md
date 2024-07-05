@@ -33,13 +33,23 @@ java -Xmx10745m -cp "minecraft.jar;lib/*" -Djava.library.path="natives" net.mine
 
 `https://libraries.minecraft.net/<group>/<artifact>/<version>/<artifact>-<version>.jar`这个地址可以获取到游戏的依赖库。
 
+### 游戏目录结构
+
+首先游戏的所有资源都在一个目录中，这个目录包括`libraries`、`assets`、`versions`等文件夹，这个目录通常是`.minecraft`。
+
+`libraries`文件夹存放游戏的依赖库，目录结构和`Maven`的目录结构类似。
+
+`assets`文件夹存放游戏的资源文件，其中包括`objects`和`indexes`，`objects`存放资源文件，所有的资源文件都是以`sha1`命名的，所以`objects`文件夹下有一个以2位`sha1`命名的文件夹，所有前两位`sha1`相同的资源文件都在这个文件夹下，`indexes`存放资源文件的索引文件，也就是包含了资源文件的真实名称和对应的`sha1`值。
+
+`versions`文件夹存放游戏的版本文件，每个版本都有一个以版本号命名的文件夹，这个文件夹包括`natives`，它存放游戏的本地库文件，我们需要在游戏启动的时候将所有`native`的`jar`文件都解压到这个文件夹下，这个文件夹还包括`<version>.json`，这个文件包括了游戏的配置信息，比如`mainClass`，`assets`等等，还有`<version>.jar`，这个文件是游戏的本体文件。
+
 ### 拼接命令
 
 完成以上步骤后，我们就可以拼接命令了，首先是`java`的程序路径，然后是`JVM`参数，然后是`classpath`，接着是`main`方法的类路径，最后是`Minecraft`的参数。
 
 拼接完成之后就可以执行这个命令启动游戏了。
 
-## 项目结果
+## 项目结构
 
 本项目分为 4 个模块：`download`, `launch`, `model`, `parse`。
 
@@ -57,3 +67,7 @@ java -Xmx10745m -cp "minecraft.jar;lib/*" -Djava.library.path="natives" net.mine
 graph LR
     建立资源模型 --> 解析资源配置 --> 下载游戏资源 --> 拼接启动命令 --> 启动游戏
 ```
+
+## 结语
+
+好了，本文就到这里了，之后的一些内容会在后续文章中介绍。
