@@ -1,0 +1,123 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Rust入门实战 编写Minecraft启动器#2建立资源模型</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Rust入门实战 编写Minecraft启动器#2建立资源模型</div><div class=card-body><div class=card-text><p>我们需要声明几个结构体来存储游戏的资源信息，之后我们需要将<code>json</code>文件解析成这几个结构体，所以我们需要添加<code>serde</code>依赖。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#a6e22e>serde</span> = { <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;1.0&#34;</span>, <span style=color:#a6e22e>features</span> = [<span style=color:#e6db74>&#34;derive&#34;</span>] }
+</span></span></code></pre></div><p>资源相关<code>asset.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> serde::Deserialize;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> std::collections::HashMap;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>AssetIndex</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> id: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> sha1: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> size: <span style=color:#66d9ef>u32</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;totalSize&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> total_size: <span style=color:#66d9ef>u32</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> url: String,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Index</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> objects: <span style=color:#a6e22e>HashMap</span><span style=color:#f92672>&lt;</span>String, Object<span style=color:#f92672>&gt;</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Object</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> hash: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> size: <span style=color:#66d9ef>u32</span>,
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>游戏本体<code>version.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> serde::Deserialize;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> <span style=color:#66d9ef>crate</span>::{asset::AssetIndex, library::Library};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Libraries</span> <span style=color:#f92672>=</span> Vec<span style=color:#f92672>&lt;</span>Library<span style=color:#f92672>&gt;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Version</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;assetIndex&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> asset_index: <span style=color:#a6e22e>AssetIndex</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> downloads: <span style=color:#a6e22e>Download</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> id: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> libraries: <span style=color:#a6e22e>Libraries</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;mainClass&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> main_class: String,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;releaseTime&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> release_time: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> time: String,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;type&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> type_: String,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Download</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> client: <span style=color:#a6e22e>Client</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Client</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> sha1: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> size: <span style=color:#66d9ef>u32</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> url: String,
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>游戏依赖库<code>library.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> serde::Deserialize;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Library</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> downloads: <span style=color:#a6e22e>Download</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> name: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> rules: Option<span style=color:#f92672>&lt;</span>Vec<span style=color:#f92672>&lt;</span>Rule<span style=color:#f92672>&gt;&gt;</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Rule</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> action: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> os: <span style=color:#a6e22e>Os</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Os</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> name: String,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Download</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> artifact: <span style=color:#a6e22e>Artifact</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Artifact</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> path: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> sha1: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> size: <span style=color:#66d9ef>i32</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> url: String,
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>还有版本清单<code>version_manifest.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> serde::Deserialize;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>VersionManifest</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> latest: <span style=color:#a6e22e>Latest</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> versions: Vec<span style=color:#f92672>&lt;</span>Version<span style=color:#f92672>&gt;</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Latest</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> release: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> snapshot: String,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Deserialize)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Version</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> id: String,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;type&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> type_: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> url: String,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> time: String,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(alias = </span><span style=color:#e6db74>&#34;releaseTime&#34;</span><span style=color:#75715e>)]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> release_time: String,
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后我们把这几个模块导入到<code>lib.rs</code>中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>mod</span> asset;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>mod</span> library;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>mod</span> version;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>mod</span> version_manifest;
+</span></span></code></pre></div></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-6-23-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%231%E5%90%AF%E5%8A%A8%E6%96%B9%E6%B3%95/>Rust入门实战 编写Minecraft启动器#1启动方法</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2024-7-4-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%233%E8%A7%A3%E6%9E%90%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE/>Rust入门实战 编写Minecraft启动器#3解析资源配置</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>

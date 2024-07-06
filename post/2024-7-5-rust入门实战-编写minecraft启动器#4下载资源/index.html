@@ -1,0 +1,304 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Rust入门实战 编写Minecraft启动器#4下载资源</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Rust入门实战 编写Minecraft启动器#4下载资源</div><div class=card-body><div class=card-text><p>首先我们需要添加几个依赖。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#a6e22e>model</span> = { <span style=color:#a6e22e>path</span> = <span style=color:#e6db74>&#34;../model&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>parse</span> = { <span style=color:#a6e22e>path</span> = <span style=color:#e6db74>&#34;../parse&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>reqwest</span> = { <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;0.12&#34;</span>, <span style=color:#a6e22e>features</span> = [<span style=color:#e6db74>&#34;blocking&#34;</span>, <span style=color:#e6db74>&#34;json&#34;</span>] }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>file-hashing</span> = { <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;0.1&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>sha1</span> = { <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;0.10&#34;</span> }
+</span></span></code></pre></div><p><code>reqwest</code>用于发送请求，<code>file-hashing</code>用于计算文件的<code>hash</code>，<code>sha1</code>用于计算<code>sha1</code>。</p><p>之后我们需要添加下载的<code>trait</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>trait</span> Download {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(<span style=color:#f92672>&amp;</span>self, game_dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) -&gt; Result<span style=color:#f92672>&lt;</span>(), Box<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>dyn</span> std::error::Error<span style=color:#f92672>&gt;&gt;</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着我们需要使用<code>Client::builder()</code>来创建一个<code>Client</code>，因为默认的<code>get</code>方法会用有个超时时间，而我们需要设置超时时间为无限。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>get</span><span style=color:#f92672>&lt;</span>T: <span style=color:#a6e22e>reqwest</span>::IntoUrl<span style=color:#f92672>&gt;</span>(url: <span style=color:#a6e22e>T</span>) -&gt; <span style=color:#a6e22e>reqwest</span>::Result<span style=color:#f92672>&lt;</span>reqwest::blocking::Response<span style=color:#f92672>&gt;</span> {
+</span></span><span style=display:flex><span>    reqwest::blocking::Client::builder()
+</span></span><span style=display:flex><span>        .timeout(None)
+</span></span><span style=display:flex><span>        .build()<span style=color:#f92672>?</span>
+</span></span><span style=display:flex><span>        .get(url)
+</span></span><span style=display:flex><span>        .send()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后我们需要创建一个计算文件<code>hash</code>的函数。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>sha1</span><span style=color:#f92672>&lt;</span>P: AsRef<span style=color:#f92672>&lt;</span>Path<span style=color:#f92672>&gt;&gt;</span>(path: <span style=color:#a6e22e>P</span>) -&gt; Result<span style=color:#f92672>&lt;</span>String, std::io::Error<span style=color:#f92672>&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> hasher <span style=color:#f92672>=</span> Sha1::new();
+</span></span><span style=display:flex><span>    file_hashing::get_hash_file(path, <span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> hasher)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>之后需要出创建<code>asset.rs</code>、<code>library.rs</code>、<code>version.rs</code>文件，分别对应下载资源、下载库、下载游戏版本。</p><p><code>asset.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> std::{fs, path::Path};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> model::asset::<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> parse::Parse;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> <span style=color:#66d9ef>crate</span>::{get, Download};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> Download <span style=color:#66d9ef>for</span> AssetIndex {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(<span style=color:#f92672>&amp;</span>self, game_dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) -&gt; Result<span style=color:#f92672>&lt;</span>(), Box<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>dyn</span> std::error::Error<span style=color:#f92672>&gt;&gt;</span> {
+</span></span><span style=display:flex><span>        println!(<span style=color:#e6db74>&#34;Downloading asset index:</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>, self.id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> indexes_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir.join(<span style=color:#e6db74>&#34;assets&#34;</span>).join(<span style=color:#e6db74>&#34;indexes&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>indexes_dir.exists() {
+</span></span><span style=display:flex><span>            std::fs::create_dir_all(indexes_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>indexes_dir.join(<span style=color:#f92672>&amp;</span>format!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>.json&#34;</span>, self.id));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std::fs::File::create(path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> url <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>self.url;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> text <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>get(url)<span style=color:#f92672>?</span>.text()<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std::fs::write(path, text)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> index <span style=color:#f92672>=</span> Index::parse(text)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> objects_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir.join(<span style=color:#e6db74>&#34;assets&#34;</span>).join(<span style=color:#e6db74>&#34;objects&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>objects_dir.exists() {
+</span></span><span style=display:flex><span>            std::fs::create_dir_all(objects_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (_, value) <span style=color:#66d9ef>in</span> index.objects {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> hash <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>value.hash;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> hash_first_two <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>hash.chars().take(<span style=color:#ae81ff>2</span>).collect::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> first_two_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>objects_dir.join(hash_first_two);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>first_two_dir.exists() {
+</span></span><span style=display:flex><span>                std::fs::create_dir_all(first_two_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>first_two_dir.join(hash);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> path.exists() {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>crate</span>::sha1(path)<span style=color:#f92672>?</span>.eq(hash) {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                    std::fs::remove_file(path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            std::fs::File::create(path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> url <span style=color:#f92672>=</span> format!(
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;https://resources.download.minecraft.net/</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>/</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>,
+</span></span><span style=display:flex><span>                hash_first_two, hash
+</span></span><span style=display:flex><span>            );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            println!(<span style=color:#e6db74>&#34;Downloading:</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>, url);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> bytes <span style=color:#f92672>=</span> get(<span style=color:#f92672>&amp;</span>url)<span style=color:#f92672>?</span>.bytes()<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>            fs::write(path, bytes)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        Ok(())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[cfg(test)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>mod</span> tests {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>use</span> <span style=color:#66d9ef>super</span>::<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[test]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>test_asset_index</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> asset_index <span style=color:#f92672>=</span> model::asset::AssetIndex {
+</span></span><span style=display:flex><span>            id: <span style=color:#e6db74>&#34;17&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            sha1: <span style=color:#e6db74>&#34;fab15439bdef669e389e25e815eee8f1b2aa915e&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            size: <span style=color:#ae81ff>447033</span>,
+</span></span><span style=display:flex><span>            total_size: <span style=color:#ae81ff>799252591</span>,
+</span></span><span style=display:flex><span>            url: <span style=color:#e6db74>&#34;https://piston-meta.mojang.com/v1/packages/fab15439bdef669e389e25e815eee8f1b2aa915e/17.json&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> download_path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>std::env::temp_dir().join(<span style=color:#e6db74>&#34;rust-minecraft-client-launch&#34;</span>);
+</span></span><span style=display:flex><span>        std::fs::create_dir_all(download_path).unwrap_or_else(<span style=color:#f92672>|</span>err<span style=color:#f92672>|</span> panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> Err(err) <span style=color:#f92672>=</span> asset_index.download(download_path) {
+</span></span><span style=display:flex><span>            panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>library.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> std::path::Path;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> model::{library, version::Libraries};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> <span style=color:#66d9ef>crate</span>::{Download, LibraryAllowed};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> LibraryAllowed <span style=color:#66d9ef>for</span> library::Library {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>allowed</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> self.rules.is_some() {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> rule <span style=color:#66d9ef>in</span> self.rules.as_ref().unwrap() {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> rule.os.name <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;osx&#34;</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>cfg!(target_os <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;macos&#34;</span>) {
+</span></span><span style=display:flex><span>                    allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> rule.os.name <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;linux&#34;</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>cfg!(target_os <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;linux&#34;</span>) {
+</span></span><span style=display:flex><span>                    allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> rule.os.name <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;windows&#34;</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>cfg!(target_os <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;windows&#34;</span>) {
+</span></span><span style=display:flex><span>                    allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> self.name.contains(<span style=color:#e6db74>&#34;natives&#34;</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> self.name.contains(<span style=color:#e6db74>&#34;x86&#34;</span>) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>cfg!(target_arch <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86&#34;</span>) {
+</span></span><span style=display:flex><span>                allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> self.name.contains(<span style=color:#e6db74>&#34;arm64&#34;</span>) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>cfg!(target_arch <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;aarch64&#34;</span>) {
+</span></span><span style=display:flex><span>                allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>cfg!(target_arch <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64&#34;</span>) {
+</span></span><span style=display:flex><span>                allowed <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        allowed
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> Download <span style=color:#66d9ef>for</span> Libraries {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(<span style=color:#f92672>&amp;</span>self, game_dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) -&gt; Result<span style=color:#f92672>&lt;</span>(), Box<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>dyn</span> std::error::Error<span style=color:#f92672>&gt;&gt;</span> {
+</span></span><span style=display:flex><span>        println!(<span style=color:#e6db74>&#34;Downloading libraries&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> libraries_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir.join(<span style=color:#e6db74>&#34;libraries&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>libraries_dir.exists() {
+</span></span><span style=display:flex><span>            std::fs::create_dir_all(libraries_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> library <span style=color:#66d9ef>in</span> self {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>library.allowed() {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> library_file <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>library.downloads.artifact.path;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> library_path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>libraries_dir.join(library_file);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>library_path.parent().unwrap().exists() {
+</span></span><span style=display:flex><span>                std::fs::create_dir_all(library_path.parent().unwrap())<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> library_path.exists() {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>crate</span>::sha1(library_path)<span style=color:#f92672>?</span> <span style=color:#f92672>==</span> library.downloads.artifact.sha1 {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                    std::fs::remove_file(library_path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            std::fs::File::create(<span style=color:#f92672>&amp;</span>library_path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> url <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>library.downloads.artifact.url;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            println!(<span style=color:#e6db74>&#34;Downloading: </span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>, url);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> bytes <span style=color:#f92672>=</span> <span style=color:#66d9ef>crate</span>::get(url)<span style=color:#f92672>?</span>.bytes()<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            std::fs::write(library_path, bytes)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        Ok(())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[cfg(test)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>mod</span> tests {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>use</span> <span style=color:#66d9ef>super</span>::<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>use</span> model::version::Version;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[test]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>test_download</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> game <span style=color:#f92672>=</span> reqwest::blocking::get(<span style=color:#e6db74>&#34;https://piston-meta.mojang.com/v1/packages/177e49d3233cb6eac42f0495c0a48e719870c2ae/1.21.json&#34;</span>)
+</span></span><span style=display:flex><span>            .unwrap()
+</span></span><span style=display:flex><span>            .json::<span style=color:#f92672>&lt;</span>Version<span style=color:#f92672>&gt;</span>()
+</span></span><span style=display:flex><span>            .unwrap();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> download_path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>std::env::temp_dir().join(<span style=color:#e6db74>&#34;rust-minecraft-client-launch&#34;</span>);
+</span></span><span style=display:flex><span>        std::fs::create_dir_all(download_path).unwrap_or_else(<span style=color:#f92672>|</span>err<span style=color:#f92672>|</span> panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> Err(err) <span style=color:#f92672>=</span> game.libraries.download(download_path) {
+</span></span><span style=display:flex><span>            panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里我们需要添加一个<code>trait</code>，用于判断库是否允许下载。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>trait</span> LibraryAllowed {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>allowed</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>version.rs</code></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>use</span> std::path::Path;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> model::version_manifest::Version;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>use</span> <span style=color:#66d9ef>crate</span>::{get, sha1, Download};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> Download <span style=color:#66d9ef>for</span> Version {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(<span style=color:#f92672>&amp;</span>self, game_dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) -&gt; Result<span style=color:#f92672>&lt;</span>(), Box<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>dyn</span> std::error::Error<span style=color:#f92672>&gt;&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> game <span style=color:#f92672>=</span> get(<span style=color:#f92672>&amp;</span>self.url)
+</span></span><span style=display:flex><span>            .unwrap()
+</span></span><span style=display:flex><span>            .json::<span style=color:#f92672>&lt;</span>model::version::Version<span style=color:#f92672>&gt;</span>()
+</span></span><span style=display:flex><span>            .unwrap();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> versions_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir.join(game_dir).join(<span style=color:#e6db74>&#34;versions&#34;</span>).join(<span style=color:#f92672>&amp;</span>self.id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>versions_dir.exists() {
+</span></span><span style=display:flex><span>            std::fs::create_dir_all(versions_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        game.libraries.download(game_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>        game.asset_index.download(game_dir)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> version_config <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir
+</span></span><span style=display:flex><span>            .join(<span style=color:#e6db74>&#34;versions&#34;</span>)
+</span></span><span style=display:flex><span>            .join(<span style=color:#f92672>&amp;</span>self.id)
+</span></span><span style=display:flex><span>            .join(<span style=color:#f92672>&amp;</span>format!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>.json&#34;</span>, <span style=color:#f92672>&amp;</span>self.id));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> version_config.exists() {
+</span></span><span style=display:flex><span>            std::fs::remove_file(version_config).unwrap();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std::fs::File::create(version_config).unwrap();
+</span></span><span style=display:flex><span>        std::fs::write(version_config, get(<span style=color:#f92672>&amp;</span>self.url).unwrap().bytes().unwrap()).unwrap();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>versions_dir
+</span></span><span style=display:flex><span>            .join(versions_dir)
+</span></span><span style=display:flex><span>            .join(<span style=color:#f92672>&amp;</span>format!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>.jar&#34;</span>, <span style=color:#f92672>&amp;</span>self.id));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> path.exists() {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> sha1(path)<span style=color:#f92672>?</span> <span style=color:#f92672>==</span> game.downloads.client.sha1 {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> Ok(());
+</span></span><span style=display:flex><span>            } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                std::fs::remove_file(path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std::fs::File::create(path)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> bytes <span style=color:#f92672>=</span> <span style=color:#66d9ef>crate</span>::get(<span style=color:#f92672>&amp;</span>game.downloads.client.url)<span style=color:#f92672>?</span>.bytes()<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std::fs::write(path, bytes)<span style=color:#f92672>?</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        Ok(())
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#[cfg(test)]</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>mod</span> tests {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>use</span> <span style=color:#66d9ef>super</span>::<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>#[test]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>test_download</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> version <span style=color:#f92672>=</span> Version {
+</span></span><span style=display:flex><span>            id: <span style=color:#e6db74>&#34;1.21&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            type_: <span style=color:#e6db74>&#34;release&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            url: <span style=color:#e6db74>&#34;https://piston-meta.mojang.com/v1/packages/177e49d3233cb6eac42f0495c0a48e719870c2ae/1.21.json&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            time : <span style=color:#e6db74>&#34;2024-06-13T08:32:38+00:00&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>            release_time : <span style=color:#e6db74>&#34;2024-06-13T08:24:03+00:00&#34;</span>.to_string(),
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> download_path <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>std::env::temp_dir().join(<span style=color:#e6db74>&#34;rust-minecraft-client-launch&#34;</span>);
+</span></span><span style=display:flex><span>        std::fs::create_dir_all(download_path).unwrap_or_else(<span style=color:#f92672>|</span>err<span style=color:#f92672>|</span> panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> Err(err) <span style=color:#f92672>=</span> version.download(download_path) {
+</span></span><span style=display:flex><span>            panic!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>好了，现在我们可以测试下载资源了。</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-7-4-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%233%E8%A7%A3%E6%9E%90%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE/>Rust入门实战 编写Minecraft启动器#3解析资源配置</a>
+<a class=text-reset href=https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/>Rust入门实战 编写Minecraft启动器#5启动游戏</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>

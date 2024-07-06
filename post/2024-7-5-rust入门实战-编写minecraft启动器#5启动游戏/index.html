@@ -1,0 +1,189 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>Rust入门实战 编写Minecraft启动器#5启动游戏</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>Rust入门实战 编写Minecraft启动器#5启动游戏</div><div class=card-body><div class=card-text><p>好了，我们已经完成了所有的准备工作，现在我们可以开始编写启动游戏的代码了。</p><p>首先我们需要添加几个依赖。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#a6e22e>model</span> = { <span style=color:#a6e22e>path</span> = <span style=color:#e6db74>&#34;../model&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>parse</span> = { <span style=color:#a6e22e>path</span> = <span style=color:#e6db74>&#34;../parse&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>download</span> = { <span style=color:#a6e22e>path</span> = <span style=color:#e6db74>&#34;../download&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>clap</span> = { <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;4.5&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>zip</span> = <span style=color:#e6db74>&#34;2.1&#34;</span>
+</span></span></code></pre></div><p><code>clap</code>用于解析命令行参数，<code>zip</code>用于解压文件。</p><p>首先创建一个<code>cli</code>函数用于构建我们的命令行。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>cli</span>() -&gt; <span style=color:#a6e22e>Command</span> {
+</span></span><span style=display:flex><span>    Command::new(<span style=color:#e6db74>&#34;rmcl&#34;</span>)
+</span></span><span style=display:flex><span>        .about(<span style=color:#e6db74>&#34;A Minecraft launcher written in Rust&#34;</span>)
+</span></span><span style=display:flex><span>        .version(<span style=color:#e6db74>&#34;0.1.0&#34;</span>)
+</span></span><span style=display:flex><span>        .author(<span style=color:#e6db74>&#34;Enaium&#34;</span>)
+</span></span><span style=display:flex><span>        .subcommand_required(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>        .arg_required_else_help(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>        .allow_external_subcommands(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>        .subcommand(
+</span></span><span style=display:flex><span>            Command::new(<span style=color:#e6db74>&#34;search&#34;</span>)
+</span></span><span style=display:flex><span>                .about(<span style=color:#e6db74>&#34;Search Game&#34;</span>)
+</span></span><span style=display:flex><span>                .arg(arg!([<span style=color:#66d9ef>VERSION</span>] <span style=color:#e6db74>&#34;Game version&#34;</span>))
+</span></span><span style=display:flex><span>                .arg(
+</span></span><span style=display:flex><span>                    arg!(<span style=color:#f92672>-</span>t <span style=color:#f92672>--</span><span style=color:#66d9ef>type</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>TYPE</span><span style=color:#f92672>&gt;</span> <span style=color:#e6db74>&#34;Game type&#34;</span>)
+</span></span><span style=display:flex><span>                        .value_parser([<span style=color:#e6db74>&#34;release&#34;</span>, <span style=color:#e6db74>&#34;snapshot&#34;</span>, <span style=color:#e6db74>&#34;old_beta&#34;</span>, <span style=color:#e6db74>&#34;old_alpha&#34;</span>])
+</span></span><span style=display:flex><span>                        .require_equals(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>                        .default_value(<span style=color:#e6db74>&#34;release&#34;</span>)
+</span></span><span style=display:flex><span>                        .default_missing_value(<span style=color:#e6db74>&#34;release&#34;</span>),
+</span></span><span style=display:flex><span>                ),
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        .subcommand(
+</span></span><span style=display:flex><span>            Command::new(<span style=color:#e6db74>&#34;download&#34;</span>)
+</span></span><span style=display:flex><span>                .about(<span style=color:#e6db74>&#34;Download Game&#34;</span>)
+</span></span><span style=display:flex><span>                .arg(arg!(<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>VERSION</span><span style=color:#f92672>&gt;</span> <span style=color:#e6db74>&#34;Game Version&#34;</span>))
+</span></span><span style=display:flex><span>                .arg_required_else_help(<span style=color:#66d9ef>true</span>),
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        .subcommand(
+</span></span><span style=display:flex><span>            Command::new(<span style=color:#e6db74>&#34;launch&#34;</span>)
+</span></span><span style=display:flex><span>                .about(<span style=color:#e6db74>&#34;Launch Game&#34;</span>)
+</span></span><span style=display:flex><span>                .arg(arg!(<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>VERSION</span><span style=color:#f92672>&gt;</span> <span style=color:#e6db74>&#34;Game Version&#34;</span>))
+</span></span><span style=display:flex><span>                .arg_required_else_help(<span style=color:#66d9ef>true</span>),
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着创建一个<code>get_version_manifest</code>函数用于获取游戏的所有版本清单。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>get_version_manifest</span>() -&gt; <span style=color:#a6e22e>model</span>::version_manifest::VersionManifest {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> get(<span style=color:#e6db74>&#34;https://launchermeta.mojang.com/mc/game/version_manifest.json&#34;</span>)
+</span></span><span style=display:flex><span>        .unwrap()
+</span></span><span style=display:flex><span>        .json::<span style=color:#f92672>&lt;</span>version_manifest::VersionManifest<span style=color:#f92672>&gt;</span>()
+</span></span><span style=display:flex><span>        .unwrap();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>之后编写每个子命令的处理函数。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>search</span>(sub_matches: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>clap</span>::ArgMatches) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version <span style=color:#f92672>=</span> sub_matches.get_one::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>(<span style=color:#e6db74>&#34;VERSION&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> type_ <span style=color:#f92672>=</span> sub_matches.get_one::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>(<span style=color:#e6db74>&#34;type&#34;</span>).unwrap();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> versions <span style=color:#f92672>=</span> get_version_manifest().versions;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> versions <span style=color:#f92672>=</span> versions.iter().filter(<span style=color:#f92672>|</span>v<span style=color:#f92672>|</span> {
+</span></span><span style=display:flex><span>        (<span style=color:#66d9ef>if</span> version.is_some() {
+</span></span><span style=display:flex><span>            v.id.contains(version.unwrap())
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>        }) <span style=color:#f92672>&amp;&amp;</span> v.type_.eq(type_)
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> version <span style=color:#66d9ef>in</span> versions {
+</span></span><span style=display:flex><span>        println!(<span style=color:#e6db74>&#34;Version:</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>, version.id);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(sub_matches: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>clap</span>::ArgMatches) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> game_dir <span style=color:#f92672>=</span> std::env::current_dir().unwrap().join(<span style=color:#e6db74>&#34;.minecraft&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version <span style=color:#f92672>=</span> sub_matches.get_one::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>(<span style=color:#e6db74>&#34;VERSION&#34;</span>).unwrap();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> versions <span style=color:#f92672>=</span> get_version_manifest().versions;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> Some(version) <span style=color:#f92672>=</span> versions.iter().find(<span style=color:#f92672>|</span>v<span style=color:#f92672>|</span> v.id.eq(version)) {
+</span></span><span style=display:flex><span>        version.download(<span style=color:#f92672>&amp;</span>game_dir).unwrap_or_else(<span style=color:#f92672>|</span>err<span style=color:#f92672>|</span> {
+</span></span><span style=display:flex><span>            panic!(<span style=color:#e6db74>&#34;Version download error:</span><span style=color:#e6db74>{:?}</span><span style=color:#e6db74>&#34;</span>, err);
+</span></span><span style=display:flex><span>        });
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>        println!(<span style=color:#e6db74>&#34;Version:</span><span style=color:#e6db74>{}</span><span style=color:#e6db74> not found&#34;</span>, version);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>launch</span>(sub_matches: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>clap</span>::ArgMatches) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> game_dir <span style=color:#f92672>=</span> std::env::current_dir().unwrap().join(<span style=color:#e6db74>&#34;.minecraft&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> libraries_dir <span style=color:#f92672>=</span> game_dir.join(<span style=color:#e6db74>&#34;libraries&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> assets_dir <span style=color:#f92672>=</span> game_dir.join(<span style=color:#e6db74>&#34;assets&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version <span style=color:#f92672>=</span> sub_matches.get_one::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>(<span style=color:#e6db74>&#34;VERSION&#34;</span>).unwrap();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version_dir <span style=color:#f92672>=</span> game_dir.join(<span style=color:#e6db74>&#34;versions&#34;</span>).join(version);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> natives_dir <span style=color:#f92672>=</span> version_dir.join(<span style=color:#e6db74>&#34;natives&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> config_path <span style=color:#f92672>=</span> version_dir.join(format!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>.json&#34;</span>, version));
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version_path <span style=color:#f92672>=</span> version_dir.join(format!(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>.jar&#34;</span>, version));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>version_path.exists() <span style=color:#f92672>||</span> <span style=color:#f92672>!</span>config_path.exists() {
+</span></span><span style=display:flex><span>        println!(<span style=color:#e6db74>&#34;Version:</span><span style=color:#e6db74>{}</span><span style=color:#e6db74> not found&#34;</span>, version_path.display());
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> version <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>Version::parse(<span style=color:#f92672>&amp;</span>std::fs::read_to_string(<span style=color:#f92672>&amp;</span>config_path).unwrap()).unwrap();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> library <span style=color:#66d9ef>in</span> <span style=color:#f92672>&amp;</span>version.libraries {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> library.allowed() <span style=color:#f92672>&amp;&amp;</span> library.name.contains(<span style=color:#e6db74>&#34;natives&#34;</span>) {
+</span></span><span style=display:flex><span>            extract_jar(
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&amp;</span>libraries_dir.join(<span style=color:#f92672>&amp;</span>library.downloads.artifact.path),
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&amp;</span>natives_dir,
+</span></span><span style=display:flex><span>            );
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> classpath <span style=color:#f92672>=</span> format!(
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}{}</span><span style=color:#e6db74>&#34;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&amp;</span>version
+</span></span><span style=display:flex><span>            .libraries
+</span></span><span style=display:flex><span>            .iter()
+</span></span><span style=display:flex><span>            .map(<span style=color:#f92672>|</span>library<span style=color:#f92672>|</span> {
+</span></span><span style=display:flex><span>                format!(
+</span></span><span style=display:flex><span>                    <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{}{}</span><span style=color:#e6db74>&#34;</span>,
+</span></span><span style=display:flex><span>                    libraries_dir
+</span></span><span style=display:flex><span>                        .join(<span style=color:#f92672>&amp;</span>library.downloads.artifact.path)
+</span></span><span style=display:flex><span>                        .display(),
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> cfg!(windows) { <span style=color:#e6db74>&#34;;&#34;</span> } <span style=color:#66d9ef>else</span> { <span style=color:#e6db74>&#34;:&#34;</span> }
+</span></span><span style=display:flex><span>                )
+</span></span><span style=display:flex><span>            })
+</span></span><span style=display:flex><span>            .collect::<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>(),
+</span></span><span style=display:flex><span>        version_path.display()
+</span></span><span style=display:flex><span>    );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std::process::Command::new(<span style=color:#e6db74>&#34;java&#34;</span>)
+</span></span><span style=display:flex><span>        .current_dir(<span style=color:#f92672>&amp;</span>game_dir)
+</span></span><span style=display:flex><span>        .arg(format!(<span style=color:#e6db74>&#34;-Djava.library.path=</span><span style=color:#e6db74>{}</span><span style=color:#e6db74>&#34;</span>, natives_dir.display()))
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;-Dminecraft.launcher.brand=rmcl&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;-cp&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(classpath)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#f92672>&amp;</span>version.main_class)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--username&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;Enaium&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--version&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#f92672>&amp;</span>version.id)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--gameDir&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(game_dir)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--assetsDir&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(assets_dir)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--assetIndex&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#f92672>&amp;</span>version.asset_index.id)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--accessToken&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;0&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;--versionType&#34;</span>)
+</span></span><span style=display:flex><span>        .arg(<span style=color:#e6db74>&#34;RMCL 0.1.0&#34;</span>)
+</span></span><span style=display:flex><span>        .status()
+</span></span><span style=display:flex><span>        .unwrap();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>解压<code>natives</code>文件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>extract_jar</span>(jar: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>, dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>dir.exists() {
+</span></span><span style=display:flex><span>        std::fs::create_dir_all(dir).unwrap();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> archive <span style=color:#f92672>=</span> zip::ZipArchive::new(std::fs::File::open(jar).unwrap()).unwrap();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> i <span style=color:#66d9ef>in</span> <span style=color:#ae81ff>0</span><span style=color:#f92672>..</span>archive.len() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> entry <span style=color:#f92672>=</span> archive.by_index(i).unwrap();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> entry.is_file() <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span>entry.name().contains(<span style=color:#e6db74>&#34;META-INF&#34;</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> name <span style=color:#f92672>=</span> entry.name();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> name.contains(<span style=color:#e6db74>&#34;/&#34;</span>) {
+</span></span><span style=display:flex><span>                name <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>name[entry.name().rfind(<span style=color:#e6db74>&#39;/&#39;</span>).unwrap() <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>..</span>];
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> path <span style=color:#f92672>=</span> dir.join(name);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> path.exists() {
+</span></span><span style=display:flex><span>                std::fs::remove_file(<span style=color:#f92672>&amp;</span>path).unwrap();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> file <span style=color:#f92672>=</span> std::fs::File::create(<span style=color:#f92672>&amp;</span>path).unwrap();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            std::io::copy(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> entry, <span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> file).unwrap();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后在<code>main</code>函数中调用<code>cli</code>函数。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>let</span> matches <span style=color:#f92672>=</span> cli().get_matches();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>match</span> matches.subcommand() {
+</span></span><span style=display:flex><span>        Some((<span style=color:#e6db74>&#34;search&#34;</span>, sub_matches)) <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>            search(sub_matches);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        Some((<span style=color:#e6db74>&#34;download&#34;</span>, sub_matches)) <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>            download(sub_matches);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        Some((<span style=color:#e6db74>&#34;launch&#34;</span>, sub_matches)) <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>            launch(sub_matches);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        _ <span style=color:#f92672>=&gt;</span> unreachable!(),
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>现在我们可以使用<code>rmcl</code>命令来搜索、下载、启动游戏了。</p><p><img alt=20240705202955 src=https://s2.loli.net/2024/07/05/Gs3lipmVvNDuzX7.png></p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
