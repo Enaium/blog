@@ -2,7 +2,6 @@
 layout: post
 title: "Rust入门实战 编写Minecraft启动器#4下载资源"
 date: 2024-07-05T19:58:57+08:00
-draft: true
 ---
 
 首先我们需要添加几个依赖。
