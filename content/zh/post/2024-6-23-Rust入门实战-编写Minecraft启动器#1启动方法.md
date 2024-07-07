@@ -42,7 +42,7 @@ java -Xmx10745m -cp "minecraft.jar;lib/*" -Djava.library.path="natives" net.mine
 
 `libraries`文件夹存放游戏的依赖库，目录结构和`Maven`的目录结构类似。
 
-`assets`文件夹存放游戏的资源文件，其中包括`objects`和`indexes`，`objects`存放资源文件，所有的资源文件都是以`sha1`命名的，所以`objects`文件夹下有一个以2位`sha1`命名的文件夹，所有前两位`sha1`相同的资源文件都在这个文件夹下，`indexes`存放资源文件的索引文件，也就是包含了资源文件的真实名称和对应的`sha1`值。
+`assets`文件夹存放游戏的资源文件，其中包括`objects`和`indexes`，`objects`存放资源文件，所有的资源文件都是以`sha1`命名的，所以`objects`文件夹下有一个以 2 位`sha1`命名的文件夹，所有前两位`sha1`相同的资源文件都在这个文件夹下，`indexes`存放资源文件的索引文件，也就是包含了资源文件的真实名称和对应的`sha1`值。
 
 `versions`文件夹存放游戏的版本文件，每个版本都有一个以版本号命名的文件夹，这个文件夹包括`natives`，它存放游戏的本地库文件，我们需要在游戏启动的时候将所有`native`的`jar`文件都解压到这个文件夹下，这个文件夹还包括`<version>.json`，这个文件包括了游戏的配置信息，比如`mainClass`，`assets`等等，还有`<version>.jar`，这个文件是游戏的本体文件。
 
@@ -74,3 +74,5 @@ graph LR
 ## 结语
 
 好了，本文就到这里了，之后的一些内容会在后续文章中介绍。
+
+[项目地址](https://github.com/Enaium/teaching-rust-minecraft-client-launch)

@@ -274,10 +274,7 @@ use crate::{get, sha1, Download};
 
 impl Download for Version {
     fn download(&self, game_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
-        let game = get(&self.url)
-            .unwrap()
-            .json::<model::version::Version>()
-            .unwrap();
+        let game = get(&self.url)?.json::<model::version::Version>()?;
 
         let versions_dir = &game_dir.join(game_dir).join("versions").join(&self.id);
 
@@ -347,3 +344,5 @@ mod tests {
 ```
 
 好了，现在我们可以测试下载资源了。
+
+[项目地址](https://github.com/Enaium/teaching-rust-minecraft-client-launch)

@@ -230,3 +230,5 @@ fn main() {
 现在我们可以使用`rmcl`命令来搜索、下载、启动游戏了。
 
 ![20240705202955](https://s2.loli.net/2024/07/05/Gs3lipmVvNDuzX7.png)
+
+[项目地址](https://github.com/Enaium/teaching-rust-minecraft-client-launch)
