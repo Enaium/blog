@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Rust入门实战 编写Minecraft启动器#5启动游戏"
 date: 2024-07-05T20:19:35+08:00
 ---
