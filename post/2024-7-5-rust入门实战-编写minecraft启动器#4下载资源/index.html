@@ -230,10 +230,7 @@ Enaium的博客
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> Download <span style=color:#66d9ef>for</span> Version {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>download</span>(<span style=color:#f92672>&amp;</span>self, game_dir: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>Path</span>) -&gt; Result<span style=color:#f92672>&lt;</span>(), Box<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>dyn</span> std::error::Error<span style=color:#f92672>&gt;&gt;</span> {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> game <span style=color:#f92672>=</span> get(<span style=color:#f92672>&amp;</span>self.url)
-</span></span><span style=display:flex><span>            .unwrap()
-</span></span><span style=display:flex><span>            .json::<span style=color:#f92672>&lt;</span>model::version::Version<span style=color:#f92672>&gt;</span>()
-</span></span><span style=display:flex><span>            .unwrap();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> game <span style=color:#f92672>=</span> get(<span style=color:#f92672>&amp;</span>self.url)<span style=color:#f92672>?</span>.json::<span style=color:#f92672>&lt;</span>model::version::Version<span style=color:#f92672>&gt;</span>()<span style=color:#f92672>?</span>;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> versions_dir <span style=color:#f92672>=</span> <span style=color:#f92672>&amp;</span>game_dir.join(game_dir).join(<span style=color:#e6db74>&#34;versions&#34;</span>).join(<span style=color:#f92672>&amp;</span>self.id);
 </span></span><span style=display:flex><span>
@@ -300,5 +297,5 @@ Enaium的博客
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>好了，现在我们可以测试下载资源了。</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-7-4-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%233%E8%A7%A3%E6%9E%90%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE/>Rust入门实战 编写Minecraft启动器#3解析资源配置</a>
+</span></span></code></pre></div><p>好了，现在我们可以测试下载资源了。</p><p><a href=https://github.com/Enaium/teaching-rust-minecraft-client-launch>项目地址</a></p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-7-4-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%233%E8%A7%A3%E6%9E%90%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE/>Rust入门实战 编写Minecraft启动器#3解析资源配置</a>
 <a class=text-reset href=https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/>Rust入门实战 编写Minecraft启动器#5启动游戏</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
