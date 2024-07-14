@@ -1,4 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Fri, 05 Jul 2024 20:19:35 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust入门实战 编写Minecraft启动器#5启动游戏</title><link>https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/</link><pubDate>Fri, 05 Jul 2024 20:19:35 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/</guid><description>好了，我们已经完成了所有的准备工作，现在我们可以开始编写启动游戏的代码了。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sat, 13 Jul 2024 23:40:06 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>Vue项目整合Cordova一键打包apk</title><link>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</link><pubDate>Sat, 13 Jul 2024 23:40:06 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</guid><description>Cordova是一个依赖于Node.js的工具，它可以将HTML页面打包为apk等移动端应用，本篇文章将介绍如何使用Cordova将Vue项目打包为apk。
+创建Corodva项目 首先，我们需要安装Cordova，可以使用npm进行安装：
+npm install -g cordova 安装完成后，我们可以使用cordova create命令创建一个Cordova项目：
+cordova create test 之后进入到test目录，添加到Android平台：
+cd test cordova platform add android 这样就可以测试Cordova项目了，可以使用cordova build进行打包。
+在打包之前需要注意以下几点：
+如果之前没有使用过Java编程语言，则需要安装JDK，并且版本需要大于等于11。
+如果之前没有使用过Gradle，则需要安装Gradle，并配置它的bin目录到PATH环境变量。
+如果之前没有开发过Android项目，则需要安装Android Studio，并下载Android SDK，然后配置ANDROID_HOME环境变量。
+如果过程顺利，那么会在app/build/outputs目录下生成apk文件。
+整合Vue项目 首先我们可以将vue和cordova当成一个子项目，之后统一打包。
+这里我们可以将cordova项目中的config.xml文件复制到一个空白的node项目中，之后创建一个空白的www目录，之后添加cordova依赖，这样就可以直接使用npx cordova add platform android添加android平台，通过npx cordova build进行打包。
+之后通过修改vite.config.ts配置文件，将outputDir修改为www目录，这样就可以将vue项目打包到cordova项目中。
+export default defineConfig({ build: { outDir: &amp;#34;../cordova/www&amp;#34; } }) 这样vue和cordova就整合到一起了。
+一键打包 我们可以通过配置根项目的package.json文件，添加scripts命令，这样就可以一键打包apk了。
+{ &amp;#34;scripts&amp;#34;: { &amp;#34;vue:dev&amp;#34;: &amp;#34;cd packages/vue &amp;amp;&amp;amp; yarn dev&amp;#34;, &amp;#34;vue:build&amp;#34;: &amp;#34;cd packages/vue &amp;amp;&amp;amp; yarn build&amp;#34;, &amp;#34;cordova:build&amp;#34;: &amp;#34;cd packages/cordova &amp;amp;&amp;amp; yarn build&amp;#34;, &amp;#34;cordova:run&amp;#34;: &amp;#34;cd packages/cordova &amp;amp;&amp;amp; yarn run&amp;#34;, &amp;#34;build&amp;#34;: &amp;#34;yarn vue:build &amp;amp;&amp;amp; yarn cordova:build&amp;#34; } }</description></item><item><title>Rust入门实战 编写Minecraft启动器#5启动游戏</title><link>https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/</link><pubDate>Fri, 05 Jul 2024 20:19:35 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-5-rust%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98-%E7%BC%96%E5%86%99minecraft%E5%90%AF%E5%8A%A8%E5%99%A8%235%E5%90%AF%E5%8A%A8%E6%B8%B8%E6%88%8F/</guid><description>好了，我们已经完成了所有的准备工作，现在我们可以开始编写启动游戏的代码了。
 首先我们需要添加几个依赖。
 model = { path = &amp;#34;../model&amp;#34; } parse = { path = &amp;#34;../parse&amp;#34; } download = { path = &amp;#34;../download&amp;#34; } clap = { version = &amp;#34;4.5&amp;#34; } zip = &amp;#34;2.1&amp;#34; clap用于解析命令行参数，zip用于解压文件。
 首先创建一个cli函数用于构建我们的命令行。
