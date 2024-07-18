@@ -57,13 +57,26 @@ export default defineConfig({
 
 这样`vue`和`cordova`就整合到一起了。
 
-
 ## 一键打包
 
 我们可以通过配置根项目的`package.json`文件，添加`scripts`命令，这样就可以一键打包`apk`了。
 
+Cordova:
+
 ```json
 {
+  "scripts": {
+    "build": "cordova build android",
+    "run": "cordova run android"
+  }
+}
+```
+
+Vue: 默认
+
+```json
+{
+  "workspaces": ["packages/vue", "packages/cordova"],
   "scripts": {
     "vue:dev": "cd packages/vue && yarn dev",
     "vue:build": "cd packages/vue && yarn build",
