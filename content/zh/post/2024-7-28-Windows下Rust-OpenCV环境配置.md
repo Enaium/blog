@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Windows下Rust OpenCV环境配"
+title: "Windows下Rust OpenCV环境配置"
 date: 2024-07-28T21:14:31+08:00
 ---
 
