@@ -1,4 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sun, 28 Jul 2024 21:14:31 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>Windows下Rust OpenCV环境配置</title><link>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</link><pubDate>Sun, 28 Jul 2024 21:14:31 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</guid><description>安装Chocolatey 首先我们需要安装Chocolatey，Chocolatey是一个Windows的包管理器。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sat, 03 Aug 2024 18:15:46 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>星露谷模组开发教程#2 创建一个模组项目</title><link>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%232-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%A8%A1%E7%BB%84%E9%A1%B9%E7%9B%AE/</link><pubDate>Sat, 03 Aug 2024 18:15:46 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%232-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%A8%A1%E7%BB%84%E9%A1%B9%E7%9B%AE/</guid><description>创建模组项目 经过之前的配置，现在可以创建模组项目了，我们可以创建一个空白的文件夹，然后用Visual Studio Code打开它，之后使用dotnet new classlib来创建一个项目。
+我们可以看到，项目中有一个Class1.cs文件，这个就是C#的源文件，还有一个awesome.csproj文件，这个是C#项目的配置文件。
+我们可以将Class1.cs名称改为我们想要的名称，比如这里我就叫ModEntry.cs，之后将源文件里的类名也改为ModEntry。
+之后需要添加模组需要用到的NuGet包，我们可以使用命令dotnet add package Pathoschild.Stardew.ModBuildConfig来添加模组所需用的包。
+编写模组代码 首先进入到ModEntry之中，之后继承Mod这个抽象类，这里如果Visual Studio Code没有提示，可以重新打开。
+using StardewModdingAPI; namespace awesome; public class ModEntry : Mod { } 这里由于是抽象类，我们需要实现它的抽象的方法，这里Visual Studio Code会在ModEntry上提示，在这里使用快捷键Shift+Alt+.可以使用快速修复。
+using StardewModdingAPI; namespace awesome; public class ModEntry : Mod { public override void Entry(IModHelper helper) { throw new NotImplementedException(); } } 这样它就会实现一个方法，这个方法会在模组加载时调用，我们可以打印一个日志来测试一下。
+using StardewModdingAPI; namespace awesome; public class ModEntry : Mod { public override void Entry(IModHelper helper) { Monitor.Log(&amp;#34;Hello SMAPI!.&amp;#34;, LogLevel.</description></item><item><title>星露谷模组开发教程#1 配置开发环境</title><link>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sat, 03 Aug 2024 16:56:31 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>安装.NET SDK 首先我们需要下载.NET SDK，这里当前最新的LTS是.NET 8，我们选择.NET 8进行下载。
+点击Download .NET SDK x64进行下载。
+下载完成之后点击安装
+输入命令dotnet --version，如果安装成功你就会看到终端中会输出当前的版本号。
+安装Visual Studio Code 接着进入Visual Studio Code的下载页面
+选择对应的版本进行下载。
+接受之后一直下一步到完成。
+配置Visual Studio Code 进入到插件管理搜索C#，点击安装。
+好了，这样我们配置环境这一步就大功告成了。
+安装SMAPI 这里大家肯定都装了，应该还没有连模组都不会装就来看模组开发了吧。</description></item><item><title>Windows下Rust OpenCV环境配置</title><link>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</link><pubDate>Sun, 28 Jul 2024 21:14:31 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</guid><description>安装Chocolatey 首先我们需要安装Chocolatey，Chocolatey是一个Windows的包管理器。
 我们点击右上角的Install进入到Installing Chocolatey，选择Individual
 复制命令
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString(&amp;#39;https://community.chocolatey.org/install.ps1&amp;#39;)) 使用管理员模式打开PowerShell，粘贴命令，等待安装完成。

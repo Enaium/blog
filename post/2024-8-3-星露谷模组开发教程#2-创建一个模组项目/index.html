@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>星露谷模组开发教程#2 创建一个模组项目</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>星露谷模组开发教程#2 创建一个模组项目</div><div class=card-body><div class=card-text><h2 id=创建模组项目>创建模组项目</h2><p>经过之前的配置，现在可以创建模组项目了，我们可以创建一个空白的文件夹，然后用<code>Visual Studio Code</code>打开它，之后使用<code>dotnet new classlib</code>来创建一个项目。</p><p>我们可以看到，项目中有一个<code>Class1.cs</code>文件，这个就是<code>C#</code>的源文件，还有一个<code>awesome.csproj</code>文件，这个是<code>C#</code>项目的配置文件。</p><p>我们可以将<code>Class1.cs</code>名称改为我们想要的名称，比如这里我就叫<code>ModEntry.cs</code>，之后将源文件里的类名也改为<code>ModEntry</code>。</p><p>之后需要添加模组需要用到的<code>NuGet</code>包，我们可以使用命令<code>dotnet add package Pathoschild.Stardew.ModBuildConfig</code>来添加模组所需用的包。</p><h2 id=编写模组代码>编写模组代码</h2><p>首先进入到<code>ModEntry</code>之中，之后继承<code>Mod</code>这个抽象类，这里如果<code>Visual Studio Code</code>没有提示，可以重新打开。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>using</span> StardewModdingAPI;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> awesome;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ModEntry</span> : Mod
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里由于是抽象类，我们需要实现它的抽象的方法，这里<code>Visual Studio Code</code>会在<code>ModEntry</code>上提示，在这里使用快捷键<code>Shift</code>+<code>Alt</code>+<code>.</code>可以使用快速修复。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>using</span> StardewModdingAPI;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> awesome;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ModEntry</span> : Mod
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> NotImplementedException();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样它就会实现一个方法，这个方法会在模组加载时调用，我们可以打印一个日志来测试一下。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>using</span> StardewModdingAPI;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>namespace</span> awesome;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ModEntry</span> : Mod
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        Monitor.Log(<span style=color:#e6db74>&#34;Hello SMAPI!.&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里我们使用<code>Monitor.Log</code>来打印一个日志，第一个参数是日志的内容，第二个参数是日志的等级，这里我们使用<code>LogLevel.Debug</code>来打印一个调试日志。</p><h2 id=编写模组配置>编写模组配置</h2><p>编写完代码之后，我们还需要再写一个模组的配置，它就叫<code>manifest.json</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Name&#34;</span>: <span style=color:#e6db74>&#34;Awesome&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Author&#34;</span>: <span style=color:#e6db74>&#34;Enaium&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Version&#34;</span>: <span style=color:#e6db74>&#34;1.0.0&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Description&#34;</span>: <span style=color:#e6db74>&#34;This is an awesome mod.&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;UniqueID&#34;</span>: <span style=color:#e6db74>&#34;Enaium.Awesome&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;EntryDll&#34;</span>: <span style=color:#e6db74>&#34;Awesome.dll&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;MinimumApiVersion&#34;</span>: <span style=color:#e6db74>&#34;4.0.0&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>上面的配置文件中，<code>Name</code>是模组项目的名称，<code>Author</code>是作者，<code>Version</code>是版本号，<code>Description</code>是描述，<code>UniqueID</code>是唯一标识符，<code>EntryDll</code>是入口文件，<code>MinimumApiVersion</code>是最低的<code>SMAPI</code>版本。</p><h2 id=测试模组>测试模组</h2><p>这里我们可以直接使用<code>dotnet run</code>来运行我们的模组，这里会自动编译我们的模组，之后会自动运行<code>Stardew Valley</code>，之后我们可以看到终端中会输出我们的日志。</p><p><img alt=20240803184409 src=https://s2.loli.net/2024/08/03/Oz9MuTtXLnVUfjK.png></p><p>如果你装了<a href=https://www.curseforge.com/stardewvalley/mods/modmenu>ModMenu</a>这个模组就会在模组列表里看到</p><p><img alt=20240803184528 src=https://s2.loli.net/2024/08/03/CLeKG18SNHlEkz3.png></p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/>星露谷模组开发教程#1 配置开发环境</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
