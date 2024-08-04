@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>星露谷模组开发教程#3 游戏事件</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>星露谷模组开发教程#3 游戏事件</div><div class=card-body><div class=card-text><p><code>SMAPI</code>提供了一些事件，比如游戏的内容、显示、输入等事件。这些事件可以让我们在游戏中添加自己的逻辑。这一节我们就来看看如何使用这些事件。</p><h2 id=注册一个事件>注册一个事件</h2><p>在<code>SMAPI</code>中，我们可以通过<code>IModHelper</code>的<code>Events</code>属性来注册事件。比如我们要注册游戏启动事件，可以这样写：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.GameLoop.GameLaunched += OnLaunched;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnLaunched(<span style=color:#66d9ef>object?</span> sender, GameLaunchedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样我们就注册了一个游戏启动事件。当游戏启动时，<code>OnLaunched</code>方法就会被调用，它有两个参数，第一个是事件的发送者，它是一个可空的对象，第二个是事件的参数，它是一个<code>GameLaunchedEventArgs</code>对象。这个对象里面没有任何属性，只是一个空的类。</p><h2 id=输入事件>输入事件</h2><p>先来看一下按键按下或释放的事件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.Input.ButtonPressed += OnPress;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnPress(<span style=color:#66d9ef>object?</span> sender, ButtonPressedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    Monitor.Log(<span style=color:#e6db74>$&#34;{e.Button} Press&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样我们就注册了一个按键按下事件。当按键按下时，<code>OnPress</code>方法就会被调用，它有两个参数，第一个是事件的发送者，它是一个可空的对象，第二个是事件的参数，它是一个<code>ButtonPressedEventArgs</code>对象。这个对象有一个属性<code>Button</code>，它是一个<code>SButton</code>枚举，表示按下的按键。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.Input.ButtonReleased += OnReleased;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnReleased(<span style=color:#66d9ef>object?</span> sender, ButtonReleasedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    Monitor.Log(<span style=color:#e6db74>$&#34;{e.Button} Released&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样我们就注册了一个按键释放事件。当按键释放时，<code>OnReleased</code>方法就会被调用，它有两个参数，第一个是事件的发送者，它是一个可空的对象，第二个是事件的参数，它是一个<code>ButtonReleasedEventArgs</code>对象。这个对象有一个属性<code>Button</code>，它是一个<code>SButton</code>枚举，表示释放的按键。</p><p>上面这些按键事件只能获取一个按键，如果要获取多个按键，可以使用<code>ButtonsChanged</code>事件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.Input.ButtonsChanged += OnChanged;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnChanged(<span style=color:#66d9ef>object?</span> sender, ButtonsChangedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (e.Pressed.Any())
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        Monitor.Log(<span style=color:#e6db74>$&#34;{string.Join(&#34;</span>,<span style=color:#e6db74>&#34;, e.Pressed)} Press&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (e.Released.Any())
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        Monitor.Log(<span style=color:#e6db74>$&#34;{string.Join(&#34;</span>,<span style=color:#e6db74>&#34;, e.Released)} Released&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>当事件被触发时，<code>Pressed</code>属性表示按下的按键，<code>Released</code>属性表示释放的按键，之后我们判断按键是否为空，如果不为空，就输出按键。</p><p>我们还可以使用<code>KeyBindList</code>来判断这些按键是否被按下。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnChanged(<span style=color:#66d9ef>object?</span> sender, ButtonsChangedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> keyBindList = KeybindList.Parse(<span style=color:#e6db74>&#34;LeftControl + A&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (keyBindList.JustPressed())
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        Monitor.Log(<span style=color:#e6db74>&#34;Keybind Just Pressed&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样就可以判断<code>LeftControl</code>和<code>A</code>是否被按下。</p><h2 id=显示事件>显示事件</h2><p><code>SMAPI</code>还提供了一些显示事件，比如<code>MenuChanged</code>事件，在游戏中所有和菜单有关的事件都会触发这个事件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.Display.MenuChanged += OnMenuChanged;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnMenuChanged(<span style=color:#66d9ef>object?</span> sender, MenuChangedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    Monitor.Log(<span style=color:#e6db74>$&#34;{e.OldMenu} -&gt; {e.NewMenu}&#34;</span>, LogLevel.Debug);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>比如我们打开背包，就会是一个空的菜单到<code>StardewValley.Menus.GameMenu</code>，这样就会输出<code> -> StardewValley.Menus.GameMenu</code>，关闭背包就会输出<code>StardewValley.Menus.GameMenu -> </code>。</p><p>显示事件中其他的一些事件都和游戏的图形绘制有关，这里就不多介绍了。</p><h2 id=内容事件>内容事件</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> Entry(IModHelper helper)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    helper.Events.Content.AssetRequested += OnAssetRequested;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> <span style=color:#66d9ef>void</span> OnAssetRequested(<span style=color:#66d9ef>object?</span> sender, AssetRequestedEventArgs e)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    Monitor.Log(e.Name.Name, LogLevel.Debug);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>当游戏加载一个资源时，就会触发这个事件。</p><p>好了，上面介绍了部分事件，其他事件可以参考<code>SMAPI</code>的<a href=https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events>文档</a>。</p></div><div class="d-flex justify-content-between"><a class=text-reset href=https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%232-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%A8%A1%E7%BB%84%E9%A1%B9%E7%9B%AE/>星露谷模组开发教程#2 创建一个模组项目</a></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
