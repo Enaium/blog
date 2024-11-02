@@ -1,17 +1,233 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on</title><link>https://blog.enaium.cn/en/post/</link><description>Recent content in Posts on</description><generator>Hugo</generator><language>en</language><lastBuildDate>Wed, 15 May 2024 17:50:03 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/en/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Minecraft Fabric Modding Tutorial #8 Add a Weapon</title><link>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%238-add-a-weapon/</link><pubDate>Wed, 15 May 2024 17:50:03 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%238-add-a-weapon/</guid><description>Tool Material First, we need to create a enum class, and implement the ToolMaterial interface, so we can use it to create a new weapon.
-package com.example.tool; import net.minecraft.block.Block; import net.minecraft.item.ToolMaterial; import net.minecraft.recipe.Ingredient; import net.minecraft.registry.tag.TagKey; public enum EndToolMaterial implements ToolMaterial { ; @Override public int getDurability() { return 0; } @Override public float getMiningSpeedMultiplier() { return 0; } @Override public float getAttackDamage() { return 0; } @Override public TagKey&amp;lt;Block&amp;gt; getInverseTag() { return null; } @Override public int getEnchantability() { return 0; } @Override public Ingredient getRepairIngredient() { return null; } } Next, we must complete the enum class EndToolMaterial by imitating the enum classnet.</description></item><item><title>2024 5 14 Minecraft Fabric Modding Tutorial #7 Add Armors</title><link>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%237-add-armors/</link><pubDate>Tue, 14 May 2024 02:01:12 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%237-add-armors/</guid><description>Armor Material First, we need to create a material class, and then we need to declare a new armor material.
-public static final RegistryEntry&amp;lt;ArmorMaterial&amp;gt; END_HEART = EndArmorMaterial.register(&amp;#34;end_heart&amp;#34;, Util.make(new EnumMap&amp;lt;&amp;gt;(ArmorItem.Type.class), map -&amp;gt; { map.put(ArmorItem.Type.BOOTS, 4); map.put(ArmorItem.Type.LEGGINGS, 6); map.put(ArmorItem.Type.CHESTPLATE, 8); map.put(ArmorItem.Type.HELMET, 4); map.put(ArmorItem.Type.BODY, 11); }), 20, SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, 3.0f, 0.1f, () -&amp;gt; Ingredient.ofItems(Items.NETHERITE_INGOT)); private static RegistryEntry&amp;lt;ArmorMaterial&amp;gt; register(String id, EnumMap&amp;lt;ArmorItem.Type, Integer&amp;gt; defense, int enchantability, RegistryEntry&amp;lt;SoundEvent&amp;gt; equipSound, float toughness, float knockbackResistance, Supplier&amp;lt;Ingredient&amp;gt; repairIngredient) { List&amp;lt;ArmorMaterial.Layer&amp;gt; list = List.</description></item><item><title>Minecraft Fabric Modding Tutorial #6 Language Recipes Tooltip</title><link>https://blog.enaium.cn/en/post/2024-5-11-minecraft-fabric-modding-tutorial-%236-language-recipes-tooltip/</link><pubDate>Sat, 11 May 2024 21:05:53 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-11-minecraft-fabric-modding-tutorial-%236-language-recipes-tooltip/</guid><description>Language We had added an item, an item group, and a block, but they do not have a name yet. Here, We can use a language file to provide a name for them.
-We can create a language file en_us.json under the path assets/awesome/lang, it is an English language file.
-{ &amp;#34;item.awesome.end_heart&amp;#34;: &amp;#34;End Heart&amp;#34;, &amp;#34;item.awesome.end_heart_block&amp;#34;: &amp;#34;End Heart Block&amp;#34;, &amp;#34;block.awesome.end_heart_block&amp;#34;: &amp;#34;End Heart Block&amp;#34;, &amp;#34;itemGroup.awesome.item_group&amp;#34;: &amp;#34;Awesome&amp;#34; } Recipes The recipe is used to craft an item, Here, We can configure the recipe of the item.</description></item><item><title>Minecraft Fabric Modding Tutorial #5 Add a Block</title><link>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</link><pubDate>Fri, 10 May 2024 23:11:31 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</guid><description>Register a Block It is similar to registering an item, first, we need to declare a block, but a block has a strength property which is the time required for the player to mine a block.
-public static final Block END_HEART_BLOCK = new Block(Block.Settings.create().strength(4.0f)); Next, we need to register the block, similar to registering an item, we need to register the block in the onInitialize method.
-public static final Block END_HEART_BLOCK = Registry.</description></item><item><title>Minecraft Fabric Modding Toturial #4 Add an Item</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/</link><pubDate>Fri, 03 May 2024 16:53:43 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/</guid><description>Register an Item First, we need to declare an item in the ExampleMod class.
-+ public static final Item END_HEART = new Item(new Item.Settings()); + @Override public void onInitialize() { // This code runs as soon as Minecraft is in a mod-load-ready state. Next, register the item in the onInitialize method.
-package com.example; import net.fabricmc.api.ModInitializer; import net.minecraft.item.Item; +import net.minecraft.registry.Registries; +import net.minecraft.registry.Registry; +import net.minecraft.util.Identifier; import org.slf4j.Logger; import org.slf4j.LoggerFactory; @@ -16,10 +19,6 @@ public class ExampleMod implements ModInitializer { @Override public void onInitialize() { - // This code runs as soon as Minecraft is in a mod-load-ready state.</description></item><item><title>Minecraft Fabric Modding Toturial #3 To Write Some Simple Code</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%233-to-write-some-simple-code/</link><pubDate>Fri, 03 May 2024 15:32:28 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%233-to-write-some-simple-code/</guid><description>Preface In the previous article, we have known the mod and project structure, in this article, we will write some simple code.
-Modify the Mod Information First, we need delete some useless file.
-Delete the client folder We have to modify other files after delete the client folder.
-Delete the client in the gradle.build file, because we don&amp;rsquo;t need to split the client and server, so we can delete the loom block in the gradle.</description></item><item><title>Minecraft Fabric Modding Toturial #2 To Understand Mod and Porject</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%232-to-understand-mod-and-porject/</link><pubDate>Fri, 03 May 2024 03:33:38 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%232-to-understand-mod-and-porject/</guid><description>Preface In the previous article we have completed the development environment for fabric modding, in this article we will introduce some basic information about mod and project.
-Directory Structure Click the Project button in the upper left corner, you can see the directory, then we expand all the folders in src.
-├─client │ ├─java │ │ └─com │ │ └─example │ │ │ ExampleModClient.java │ │ │ │ │ └─mixin │ │ └─client │ │ ExampleClientMixin.</description></item><item><title>Minecraft Fabric Modding Toturial #1 Setup a Development Environment</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</link><pubDate>Fri, 03 May 2024 02:21:18 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</guid><description>Install JDK Since the latest(1.20.6) Minecraft only supports JDK21, so we need to install JDK21, here I choose to download Libreica OpenJDK 21.
-Choose Full JDK and click the file with the suffix msi to download if you are using Windows, double-click to install after downloading.
-Install Intellij IDEA Here I choose to download Intellij IDEA Community, choose the Community version.
-Double-click to install after downloading if you are using Windows.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on</title><link>https://blog.enaium.cn/en/post/</link><description>Recent content in Posts on</description><generator>Hugo</generator><language>en</language><lastBuildDate>Wed, 15 May 2024 17:50:03 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/en/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Minecraft Fabric Modding Tutorial #8 Add a Weapon</title><link>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%238-add-a-weapon/</link><pubDate>Wed, 15 May 2024 17:50:03 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%238-add-a-weapon/</guid><description>&lt;h2 id="tool-material">Tool Material&lt;/h2>
+&lt;p>First, we need to create a enum class, and implement the &lt;code>ToolMaterial&lt;/code> interface, so we can use it to create a new weapon.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">package&lt;/span> com.example.tool;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> net.minecraft.block.Block;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> net.minecraft.item.ToolMaterial;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> net.minecraft.recipe.Ingredient;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> net.minecraft.registry.tag.TagKey;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">enum&lt;/span> EndToolMaterial &lt;span style="color:#66d9ef">implements&lt;/span> ToolMaterial {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">getDurability&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">float&lt;/span> &lt;span style="color:#a6e22e">getMiningSpeedMultiplier&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">float&lt;/span> &lt;span style="color:#a6e22e">getAttackDamage&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> TagKey&lt;span style="color:#f92672">&amp;lt;&lt;/span>Block&lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#a6e22e">getInverseTag&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">null&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">getEnchantability&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> Ingredient &lt;span style="color:#a6e22e">getRepairIngredient&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">null&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Next, we must complete the enum class &lt;code>EndToolMaterial&lt;/code> by imitating the enum class&lt;code>net.minecraft.item.ToolMaterials&lt;/code>.&lt;/p></description></item><item><title>2024 5 14 Minecraft Fabric Modding Tutorial #7 Add Armors</title><link>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%237-add-armors/</link><pubDate>Tue, 14 May 2024 02:01:12 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-14-minecraft-fabric-modding-tutorial-%237-add-armors/</guid><description>&lt;h2 id="armor-material">Armor Material&lt;/h2>
+&lt;p>First, we need to create a material class, and then we need to declare a new armor material.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">final&lt;/span> RegistryEntry&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorMaterial&lt;span style="color:#f92672">&amp;gt;&lt;/span> END_HEART &lt;span style="color:#f92672">=&lt;/span> EndArmorMaterial.&lt;span style="color:#a6e22e">register&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;end_heart&amp;#34;&lt;/span>, Util.&lt;span style="color:#a6e22e">make&lt;/span>(&lt;span style="color:#66d9ef">new&lt;/span> EnumMap&lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">class&lt;/span>), map &lt;span style="color:#f92672">-&amp;gt;&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> map.&lt;span style="color:#a6e22e">put&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">BOOTS&lt;/span>, 4);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> map.&lt;span style="color:#a6e22e">put&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">LEGGINGS&lt;/span>, 6);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> map.&lt;span style="color:#a6e22e">put&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">CHESTPLATE&lt;/span>, 8);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> map.&lt;span style="color:#a6e22e">put&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">HELMET&lt;/span>, 4);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> map.&lt;span style="color:#a6e22e">put&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">BODY&lt;/span>, 11);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}), 20, SoundEvents.&lt;span style="color:#a6e22e">ITEM_ARMOR_EQUIP_NETHERITE&lt;/span>, 3.&lt;span style="color:#a6e22e">0f&lt;/span>, 0.&lt;span style="color:#a6e22e">1f&lt;/span>, () &lt;span style="color:#f92672">-&amp;gt;&lt;/span> Ingredient.&lt;span style="color:#a6e22e">ofItems&lt;/span>(Items.&lt;span style="color:#a6e22e">NETHERITE_INGOT&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> RegistryEntry&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorMaterial&lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#a6e22e">register&lt;/span>(String id, EnumMap&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>, Integer&lt;span style="color:#f92672">&amp;gt;&lt;/span> defense, &lt;span style="color:#66d9ef">int&lt;/span> enchantability, RegistryEntry&lt;span style="color:#f92672">&amp;lt;&lt;/span>SoundEvent&lt;span style="color:#f92672">&amp;gt;&lt;/span> equipSound, &lt;span style="color:#66d9ef">float&lt;/span> toughness, &lt;span style="color:#66d9ef">float&lt;/span> knockbackResistance, Supplier&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ingredient&lt;span style="color:#f92672">&amp;gt;&lt;/span> repairIngredient) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> List&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorMaterial.&lt;span style="color:#a6e22e">Layer&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> list &lt;span style="color:#f92672">=&lt;/span> List.&lt;span style="color:#a6e22e">of&lt;/span>(&lt;span style="color:#66d9ef">new&lt;/span> ArmorMaterial.&lt;span style="color:#a6e22e">Layer&lt;/span>(&lt;span style="color:#66d9ef">new&lt;/span> Identifier(id)));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> register(id, defense, enchantability, equipSound, toughness, knockbackResistance, repairIngredient, list);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> RegistryEntry&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorMaterial&lt;span style="color:#f92672">&amp;gt;&lt;/span> &lt;span style="color:#a6e22e">register&lt;/span>(String id, EnumMap&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>, Integer&lt;span style="color:#f92672">&amp;gt;&lt;/span> defense, &lt;span style="color:#66d9ef">int&lt;/span> enchantability, RegistryEntry&lt;span style="color:#f92672">&amp;lt;&lt;/span>SoundEvent&lt;span style="color:#f92672">&amp;gt;&lt;/span> equipSound, &lt;span style="color:#66d9ef">float&lt;/span> toughness, &lt;span style="color:#66d9ef">float&lt;/span> knockbackResistance, Supplier&lt;span style="color:#f92672">&amp;lt;&lt;/span>Ingredient&lt;span style="color:#f92672">&amp;gt;&lt;/span> repairIngredient, List&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorMaterial.&lt;span style="color:#a6e22e">Layer&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> layers) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> EnumMap&lt;span style="color:#f92672">&amp;lt;&lt;/span>ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>, Integer&lt;span style="color:#f92672">&amp;gt;&lt;/span> enumMap &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> EnumMap&lt;span style="color:#f92672">&amp;lt;&amp;gt;&lt;/span>(ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">class&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> (ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span> type : ArmorItem.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">values&lt;/span>()) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> enumMap.&lt;span style="color:#a6e22e">put&lt;/span>(type, defense.&lt;span style="color:#a6e22e">get&lt;/span>(type));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> Registry.&lt;span style="color:#a6e22e">registerReference&lt;/span>(Registries.&lt;span style="color:#a6e22e">ARMOR_MATERIAL&lt;/span>, &lt;span style="color:#66d9ef">new&lt;/span> Identifier(id), &lt;span style="color:#66d9ef">new&lt;/span> ArmorMaterial(enumMap, enchantability, equipSound, repairIngredient, layers, toughness, knockbackResistance));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can copy the code from the class &lt;code>net.minecraft.item.ArmorMaterials&lt;/code> and modify it to your needs.&lt;/p></description></item><item><title>Minecraft Fabric Modding Tutorial #6 Language Recipes Tooltip</title><link>https://blog.enaium.cn/en/post/2024-5-11-minecraft-fabric-modding-tutorial-%236-language-recipes-tooltip/</link><pubDate>Sat, 11 May 2024 21:05:53 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-11-minecraft-fabric-modding-tutorial-%236-language-recipes-tooltip/</guid><description>&lt;h2 id="language">Language&lt;/h2>
+&lt;p>We had added an item, an item group, and a block, but they do not have a name yet. Here, We can use a language file to provide a name for them.&lt;/p>
+&lt;p>We can create a language file &lt;code>en_us.json&lt;/code> under the path &lt;code>assets/awesome/lang&lt;/code>, it is an English language file.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;item.awesome.end_heart&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;End Heart&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;item.awesome.end_heart_block&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;End Heart Block&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;block.awesome.end_heart_block&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;End Heart Block&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;itemGroup.awesome.item_group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Awesome&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="20240511212016" src="https://s2.loli.net/2024/05/11/Pj8OohkJpaLfS7b.png">&lt;/p>
+&lt;h2 id="recipes">Recipes&lt;/h2>
+&lt;p>The recipe is used to craft an item, Here, We can configure the recipe of the item.&lt;/p></description></item><item><title>Minecraft Fabric Modding Tutorial #5 Add a Block</title><link>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</link><pubDate>Fri, 10 May 2024 23:11:31 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</guid><description>&lt;h2 id="register-a-block">Register a Block&lt;/h2>
+&lt;p>It is similar to registering an item, first, we need to declare a block, but a block has a &lt;code>strength&lt;/code> property which is the time required for the player to mine a block.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">final&lt;/span> Block END_HEART_BLOCK &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> Block(Block.&lt;span style="color:#a6e22e">Settings&lt;/span>.&lt;span style="color:#a6e22e">create&lt;/span>().&lt;span style="color:#a6e22e">strength&lt;/span>(4.&lt;span style="color:#a6e22e">0f&lt;/span>));
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Next, we need to register the block, similar to registering an item, we need to register the block in the &lt;code>onInitialize&lt;/code> method.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">static&lt;/span> &lt;span style="color:#66d9ef">final&lt;/span> Block END_HEART_BLOCK &lt;span style="color:#f92672">=&lt;/span> Registry.&lt;span style="color:#a6e22e">register&lt;/span>(Registries.&lt;span style="color:#a6e22e">BLOCK&lt;/span>, &lt;span style="color:#66d9ef">new&lt;/span> Identifier(&lt;span style="color:#e6db74">&amp;#34;awesome:end_heart_block&amp;#34;&lt;/span>), &lt;span style="color:#66d9ef">new&lt;/span> Block(Block.&lt;span style="color:#a6e22e">Settings&lt;/span>.&lt;span style="color:#a6e22e">create&lt;/span>().&lt;span style="color:#a6e22e">strength&lt;/span>(4.&lt;span style="color:#a6e22e">0f&lt;/span>)));
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Although we have registered the block, we can not get the item of this block, because we have not registered the item of this block.&lt;/p></description></item><item><title>Minecraft Fabric Modding Toturial #4 Add an Item</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/</link><pubDate>Fri, 03 May 2024 16:53:43 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%234-add-an-item/</guid><description>&lt;h2 id="register-an-item">Register an Item&lt;/h2>
+&lt;p>First, we need to declare an item in the &lt;code>ExampleMod&lt;/code> class.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-patch" data-lang="patch">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+ public static final Item END_HEART = new Item(new Item.Settings());
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> @Override
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> public void onInitialize() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // This code runs as soon as Minecraft is in a mod-load-ready state.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Next, register the item in the &lt;code>onInitialize&lt;/code> method.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-patch" data-lang="patch">&lt;span style="display:flex;">&lt;span>package com.example;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> import net.fabricmc.api.ModInitializer;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> import net.minecraft.item.Item;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+import net.minecraft.registry.Registries;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+import net.minecraft.registry.Registry;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+import net.minecraft.util.Identifier;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> import org.slf4j.Logger;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> import org.slf4j.LoggerFactory;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">@@ -16,10 +19,6 @@ public class ExampleMod implements ModInitializer {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> 
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> @Override
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> public void onInitialize() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- // This code runs as soon as Minecraft is in a mod-load-ready state.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- // However, some things (like resources) may still be uninitialized.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- // Proceed with mild caution.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- LOGGER.info(&amp;#34;Hello Fabric world!&amp;#34;);
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ Registry.register(Registries.ITEM, new Identifier(&amp;#34;awesome:end_heart&amp;#34;), END_HEART);
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this code, first parameter of the &lt;code>Registry.register&lt;/code> method is the registry type, the second parameter is the item id, and the third parameter is the item instance.&lt;/p></description></item><item><title>Minecraft Fabric Modding Toturial #3 To Write Some Simple Code</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%233-to-write-some-simple-code/</link><pubDate>Fri, 03 May 2024 15:32:28 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%233-to-write-some-simple-code/</guid><description>&lt;h2 id="preface">Preface&lt;/h2>
+&lt;p>In the previous article, we have known the mod and project structure, in this article, we will write some simple code.&lt;/p>
+&lt;h2 id="modify-the-mod-information">Modify the Mod Information&lt;/h2>
+&lt;p>First, we need delete some useless file.&lt;/p>
+&lt;h3 id="delete-the-client-folder">Delete the &lt;code>client&lt;/code> folder&lt;/h3>
+&lt;p>We have to modify other files after delete the &lt;code>client&lt;/code> folder.&lt;/p>
+&lt;ul>
+&lt;li>Delete the &lt;code>client&lt;/code> in the &lt;code>gradle.build&lt;/code> file, because we don&amp;rsquo;t need to split the client and server, so we can delete the &lt;code>loom&lt;/code> block in the &lt;code>gradle.build&lt;/code> file.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-patch" data-lang="patch">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-loom {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- splitEnvironmentSourceSets()
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- mods {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;modid&amp;#34; {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- sourceSet sourceSets.main
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- sourceSet sourceSets.client
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- }
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- }
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-}
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">-
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span> dependencies {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // To change the versions see the gradle.properties file
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> minecraft &amp;#34;com.mojang:minecraft:${project.minecraft_version}&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>Delete the &lt;code>client&lt;/code> in the &lt;code>src/main/resources/fabric.mod.json&lt;/code> file.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-patch" data-lang="patch">&lt;span style="display:flex;">&lt;span> &amp;#34;entrypoints&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;main&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;com.example.ExampleMod&amp;#34;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- ],
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;client&amp;#34;: [
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;com.example.ExampleModClient&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;mixins&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;modid.mixins.json&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- {
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;config&amp;#34;: &amp;#34;modid.client.mixins.json&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;environment&amp;#34;: &amp;#34;client&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- }
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;modid.mixins.json&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;depends&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;fabricloader&amp;#34;: &amp;#34;&amp;gt;=0.15.10&amp;#34;,
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="modify-the-fabricmodjson-file">Modify the &lt;code>fabric.mod.json&lt;/code> file&lt;/h3>
+&lt;ul>
+&lt;li>Change &lt;code>id&lt;/code>, &lt;code>name&lt;/code>, &lt;code>description&lt;/code>, &lt;code>authors&lt;/code>, &lt;code>icon&lt;/code> in the &lt;code>fabric.mod.json&lt;/code> file.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-patch" data-lang="patch">&lt;span style="display:flex;">&lt;span> &amp;#34;schemaVersion&amp;#34;: 1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;id&amp;#34;: &amp;#34;modid&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;id&amp;#34;: &amp;#34;awesome&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> &amp;#34;version&amp;#34;: &amp;#34;${version}&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;name&amp;#34;: &amp;#34;Example mod&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;description&amp;#34;: &amp;#34;This is an example description! Tell everyone what your mod is about!&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;name&amp;#34;: &amp;#34;Awesome&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">+ &amp;#34;description&amp;#34;: &amp;#34;This is an awesome mod!&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> &amp;#34;authors&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;Me!&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;Enaium&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;contact&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;homepage&amp;#34;: &amp;#34;https://fabricmc.net/&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;sources&amp;#34;: &amp;#34;https://github.com/FabricMC/fabric-example-mod&amp;#34;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;license&amp;#34;: &amp;#34;CC0-1.0&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;icon&amp;#34;: &amp;#34;assets/modid/icon.png&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;icon&amp;#34;: &amp;#34;assets/awesome/icon.png&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> &amp;#34;environment&amp;#34;: &amp;#34;*&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;entrypoints&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;main&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">@@ -20,7 +20,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;mixins&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">- &amp;#34;modid.mixins.json&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ &amp;#34;awesome.mixins.json&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;depends&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;fabricloader&amp;#34;: &amp;#34;&amp;gt;=0.15.10&amp;#34;,
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>Rename the &lt;code>modid.mixins.json&lt;/code> file to &lt;code>awesome.mixins.json&lt;/code>.&lt;/p></description></item><item><title>Minecraft Fabric Modding Toturial #2 To Understand Mod and Porject</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%232-to-understand-mod-and-porject/</link><pubDate>Fri, 03 May 2024 03:33:38 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%232-to-understand-mod-and-porject/</guid><description>&lt;h2 id="preface">Preface&lt;/h2>
+&lt;p>In the previous article we have completed the development environment for fabric modding, in this article we will introduce some basic information about mod and project.&lt;/p>
+&lt;h2 id="directory-structure">Directory Structure&lt;/h2>
+&lt;p>Click the &lt;code>Project&lt;/code> button in the upper left corner, you can see the directory, then we expand all the folders in &lt;code>src&lt;/code>.&lt;/p>
+&lt;pre tabindex="0">&lt;code>├─client
+│ ├─java
+│ │ └─com
+│ │ └─example
+│ │ │ ExampleModClient.java
+│ │ │
+│ │ └─mixin
+│ │ └─client
+│ │ ExampleClientMixin.java
+│ │
+│ └─resources
+│ modid.client.mixins.json
+│
+└─main
+ ├─java
+ │ └─com
+ │ └─example
+ │ │ ExampleMod.java
+ │ │
+ │ └─mixin
+ │ ExampleMixin.java
+ │
+ └─resources
+ │ fabric.mod.json
+ │ modid.mixins.json
+ │
+ └─assets
+ └─modid
+ icon.png
+&lt;/code>&lt;/pre>&lt;p>We can see that there are two folders under &lt;code>src&lt;/code>, &lt;code>client&lt;/code> and &lt;code>main&lt;/code>, these two folders correspond to the client and server, they have their own &lt;code>java&lt;/code> and &lt;code>resources&lt;/code> folders, the &lt;code>java&lt;/code> folder contains Java code, and the &lt;code>resources&lt;/code> folder contains resource files.&lt;/p></description></item><item><title>Minecraft Fabric Modding Toturial #1 Setup a Development Environment</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</link><pubDate>Fri, 03 May 2024 02:21:18 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</guid><description>&lt;h2 id="install-jdk">Install JDK&lt;/h2>
+&lt;p>Since the latest(1.20.6) Minecraft only supports JDK21, so we need to install JDK21, here I choose to download &lt;a href="https://bell-sw.com/pages/downloads/#/java-21-lts">Libreica OpenJDK 21&lt;/a>.&lt;/p>
+&lt;p>&lt;img alt="20240503030829" src="https://s2.loli.net/2024/05/03/cuFKqWhePMUIE5V.png">&lt;/p>
+&lt;p>Choose &lt;code>Full JDK&lt;/code> and click the file with the suffix &lt;code>msi&lt;/code> to download if you are using Windows, double-click to install after downloading.&lt;/p>
+&lt;h2 id="install-intellij-idea">Install Intellij IDEA&lt;/h2>
+&lt;p>Here I choose to download &lt;a href="https://www.jetbrains.com/idea/download">Intellij IDEA Community&lt;/a>, choose the &lt;code>Community&lt;/code> version.&lt;/p>
+&lt;p>&lt;img alt="20240503030858" src="https://s2.loli.net/2024/05/03/YBP3HGiyrsNOmXd.png">&lt;/p>
+&lt;p>Double-click to install after downloading if you are using Windows.&lt;/p></description></item></channel></rss>
