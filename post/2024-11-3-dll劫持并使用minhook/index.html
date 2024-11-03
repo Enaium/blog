@@ -1,0 +1,106 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>DLL劫持并使用MinHook</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>DLL劫持并使用MinHook</div><div class=card-body><div class=card-text><h2 id=测试用例>测试用例</h2><p>首先我使用<code>CLion</code>写了一个简单的程序，这个程序会加载一个<code>dinput8.dll</code>，然后调用一个函数显示一段文字，然后等待用户按下任意键。这个程序的代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include&lt;windows.h&gt;
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include&lt;iostream&gt;
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>display</span>(<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>text) {
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> text <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Press any key to continue...&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cin.ignore();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    LoadLibrary(<span style=color:#e6db74>&#34;dinput8.dll&#34;</span>);
+</span></span><span style=display:flex><span>    printf(<span style=color:#e6db74>&#34;Address: %p</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, display);
+</span></span><span style=display:flex><span>    display(<span style=color:#e6db74>&#34;Hello World!&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>我们所做的就是 Hook 这个<code>display</code>函数，然后在这个函数被调用时，将这个文字改为另一个文字。之后将项目进行编译，别忘了在<code>CMakeLists.txt</code>中添加<code>set(CMAKE_EXE_LINKER_FLAGS "-static")</code>，这样我们就可以得到一个静态链接的可执行文件。之后我们就可以开始 Hook 这个函数了。</p><h2 id=dll-劫持>DLL 劫持</h2><p>首先我们需要了解一下 DLL 的加载机制，Windows 系统在加载 DLL 时，会按照一定的顺序搜索 DLL 文件，如果找到了就加载，如果没有找到就会报错。这个顺序是怎么样的呢？我们可以通过查看<a href=https://docs.microsoft.com/zh-cn/windows/win32/dlls/dynamic-link-library-search-order>官方文档</a>来了解。简单来说就是首先搜索应用程序目录，然后搜索系统目录，最后搜索环境变量中指定的路径。所以我们可以使用这个机制来劫持 DLL。</p><h2 id=包装-dll>包装 DLL</h2><p>上面我们知道了 DLL 的加载机制，那么我们就可以知道如何让程序加载我们自己的 DLL，加载我们的 DLL 后，我们需要让这个 DLL 也拥有原 DLL 的功能，这里我们需要对原 DLL 进行包装。我们可以使用<a href=https://github.com/mavenlin/wrap_dll>wrap_dll</a>这个工具来包装 DLL。这是个<code>Python</code>脚本，所以你必须安装了<code>Python</code>，之后这个脚本还需要<code>dumpbin.exe</code>和<code>undname.exe</code>这两个工具，这两个工具是 Visual Studio 自带的，所以你需要安装了<code>Visual Studio</code>，并且需要将<code>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\Hostx64\x64</code>设置到环境变量中。之后你就可以使用这个脚本了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>python .<span style=color:#ae81ff>\w</span>rap_dll.py <span style=color:#e6db74>&#34;C:\Windows\System32\dinput8.dll&#34;</span>
+</span></span></code></pre></div><p>运行完成这个条命令后，你会得到一个<code>dinput8</code>项目，这个就是我们包装的 DLL。我们可以先把项目中的<code>empty.h</code>和<code>hook_macro.h</code>给删掉，这两个文件对我们没有用。</p><h2 id=minhook>MinHook</h2><p>MinHook 是一个轻量级的钩子库，可以用来 Hook 函数。我们可以在<a href=https://github.com/TsudaKageyu/minhook>minhook</a>下载到这个库。下载完成后我们在 dinput8 这个项目中新建一个文件夹<code>MinHook</code>，然后将 MinHook 的<code>include</code>文件夹和<code>src</code>文件夹复制到这个文件夹中。之后我们在<code>CMakeLists.txt</code>中添加这个库。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cmake data-lang=cmake><span style=display:flex><span>ADD_LIBRARY(
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>dinput8</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>SHARED</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>dinput8_asm.asm</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>dinput8.cpp</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>dinput8.def</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/include/MinHook.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/hde32.c</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/hde32.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/hde64.c</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/hde64.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/pstdint.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/table32.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hde/table64.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/buffer.c</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/buffer.h</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/hook.c</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/trampoline.c</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>MinHook/src/trampoline.h</span>
+</span></span><span style=display:flex><span>)<span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><p>之后我们就可以开始 Hook 这个函数了。</p><h2 id=hook-函数>Hook 函数</h2><p>首先我们需要再项目中执行<code>cmake .</code>，之后会生成一个<code>Visual Studio</code>的项目，我们使用<code>Visual Studio</code>打开这个项目，这里需要注意一下，需要通过打开解决方案的方式打开这个项目，不要直接打开这个项目文件夹。之后我们打开<code>dinput8.cpp</code>，删掉<code>_hook_setup</code>这个函数，接着我们需要将加载库的地址改为系统的<code>LoadLibrary</code>函数，这样我们就可以加载原 DLL 了。之后我们就可以开始 Hook 这个函数了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;windows.h&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;stdio.h&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>HINSTANCE mHinst <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>, mHinstDLL <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> UINT_PTR mProcs[<span style=color:#ae81ff>6</span>] <span style=color:#f92672>=</span> {<span style=color:#ae81ff>0</span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>LPCSTR mImportNames[] <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;DirectInput8Create&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;DllCanUnloadNow&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;DllGetClassObject&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;DllRegisterServer&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;DllUnregisterServer&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;GetdfDIJoystick&#34;</span>,
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#ifndef _DEBUG
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>inline</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>log_info</span>(<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> info) {
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#75715e>#else
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>FILE<span style=color:#f92672>*</span> debug;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>inline</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>log_info</span>(<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> info) {
+</span></span><span style=display:flex><span>  fprintf(debug, <span style=color:#e6db74>&#34;%s</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, info);
+</span></span><span style=display:flex><span>  fflush(debug);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#75715e>#endif
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>BOOL WINAPI <span style=color:#a6e22e>DllMain</span>(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+</span></span><span style=display:flex><span>  mHinst <span style=color:#f92672>=</span> hinstDLL;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>if</span> (fdwReason <span style=color:#f92672>==</span> DLL_PROCESS_ATTACH) {
+</span></span><span style=display:flex><span>    mHinstDLL <span style=color:#f92672>=</span> LoadLibrary(<span style=color:#e6db74>&#34;C:/Windows/System32/dinput8.dll&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>mHinstDLL) {
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>return</span> FALSE;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>6</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>      mProcs[i] <span style=color:#f92672>=</span> (UINT_PTR)GetProcAddress(mHinstDLL, mImportNames[i]);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#ifdef _DEBUG
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    debug <span style=color:#f92672>=</span> fopen(<span style=color:#e6db74>&#34;./debug.log&#34;</span>, <span style=color:#e6db74>&#34;a&#34;</span>);
+</span></span><span style=display:flex><span><span style=color:#75715e>#endif
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>  } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (fdwReason <span style=color:#f92672>==</span> DLL_PROCESS_DETACH) {
+</span></span><span style=display:flex><span><span style=color:#75715e>#ifdef _DEBUG
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    fclose(debug);
+</span></span><span style=display:flex><span><span style=color:#75715e>#endif
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    FreeLibrary(mHinstDLL);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>return</span> TRUE;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> DirectInput8Create_wrapper();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> DllCanUnloadNow_wrapper();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> DllGetClassObject_wrapper();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> DllRegisterServer_wrapper();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> DllUnregisterServer_wrapper();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>extern</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#66d9ef>void</span> GetdfDIJoystick_wrapper();
+</span></span></code></pre></div><p>接着我们可以在当<code>fdwReason</code>等于<code>DLL_PROCESS_ATTACH</code>时，也就是当 DLL 被加载时，我们进行 Hook。</p><p>首先我们需要编写一个原函数的函数指针，这个函数指针的类型需要和原函数的类型一样，这里我们使用<code>typedef</code>来定义这个函数指针。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>typedef</span> <span style=color:#a6e22e>int</span> (<span style=color:#f92672>*</span>display_t)(<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span>);
+</span></span></code></pre></div><p>之后我们需要定义一个函数指针，这个函数指针用来指向我们 Hook 后的函数。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span>display_t display <span style=color:#f92672>=</span> <span style=color:#66d9ef>nullptr</span>;
+</span></span></code></pre></div><p>之后我们创建一个Hook函数，这个函数的参数和返回值都需要和原函数一样。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>display_hook</span>(<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>text) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> display(<span style=color:#e6db74>&#34;Hello MinHook!&#34;</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后我们使用<code>MinHook</code>来<code>Hook</code>这个函数。</p><p>首先我们需要初始化<code>MinHook</code>，之后使用<code>MH_CreateHook</code>来创建一个 Hook，传入原函数的地址，Hook 函数的地址，和一个函数指针的指针，之后我们就可以使用<code>MH_EnableHook</code>来启用这个 Hook 了。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cpp data-lang=cpp><span style=display:flex><span>MH_Initialize();
+</span></span><span style=display:flex><span>MH_CreateHook((LPVOID)<span style=color:#ae81ff>0x00007ff62fb51634</span>, <span style=color:#f92672>&amp;</span>display_hook, <span style=color:#66d9ef>reinterpret_cast</span><span style=color:#f92672>&lt;</span>LPVOID<span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>&amp;</span>display));
+</span></span><span style=display:flex><span>MH_EnableHook(<span style=color:#66d9ef>nullptr</span>);
+</span></span></code></pre></div><p>这里的<code>0x00007ff62fb51634</code>是我们运行这个测试程序后得到的<code>display</code>函数的地址，你可以通过打印这个函数的地址来得到这个地址。除了这个方法我们还可以使用<code>x64dbg</code>这个工具来得到这个地址。</p><p>我们打开<code>x64dbg</code>通过符号切换到这个程序，之后使用字符串搜索<code>Hello World!</code>，之后我们找到<code>call</code>这个指令，然后我们就可以得到这个函数的地址了。</p><p><img alt=20241103121643 src=https://s2.loli.net/2024/11/03/caPVHrGoNl4qOTF.png></p><p><img alt=20241103121851 src=https://s2.loli.net/2024/11/03/nsCbup7EdI95JAr.png></p><p><img alt=20241103122021 src=https://s2.loli.net/2024/11/03/aNA6lk9h7beLTfd.png></p><p>之后编译我们的项目，然后将生成的 DLL 放到我们的测试程序的目录下，之后我们就可以运行这个程序了。</p><p><img alt=20241103122428 src=https://s2.loli.net/2024/11/03/oSGywfmebITKju7.png></p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>
