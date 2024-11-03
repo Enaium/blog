@@ -179,3 +179,5 @@ MH_EnableHook(nullptr);
 之后编译我们的项目，然后将生成的 DLL 放到我们的测试程序的目录下，之后我们就可以运行这个程序了。
 
 ![20241103122428](https://s2.loli.net/2024/11/03/oSGywfmebITKju7.png)
+
+项目地址: [dll-hijack-minhook](https://github.com/Enaium/dll-hijack-minhook)
