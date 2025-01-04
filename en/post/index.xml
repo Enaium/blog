@@ -71,7 +71,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;block.awesome.end_heart_block&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;End Heart Block&amp;#34;&lt;/span>,
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;itemGroup.awesome.item_group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Awesome&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="20240511212016" src="https://s2.loli.net/2024/05/11/Pj8OohkJpaLfS7b.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://s2.loli.net/2024/05/11/Pj8OohkJpaLfS7b.png" alt="20240511212016">&lt;/p>
 &lt;h2 id="recipes">Recipes&lt;/h2>
 &lt;p>The recipe is used to craft an item, Here, We can configure the recipe of the item.&lt;/p></description></item><item><title>Minecraft Fabric Modding Tutorial #5 Add a Block</title><link>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</link><pubDate>Fri, 10 May 2024 23:11:31 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-10-minecraft-fabric-modding-tutorial-%235-add-a-block/</guid><description>&lt;h2 id="register-a-block">Register a Block&lt;/h2>
 &lt;p>It is similar to registering an item, first, we need to declare a block, but a block has a &lt;code>strength&lt;/code> property which is the time required for the player to mine a block.&lt;/p>
@@ -225,9 +225,9 @@
  icon.png
 &lt;/code>&lt;/pre>&lt;p>We can see that there are two folders under &lt;code>src&lt;/code>, &lt;code>client&lt;/code> and &lt;code>main&lt;/code>, these two folders correspond to the client and server, they have their own &lt;code>java&lt;/code> and &lt;code>resources&lt;/code> folders, the &lt;code>java&lt;/code> folder contains Java code, and the &lt;code>resources&lt;/code> folder contains resource files.&lt;/p></description></item><item><title>Minecraft Fabric Modding Toturial #1 Setup a Development Environment</title><link>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</link><pubDate>Fri, 03 May 2024 02:21:18 +0800</pubDate><guid>https://blog.enaium.cn/en/post/2024-5-3-minecraft-fabric-modding-toturial-%231-setup-a-development-environment/</guid><description>&lt;h2 id="install-jdk">Install JDK&lt;/h2>
 &lt;p>Since the latest(1.20.6) Minecraft only supports JDK21, so we need to install JDK21, here I choose to download &lt;a href="https://bell-sw.com/pages/downloads/#/java-21-lts">Libreica OpenJDK 21&lt;/a>.&lt;/p>
-&lt;p>&lt;img alt="20240503030829" src="https://s2.loli.net/2024/05/03/cuFKqWhePMUIE5V.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/05/03/cuFKqWhePMUIE5V.png" alt="20240503030829">&lt;/p>
 &lt;p>Choose &lt;code>Full JDK&lt;/code> and click the file with the suffix &lt;code>msi&lt;/code> to download if you are using Windows, double-click to install after downloading.&lt;/p>
 &lt;h2 id="install-intellij-idea">Install Intellij IDEA&lt;/h2>
 &lt;p>Here I choose to download &lt;a href="https://www.jetbrains.com/idea/download">Intellij IDEA Community&lt;/a>, choose the &lt;code>Community&lt;/code> version.&lt;/p>
-&lt;p>&lt;img alt="20240503030858" src="https://s2.loli.net/2024/05/03/YBP3HGiyrsNOmXd.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/05/03/YBP3HGiyrsNOmXd.png" alt="20240503030858">&lt;/p>
 &lt;p>Double-click to install after downloading if you are using Windows.&lt;/p></description></item></channel></rss>

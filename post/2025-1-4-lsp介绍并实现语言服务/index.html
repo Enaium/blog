@@ -1,0 +1,468 @@
+<!doctype html><html><head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>LSP介绍并实现语言服务</title>
+<link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/css/styles.css></head><body class="d-flex flex-column justify-content-between min-vh-100"><nav class="navbar navbar-expand-lg bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/assets/github.svg alt=Logo width=30 height=24 class="d-inline-block align-text-top">
+Enaium的博客
+</a><button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#navbarNav aria-controls=navbarNav aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse" id=navbarNav><ul class=navbar-nav><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/contact/>联系</a></li><li class=nav-item><a class=nav-link aria-current=page href=https://blog.enaium.cn/about/>关于</a></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle=dropdown href=# role=button aria-expanded=false><img alt=Logo width=30 height=24 src=/assets/language.svg></a><ul class=dropdown-menu></ul></li></ul></div></div></nav><div style=flex:1><div class=container><div class=card><div class=card-header>LSP介绍并实现语言服务</div><div class=card-body><div class=card-text><h2 id=lsp-language-server-protocol-介绍>LSP (Language Server Protocol) 介绍</h2><p>前段时间我为<a href=https://github.com/babyfish-ct/jimmer>Jimmer DTO</a>实现了一个 <code>LSP</code> 的语言服务，这是我第一次实现 <code>LSP</code>，所以在这里我分享一下我实现<code>LSP</code>的经验。</p><p>首先来看一下效果，图片太多，我就放一部分，更多的可以看<a href=https://github.com/Enaium/jimmer-dto-lsp>jimmer-dto-lsp</a></p><p><img src=https://s2.loli.net/2024/12/13/DvS4n6xOLCuH23e.gif alt=属性提示></p><p><img src=https://s2.loli.net/2024/12/13/rjh9IMgSbdJ2o4n.gif alt=结构></p><p><img src=https://s2.loli.net/2025/01/03/jD9vxHoeylE5kWc.png alt=触摸></p><p><img src=https://s2.loli.net/2024/12/27/MLb56A47U2cBVTN.png alt=高亮></p><p><code>LSP</code> 是一种协议，用于在 <code>IDE</code> 和语言服务器之间通信。<code>IDE</code> 通过 <code>LSP</code> 请求语言服务器提供代码分析服务，语言服务器通过 <code>LSP</code> 响应 IDE 的请求。在没有 <code>LSP</code> 之前，每个 <code>IDE</code> 都需要为每种语言实现一套代码分析服务，而 <code>LSP</code> 的出现使得 IDE 只需要实现一套 <code>LSP</code> 协议，就可以使用任何支持 <code>LSP</code> 的语言服务器。所以就大大降低了 <code>IDE</code> 的开发成本。</p><p>列如，需要从一个地方跳转到其他地方，<code>IDE</code> 会发送一个请求，位置是第 <code>3</code> 行第 <code>12</code> 列</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;jsonrpc&#34;</span>: <span style=color:#e6db74>&#34;2.0&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;method&#34;</span>: <span style=color:#e6db74>&#34;textDocument/definition&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;params&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;textDocument&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;uri&#34;</span>: <span style=color:#e6db74>&#34;file:///p%3A/mseng/VSCode/Playgrounds/cpp/use.cpp&#34;</span>
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;position&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;line&#34;</span>: <span style=color:#ae81ff>3</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;character&#34;</span>: <span style=color:#ae81ff>12</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>之后服务端会返回一个响应，位置是第 <code>0</code> 行第 <code>4</code> 列到第 <code>0</code> 行第 <code>11</code> 列，这样 <code>IDE</code> 就可以跳转到这个位置</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;jsonrpc&#34;</span>: <span style=color:#e6db74>&#34;2.0&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;result&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;uri&#34;</span>: <span style=color:#e6db74>&#34;file:///p%3A/mseng/VSCode/Playgrounds/cpp/provide.cpp&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;range&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;start&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;line&#34;</span>: <span style=color:#ae81ff>0</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;character&#34;</span>: <span style=color:#ae81ff>4</span>
+</span></span><span style=display:flex><span>      },
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;end&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;line&#34;</span>: <span style=color:#ae81ff>0</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;character&#34;</span>: <span style=color:#ae81ff>11</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=实现>实现</h2><p>上面的例子中是使用纯文本实现的，我们可以直接使用封装好的库，比如<a href=https://github.com/eclipse-lsp4j/lsp4j>lsp4j</a>。由于只是简单的教学，我这里只实现代码的高亮，语言是<code>JSON5</code>，词法分析就使用<code>antlr4</code>。</p><p>首先我们需要创建一个<code>Gradle</code>项目，下面是我们项目中需要的所有依赖和插件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span>[<span style=color:#a6e22e>versions</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin</span> = <span style=color:#e6db74>&#34;2.1.0&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>antlr</span> = <span style=color:#e6db74>&#34;4.13.0&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>lsp4j</span> = <span style=color:#e6db74>&#34;0.23.1&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>shadow</span> = <span style=color:#e6db74>&#34;9.0.0-beta4&#34;</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>libraries</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>antlr</span> = { <span style=color:#a6e22e>group</span> = <span style=color:#e6db74>&#34;org.antlr&#34;</span>, <span style=color:#a6e22e>name</span> = <span style=color:#e6db74>&#34;antlr4&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;antlr&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>lsp4j</span> = { <span style=color:#a6e22e>module</span> = <span style=color:#e6db74>&#34;org.eclipse.lsp4j:org.eclipse.lsp4j&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;lsp4j&#34;</span> }
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>plugins</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>kotlin-jvm</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;org.jetbrains.kotlin.jvm&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;kotlin&#34;</span> }
+</span></span><span style=display:flex><span><span style=color:#a6e22e>shadow</span> = { <span style=color:#a6e22e>id</span> = <span style=color:#e6db74>&#34;com.gradleup.shadow&#34;</span>, <span style=color:#a6e22e>version</span>.<span style=color:#a6e22e>ref</span> = <span style=color:#e6db74>&#34;shadow&#34;</span> }
+</span></span></code></pre></div><p>接着创建一个叫<code>langauge</code>的子项目，并在<code>src\main\antlr\cn\enaium\j5</code>下创建一个<code>J5.g4</code>文件。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>import</span> org.gradle.kotlin.dsl.withType
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plugins {
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.jvm)
+</span></span><span style=display:flex><span>    antlr
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>repositories {
+</span></span><span style=display:flex><span>    mavenCentral()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencies {
+</span></span><span style=display:flex><span>    antlr(libs.antlr)
+</span></span><span style=display:flex><span>    testImplementation(kotlin(<span style=color:#e6db74>&#34;test&#34;</span>))
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.test {
+</span></span><span style=display:flex><span>    useJUnitPlatform()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.withType&lt;Jar&gt;().configureEach {
+</span></span><span style=display:flex><span>    dependsOn(tasks.withType&lt;AntlrTask&gt;())
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.withType&lt;KotlinCompile&gt;().configureEach {
+</span></span><span style=display:flex><span>    dependsOn(tasks.withType&lt;AntlrTask&gt;())
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在<a href=https://github.com/antlr/grammars-v4>grammars-v4</a>中找到<code>JSON5</code>的<code>g4</code>文件，之后将<code>grammar JSON5;</code>改为<code>grammar J5;</code>，将单行注释和多行注释的<code> -> skip</code>给去掉。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-antlr data-lang=antlr><span style=display:flex><span><span style=color:#75715e>// Student Main</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 2020-07-22</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Public domain</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// JSON5 is a superset of JSON, it included some feature from ES5.1</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// See https://json5.org/</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Derived from ../json/JSON.g4 which original derived from http://json.org</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// $antlr-format alignTrailingComments true, columnLimit 150, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments false, useTab false</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// $antlr-format allowShortRulesOnASingleLine false, allowShortBlocksOnASingleLine true, alignSemicolons hanging, alignColons hanging</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>grammar</span> <span style=color:#a6e22e>J5</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>json5
+</span></span><span style=display:flex><span>    : value<span style=color:#f92672>?</span> <span style=color:#66d9ef>EOF</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>obj
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;{&#39;</span> pair <span style=color:#f92672>(</span><span style=color:#e6db74>&#39;,&#39;</span> pair<span style=color:#f92672>)*</span> <span style=color:#e6db74>&#39;,&#39;</span><span style=color:#f92672>?</span> <span style=color:#e6db74>&#39;}&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#e6db74>&#39;{&#39;</span> <span style=color:#e6db74>&#39;}&#39;</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>pair
+</span></span><span style=display:flex><span>    : key <span style=color:#e6db74>&#39;:&#39;</span> value
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>key
+</span></span><span style=display:flex><span>    : <span style=color:#66d9ef>STRING</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#66d9ef>IDENTIFIER</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#66d9ef>LITERAL</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#66d9ef>NUMERIC_LITERAL</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>value
+</span></span><span style=display:flex><span>    : <span style=color:#66d9ef>STRING</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> number
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> obj
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> arr
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#66d9ef>LITERAL</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>arr
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;[&#39;</span> value <span style=color:#f92672>(</span><span style=color:#e6db74>&#39;,&#39;</span> value<span style=color:#f92672>)*</span> <span style=color:#e6db74>&#39;,&#39;</span><span style=color:#f92672>?</span> <span style=color:#e6db74>&#39;]&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#e6db74>&#39;[&#39;</span> <span style=color:#e6db74>&#39;]&#39;</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>number
+</span></span><span style=display:flex><span>    : <span style=color:#66d9ef>SYMBOL</span><span style=color:#f92672>?</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>NUMERIC_LITERAL</span> <span style=color:#f92672>|</span> <span style=color:#66d9ef>NUMBER</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Lexer</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>SINGLE_LINE_COMMENT
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;//&#39;</span> <span style=color:#f92672>.*?</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>NEWLINE</span> <span style=color:#f92672>|</span> <span style=color:#66d9ef>EOF</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>MULTI_LINE_COMMENT
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;/*&#39;</span> <span style=color:#f92672>.*?</span> <span style=color:#e6db74>&#39;*/&#39;</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>LITERAL
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;true&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#e6db74>&#39;false&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#e6db74>&#39;null&#39;</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>STRING
+</span></span><span style=display:flex><span>    : <span style=color:#e6db74>&#39;&#34;&#39;</span> <span style=color:#66d9ef>DOUBLE_QUOTE_CHAR</span><span style=color:#f92672>*</span> <span style=color:#e6db74>&#39;&#34;&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>|</span> <span style=color:#e6db74>&#39;\&#39;&#39;</span> <span style=color:#66d9ef>SINGLE_QUOTE_CHAR</span><span style=color:#f92672>*</span> <span style=color:#e6db74>&#39;\&#39;&#39;</span>
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fragment</span> DOUBLE_QUOTE_CHAR
+</span></span><span style=display:flex><span>    : <span style=color:#f92672>~</span>[&#34;\\\r\n]
+</span></span><span style=display:flex><span>    | ESCAPE_SEQUENCE
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment SINGLE_QUOTE_CHAR
+</span></span><span style=display:flex><span>    : ~[&#39;\\\r\n]
+</span></span><span style=display:flex><span>    | ESCAPE_SEQUENCE
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment ESCAPE_SEQUENCE
+</span></span><span style=display:flex><span>    : &#39;\\&#39; (
+</span></span><span style=display:flex><span>        NEWLINE
+</span></span><span style=display:flex><span>        | UNICODE_SEQUENCE       // \u1234
+</span></span><span style=display:flex><span>        | [&#39;&#34;\\/bfnrtv]          // single escape char
+</span></span><span style=display:flex><span>        | ~[&#39;&#34;\\bfnrtv0-9xu\r\n] // non escape char
+</span></span><span style=display:flex><span>        | &#39;0&#39;                    // \0
+</span></span><span style=display:flex><span>        | &#39;x&#39; HEX HEX            // \x3a
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>NUMBER
+</span></span><span style=display:flex><span>    : INT (&#39;.&#39; [0-9]*)? EXP? // +1.e2, 1234, 1234.5
+</span></span><span style=display:flex><span>    | &#39;.&#39; [0-9]+ EXP?        // -.2e3
+</span></span><span style=display:flex><span>    | &#39;0&#39; [xX] HEX+          // 0x12345678
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>NUMERIC_LITERAL
+</span></span><span style=display:flex><span>    : &#39;Infinity&#39;
+</span></span><span style=display:flex><span>    | &#39;NaN&#39;
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>SYMBOL
+</span></span><span style=display:flex><span>    : &#39;+&#39;
+</span></span><span style=display:flex><span>    | &#39;-&#39;
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment HEX
+</span></span><span style=display:flex><span>    : [0-9a-fA-F]
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment INT
+</span></span><span style=display:flex><span>    : &#39;0&#39;
+</span></span><span style=display:flex><span>    | [1-9] [0-9]*
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment EXP
+</span></span><span style=display:flex><span>    : [Ee] SYMBOL? [0-9]*
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>IDENTIFIER
+</span></span><span style=display:flex><span>    : IDENTIFIER_START IDENTIFIER_PART*
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment IDENTIFIER_START
+</span></span><span style=display:flex><span>    : [\p{L}]
+</span></span><span style=display:flex><span>    | &#39;$&#39;
+</span></span><span style=display:flex><span>    | &#39;_&#39;
+</span></span><span style=display:flex><span>    | &#39;\\&#39; UNICODE_SEQUENCE
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment IDENTIFIER_PART
+</span></span><span style=display:flex><span>    : IDENTIFIER_START
+</span></span><span style=display:flex><span>    | [\p{M}]
+</span></span><span style=display:flex><span>    | [\p{N}]
+</span></span><span style=display:flex><span>    | [\p{Pc}]
+</span></span><span style=display:flex><span>    | &#39;\u200C&#39;
+</span></span><span style=display:flex><span>    | &#39;\u200D&#39;
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment UNICODE_SEQUENCE
+</span></span><span style=display:flex><span>    : &#39;u&#39; HEX HEX HEX HEX
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fragment NEWLINE
+</span></span><span style=display:flex><span>    : &#39;\r\n&#39;
+</span></span><span style=display:flex><span>    | [\r\n\u2028\u2029]
+</span></span><span style=display:flex><span>    ;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>WS
+</span></span><span style=display:flex><span>    : [ \t\n\r\u00A0\uFEFF\u2003]+ -&gt; skip
+</span></span><span style=display:flex><span>    ;
+</span></span></code></pre></div><p>之后编译项目就会生成<code>J5Lexer</code>和<code>J5Parser</code>。</p><p>接着创建一个<code>server</code>项目用于实现我们的语言服务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span>plugins {
+</span></span><span style=display:flex><span>    alias(libs.plugins.kotlin.jvm)
+</span></span><span style=display:flex><span>    alias(libs.plugins.shadow)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>repositories {
+</span></span><span style=display:flex><span>    mavenCentral()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencies {
+</span></span><span style=display:flex><span>    implementation(project(<span style=color:#e6db74>&#34;:language&#34;</span>))
+</span></span><span style=display:flex><span>    implementation(libs.lsp4j)
+</span></span><span style=display:flex><span>    testImplementation(kotlin(<span style=color:#e6db74>&#34;test&#34;</span>))
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.test {
+</span></span><span style=display:flex><span>    useJUnitPlatform()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tasks.jar {
+</span></span><span style=display:flex><span>    dependsOn(tasks.shadowJar)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>首先我们需要实现一个<code>LanguageServer</code>接口。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>package</span> cn.enaium.j5.lsp
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.InitializeParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.InitializeResult
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.services.LanguageServer
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.services.TextDocumentService
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.services.WorkspaceService
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> java.util.concurrent.CompletableFuture
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>J5LanguageServer</span> : LanguageServer {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>initialize</span>(params: InitializeParams): CompletableFuture&lt;InitializeResult&gt; {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>shutdown</span>(): CompletableFuture&lt;<span style=color:#66d9ef>in</span> Any&gt; {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>exit</span>() {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getTextDocumentService</span>(): TextDocumentService {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getWorkspaceService</span>(): WorkspaceService {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着依次实现<code>TextDocumentService</code>和<code>WorkspaceService</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>package</span> cn.enaium.j5.lsp
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidChangeTextDocumentParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidCloseTextDocumentParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidOpenTextDocumentParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidSaveTextDocumentParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.services.TextDocumentService
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>J5TextDocumentService</span> : TextDocumentService {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didOpen</span>(params: DidOpenTextDocumentParams) {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didChange</span>(params: DidChangeTextDocumentParams) {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didClose</span>(params: DidCloseTextDocumentParams) {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didSave</span>(params: DidSaveTextDocumentParams) {
+</span></span><span style=display:flex><span>        TODO(<span style=color:#e6db74>&#34;Not yet implemented&#34;</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>package</span> cn.enaium.j5.lsp
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidChangeConfigurationParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.DidChangeWatchedFilesParams
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.eclipse.lsp4j.services.WorkspaceService
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author Enaium
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>J5WorkspaceService</span> : WorkspaceService {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didChangeConfiguration</span>(params: DidChangeConfigurationParams) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didChangeWatchedFiles</span>(params: DidChangeWatchedFilesParams) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>实现<code>initialize</code>方法，这个方法主要是需要返回我们这个语言服务器为支持什么功能。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>initialize</span>(params: InitializeParams): CompletableFuture&lt;InitializeResult&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>CompletableFuture</span>.completedFuture(InitializeResult(ServerCapabilities().apply {
+</span></span><span style=display:flex><span>        setTextDocumentSync(TextDocumentSyncOptions().apply {
+</span></span><span style=display:flex><span>            openClose = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>            change = <span style=color:#a6e22e>TextDocumentSyncKind</span>.Full
+</span></span><span style=display:flex><span>            setSave(SaveOptions().apply {
+</span></span><span style=display:flex><span>                includeText = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>            })
+</span></span><span style=display:flex><span>        })
+</span></span><span style=display:flex><span>        semanticTokensProvider = SemanticTokensWithRegistrationOptions().apply {
+</span></span><span style=display:flex><span>            legend = SemanticTokensLegend().apply {
+</span></span><span style=display:flex><span>                tokenTypes = <span style=color:#a6e22e>SemanticType</span>.entries.map { <span style=color:#66d9ef>it</span>.type }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            setFull(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }))
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>首先任何一个语言服务都需要具备这个文档同步功能，这个功能会在打开关闭修改和保存文件是触发。之后是提供语义，提供语义之后，<code>IDE</code>就可以根据这个语义来实现代码高亮。</p><p>我们需要定义一个<code>SemanticType</code>枚举类。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SemanticType</span>(<span style=color:#66d9ef>val</span> id: Int, <span style=color:#66d9ef>val</span> type: String) {
+</span></span><span style=display:flex><span>    COMMENT(<span style=color:#ae81ff>0</span>, <span style=color:#e6db74>&#34;comment&#34;</span>),
+</span></span><span style=display:flex><span>    KEYWORD(<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;keyword&#34;</span>),
+</span></span><span style=display:flex><span>    FUNCTION(<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#34;function&#34;</span>),
+</span></span><span style=display:flex><span>    STRING(<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#34;string&#34;</span>),
+</span></span><span style=display:flex><span>    NUMBER(<span style=color:#ae81ff>4</span>, <span style=color:#e6db74>&#34;number&#34;</span>),
+</span></span><span style=display:flex><span>    DECORATOR(<span style=color:#ae81ff>5</span>, <span style=color:#e6db74>&#34;decorator&#34;</span>),
+</span></span><span style=display:flex><span>    MACRO(<span style=color:#ae81ff>6</span>, <span style=color:#e6db74>&#34;macro&#34;</span>),
+</span></span><span style=display:flex><span>    TYPE(<span style=color:#ae81ff>7</span>, <span style=color:#e6db74>&#34;type&#34;</span>),
+</span></span><span style=display:flex><span>    TYPE_PARAMETER(<span style=color:#ae81ff>8</span>, <span style=color:#e6db74>&#34;typeParameter&#34;</span>),
+</span></span><span style=display:flex><span>    CLASS(<span style=color:#ae81ff>9</span>, <span style=color:#e6db74>&#34;class&#34;</span>),
+</span></span><span style=display:flex><span>    VARIABLE(<span style=color:#ae81ff>10</span>, <span style=color:#e6db74>&#34;variable&#34;</span>),
+</span></span><span style=display:flex><span>    PROPERTY(<span style=color:#ae81ff>11</span>, <span style=color:#e6db74>&#34;property&#34;</span>),
+</span></span><span style=display:flex><span>    STRUCT(<span style=color:#ae81ff>12</span>, <span style=color:#e6db74>&#34;struct&#34;</span>),
+</span></span><span style=display:flex><span>    INTERFACE(<span style=color:#ae81ff>13</span>, <span style=color:#e6db74>&#34;interface&#34;</span>),
+</span></span><span style=display:flex><span>    PARAMETER(<span style=color:#ae81ff>14</span>, <span style=color:#e6db74>&#34;parameter&#34;</span>),
+</span></span><span style=display:flex><span>    ENUM_MEMBER(<span style=color:#ae81ff>15</span>, <span style=color:#e6db74>&#34;enumMember&#34;</span>),
+</span></span><span style=display:flex><span>    NAMESPACE(<span style=color:#ae81ff>16</span>, <span style=color:#e6db74>&#34;namespace&#34;</span>),
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>之后实现一下剩余的方法。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>shutdown</span>(): CompletableFuture&lt;Any&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>CompletableFuture</span>.completedFuture(<span style=color:#66d9ef>true</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>exit</span>() {
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getTextDocumentService</span>(): TextDocumentService
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> J5TextDocumentService()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getWorkspaceService</span>(): WorkspaceService {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> J5WorkspaceService()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>然后实现代码同步功能。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>val</span> cache = mutableMapOf&lt;String, String&gt;()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didOpen</span>(params: DidOpenTextDocumentParams) {
+</span></span><span style=display:flex><span>    cache[params.textDocument.uri] = params.textDocument.text
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didChange</span>(params: DidChangeTextDocumentParams) {
+</span></span><span style=display:flex><span>    cache[params.textDocument.uri] = params.contentChanges[<span style=color:#ae81ff>0</span>].text
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didClose</span>(params: DidCloseTextDocumentParams) {
+</span></span><span style=display:flex><span>    cache.remove(params.textDocument.uri)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>didSave</span>(params: DidSaveTextDocumentParams) {
+</span></span><span style=display:flex><span>    cache[params.textDocument.uri] = params.text
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接着我们需要再在<code>J5TextDocumentService</code>的实现类中实现一个<code>semanticTokensFull</code>方法。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>semanticTokensFull</span>(params: SemanticTokensParams): CompletableFuture&lt;SemanticTokens&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> document = cache[params.textDocument.uri] <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>CompletableFuture</span>.completedFuture(SemanticTokens())
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> data = mutableListOf&lt;Int&gt;()
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> previousLine = <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> previousChar = <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> j5Lexer = J5Lexer(<span style=color:#a6e22e>CharStreams</span>.fromString(document))
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> token = CommonTokenStream(j5Lexer)
+</span></span><span style=display:flex><span>    token.fill()
+</span></span><span style=display:flex><span>    token.tokens.forEach { token <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> semanticType = <span style=color:#66d9ef>when</span> (token.type) {
+</span></span><span style=display:flex><span>            J5Lexer.STRING <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.STRING
+</span></span><span style=display:flex><span>            J5Lexer.NUMBER <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.NUMBER
+</span></span><span style=display:flex><span>            J5Lexer.NUMERIC_LITERAL <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.NUMBER
+</span></span><span style=display:flex><span>            J5Lexer.LITERAL <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.KEYWORD
+</span></span><span style=display:flex><span>            J5Lexer.SINGLE_LINE_COMMENT <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.COMMENT
+</span></span><span style=display:flex><span>            J5Lexer.MULTI_LINE_COMMENT <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.COMMENT
+</span></span><span style=display:flex><span>            J5Lexer.IDENTIFIER <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.VARIABLE
+</span></span><span style=display:flex><span>            J5Lexer.SYMBOL <span style=color:#f92672>-&gt;</span> <span style=color:#a6e22e>SemanticType</span>.KEYWORD
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span> <span style=color:#f92672>-&gt;</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@forEach</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        token.text.split(<span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>).forEachIndexed { index, s <span style=color:#f92672>-&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> start = Position(token.line - <span style=color:#ae81ff>1</span>, token.charPositionInLine)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> currentLine = start.line + index
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> currentChar = <span style=color:#66d9ef>if</span> (index <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>) start.character <span style=color:#66d9ef>else</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>data</span>.add(currentLine - previousLine)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>data</span>.add(<span style=color:#66d9ef>if</span> (previousLine <span style=color:#f92672>==</span> currentLine) currentChar - previousChar <span style=color:#66d9ef>else</span> currentChar)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>data</span>.add(s.length)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>data</span>.add(semanticType.id)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>data</span>.add(<span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>            previousLine = currentLine
+</span></span><span style=display:flex><span>            previousChar = currentChar
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>CompletableFuture</span>.completedFuture(SemanticTokens(<span style=color:#66d9ef>data</span>))
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>最后我们需要创建一个主方法来启动我们的语言服务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> server = J5LanguageServer()
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> launcher = <span style=color:#a6e22e>Launcher</span>.createLauncher(server, LanguageClient<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>.java, <span style=color:#a6e22e>System</span>.`in`, <span style=color:#a6e22e>System</span>.<span style=color:#66d9ef>out</span>)
+</span></span><span style=display:flex><span>    launcher.startListening()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=测试>测试</h2><p>新建一个后缀为<code>j5</code>的文件，然后输入以下内容。</p><pre tabindex=0><code class=language-json5 data-lang=json5>{
+  /* play with comments
+  {  true, NaN   ] , {}* / aaa{}
+
+
+  // make sure we included all \p{L},
+  yes, json5, and ECMAScript 5+ supports them
+//*/
+  全世界无产者: &#34;联合起来&#34;,
+  n1: 1e2,
+  n2: 0.2e-4,
+  // May not works in some poor IDE
+  // but works in official parser
+  Infinity: -Infinity,
+  NaN: -NaN,
+  true: true,
+  false: false,
+  // yes, it works in their parser too
+  一: &#34;Unicode!&#34;
+}
+
+// comment ends with eof
+</code></pre><p>之后我这里使用<code>neovim</code>来测试，确保你已经安装了<code>lspconfig</code>。</p><p>· 在<code>init.lua</code>中添加以下内容。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-lua data-lang=lua><span style=display:flex><span>vim.cmd <span style=color:#e6db74>[[au BufRead,BufNewFile *.j5                set filetype=J5]]</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>local</span> lsp <span style=color:#f92672>=</span> require(<span style=color:#e6db74>&#39;lspconfig&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>local</span> lsp_config <span style=color:#f92672>=</span> require(<span style=color:#e6db74>&#39;lspconfig.configs&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lsp_config.j5 <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    default_config <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        cmd <span style=color:#f92672>=</span> { <span style=color:#e6db74>&#39;java&#39;</span>, <span style=color:#e6db74>&#39;-cp&#39;</span>, <span style=color:#e6db74>&#39;D:/Projects/teaching-lsp/server/build/libs/server-1.0-SNAPSHOT-all.jar&#39;</span>, <span style=color:#e6db74>&#39;cn.enaium.j5.lsp.MainKt&#39;</span> },
+</span></span><span style=display:flex><span>        filetypes <span style=color:#f92672>=</span> { <span style=color:#e6db74>&#39;J5&#39;</span> },
+</span></span><span style=display:flex><span>	root_dir <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(fname)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> lsp.util.root_pattern(<span style=color:#e6db74>&#39;*.j5&#39;</span>)(fname)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>end</span>,
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lsp_config.j5.setup {}
+</span></span></code></pre></div><p><img src=https://s2.loli.net/2025/01/04/TwakPzQYmp5g6eH.png alt=neovim></p><p><a href=https://github.com/Enaium/teaching-lsp>源码</a></p></div></div></div></div></div><footer class="p-5 bg-dark text-white text-center"><div class=container><p class=lead>Copyright &copy; 2024 Enaium</p></div></footer><script src=/js/bootstrap.bundle.min.js></script></body></html>

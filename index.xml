@@ -1,4 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sun, 03 Nov 2024 01:28:23 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>DLL劫持并使用MinHook</title><link>https://blog.enaium.cn/post/2024-11-3-dll%E5%8A%AB%E6%8C%81%E5%B9%B6%E4%BD%BF%E7%94%A8minhook/</link><pubDate>Sun, 03 Nov 2024 01:28:23 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-11-3-dll%E5%8A%AB%E6%8C%81%E5%B9%B6%E4%BD%BF%E7%94%A8minhook/</guid><description>&lt;h2 id="测试用例">测试用例&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sat, 04 Jan 2025 11:13:20 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>LSP介绍并实现语言服务</title><link>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</link><pubDate>Sat, 04 Jan 2025 11:13:20 +0800</pubDate><guid>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</guid><description>&lt;h2 id="lsp-language-server-protocol-介绍">LSP (Language Server Protocol) 介绍&lt;/h2>
+&lt;p>前段时间我为&lt;a href="https://github.com/babyfish-ct/jimmer">Jimmer DTO&lt;/a>实现了一个 &lt;code>LSP&lt;/code> 的语言服务，这是我第一次实现 &lt;code>LSP&lt;/code>，所以在这里我分享一下我实现&lt;code>LSP&lt;/code>的经验。&lt;/p>
+&lt;p>首先来看一下效果，图片太多，我就放一部分，更多的可以看&lt;a href="https://github.com/Enaium/jimmer-dto-lsp">jimmer-dto-lsp&lt;/a>&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/12/13/DvS4n6xOLCuH23e.gif" alt="属性提示">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/12/13/rjh9IMgSbdJ2o4n.gif" alt="结构">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2025/01/03/jD9vxHoeylE5kWc.png" alt="触摸">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/12/27/MLb56A47U2cBVTN.png" alt="高亮">&lt;/p>
+&lt;p>&lt;code>LSP&lt;/code> 是一种协议，用于在 &lt;code>IDE&lt;/code> 和语言服务器之间通信。&lt;code>IDE&lt;/code> 通过 &lt;code>LSP&lt;/code> 请求语言服务器提供代码分析服务，语言服务器通过 &lt;code>LSP&lt;/code> 响应 IDE 的请求。在没有 &lt;code>LSP&lt;/code> 之前，每个 &lt;code>IDE&lt;/code> 都需要为每种语言实现一套代码分析服务，而 &lt;code>LSP&lt;/code> 的出现使得 IDE 只需要实现一套 &lt;code>LSP&lt;/code> 协议，就可以使用任何支持 &lt;code>LSP&lt;/code> 的语言服务器。所以就大大降低了 &lt;code>IDE&lt;/code> 的开发成本。&lt;/p>
+&lt;p>列如，需要从一个地方跳转到其他地方，&lt;code>IDE&lt;/code> 会发送一个请求，位置是第 &lt;code>3&lt;/code> 行第 &lt;code>12&lt;/code> 列&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;jsonrpc&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;2.0&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;id&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;method&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;textDocument/definition&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;params&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;textDocument&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;uri&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;file:///p%3A/mseng/VSCode/Playgrounds/cpp/use.cpp&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;position&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;line&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;character&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">12&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>之后服务端会返回一个响应，位置是第 &lt;code>0&lt;/code> 行第 &lt;code>4&lt;/code> 列到第 &lt;code>0&lt;/code> 行第 &lt;code>11&lt;/code> 列，这样 &lt;code>IDE&lt;/code> 就可以跳转到这个位置&lt;/p></description></item><item><title>DLL劫持并使用MinHook</title><link>https://blog.enaium.cn/post/2024-11-3-dll%E5%8A%AB%E6%8C%81%E5%B9%B6%E4%BD%BF%E7%94%A8minhook/</link><pubDate>Sun, 03 Nov 2024 01:28:23 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-11-3-dll%E5%8A%AB%E6%8C%81%E5%B9%B6%E4%BD%BF%E7%94%A8minhook/</guid><description>&lt;h2 id="测试用例">测试用例&lt;/h2>
 &lt;p>首先我使用&lt;code>CLion&lt;/code>写了一个简单的程序，这个程序会加载一个&lt;code>dinput8.dll&lt;/code>，然后调用一个函数显示一段文字，然后等待用户按下任意键。这个程序的代码如下：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&amp;lt;windows.h&amp;gt;
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&amp;lt;iostream&amp;gt;
@@ -22,7 +45,7 @@
 &lt;h2 id="包装-dll">包装 DLL&lt;/h2>
 &lt;p>上面我们知道了 DLL 的加载机制，那么我们就可以知道如何让程序加载我们自己的 DLL，加载我们的 DLL 后，我们需要让这个 DLL 也拥有原 DLL 的功能，这里我们需要对原 DLL 进行包装。我们可以使用&lt;a href="https://github.com/mavenlin/wrap_dll">wrap_dll&lt;/a>这个工具来包装 DLL。这是个&lt;code>Python&lt;/code>脚本，所以你必须安装了&lt;code>Python&lt;/code>，之后这个脚本还需要&lt;code>dumpbin.exe&lt;/code>和&lt;code>undname.exe&lt;/code>这两个工具，这两个工具是 Visual Studio 自带的，所以你需要安装了&lt;code>Visual Studio&lt;/code>，并且需要将&lt;code>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\Hostx64\x64&lt;/code>设置到环境变量中。之后你就可以使用这个脚本了。&lt;/p></description></item><item><title>星露谷模组开发教程#8 自定义武器</title><link>https://blog.enaium.cn/post/2024-8-11-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%AD%A6%E5%99%A8/</link><pubDate>Sun, 11 Aug 2024 00:03:18 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-11-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%AD%A6%E5%99%A8/</guid><description>&lt;p>添加武器还是比较简单的，只需要在 &lt;code>Data/Weapons&lt;/code> 中添加一个新的武器数据即可。&lt;/p>
 &lt;p>这里做一张&lt;code>16x16&lt;/code>格式为&lt;code>png&lt;/code>的图。&lt;/p>
-&lt;p>&lt;img alt="TheLastSword" src="https://s2.loli.net/2024/08/11/ybqCiZQvUTMrdF2.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/11/ybqCiZQvUTMrdF2.png" alt="TheLastSword">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Data/Weapons&amp;#34;&lt;/span>))
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> e.Edit(assets =&amp;gt;
@@ -45,11 +68,11 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> e.LoadFromModFile&amp;lt;Texture2D&amp;gt;(&lt;span style="color:#e6db74">&amp;#34;assets/TheLastSword.png&amp;#34;&lt;/span>, AssetLoadPriority.Medium);
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="20240811004219" src="https://s2.loli.net/2024/08/11/eAYGCntFEkWOoLD.png">&lt;/p>
-&lt;p>&lt;img alt="20240811004201" src="https://s2.loli.net/2024/08/11/Egbz6iQA3rkpHPM.png">&lt;/p></description></item><item><title>星露谷模组开发教程#7 自定义机器</title><link>https://blog.enaium.cn/post/2024-8-10-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%237-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9C%BA%E5%99%A8/</link><pubDate>Sat, 10 Aug 2024 16:20:59 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-10-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%237-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9C%BA%E5%99%A8/</guid><description>&lt;h2 id="添加大型工艺品">添加大型工艺品&lt;/h2>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://s2.loli.net/2024/08/11/eAYGCntFEkWOoLD.png" alt="20240811004219">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/11/Egbz6iQA3rkpHPM.png" alt="20240811004201">&lt;/p></description></item><item><title>星露谷模组开发教程#7 自定义机器</title><link>https://blog.enaium.cn/post/2024-8-10-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%237-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9C%BA%E5%99%A8/</link><pubDate>Sat, 10 Aug 2024 16:20:59 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-10-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%237-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9C%BA%E5%99%A8/</guid><description>&lt;h2 id="添加大型工艺品">添加大型工艺品&lt;/h2>
 &lt;p>机器也算是大型工艺品，所以我们需要先添加它的大型工艺品。&lt;/p>
 &lt;p>这里做一张&lt;code>16x32&lt;/code>格式为&lt;code>png&lt;/code>的图。&lt;/p>
-&lt;p>&lt;img alt="Orearium" src="https://s2.loli.net/2024/08/10/aoNjZsL12gcHwUY.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/10/aoNjZsL12gcHwUY.png" alt="Orearium">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Data/BigCraftables&amp;#34;&lt;/span>))
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> e.Edit(assets =&amp;gt;
@@ -159,8 +182,8 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先每个参数会用&lt;code>/&lt;/code>进行分割，第一个参数就是需要用到的物品，它是以两个数字为一对，第一个是物品的ID。第二个参数在游戏中暂时没被用到的，配置里大多数都是&lt;code>1 10&lt;/code>，所以我们也这样写。第三个参数是产出物品的ID，第四个参数是配方的获取条件，&lt;code>default&lt;/code>就是默认就会有这个配方。合起来就是一个苹果和四个金锭可以合成一个金苹果。&lt;/p>
-&lt;p>&lt;img alt="20240810122310" src="https://s2.loli.net/2024/08/10/9pXZlDKLMYhRHyC.png">&lt;/p>
-&lt;p>&lt;img alt="20240810122345" src="https://s2.loli.net/2024/08/10/C4FJ3jLRXUsatxp.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/10/9pXZlDKLMYhRHyC.png" alt="20240810122310">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/10/C4FJ3jLRXUsatxp.png" alt="20240810122345">&lt;/p>
 &lt;h2 id="制造配方">制造配方&lt;/h2>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Data/CraftingRecipes&amp;#34;&lt;/span>))
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
@@ -171,7 +194,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> });
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>和烹饪配方一样，制造配方中第二个参数也是未被使用的，可以是&lt;code>Field&lt;/code>或&lt;code>Home&lt;/code>，不一样的是多了一个是否为大型工艺品。这里使用一个矮人小工具和二十个煤炭制造一个钻石。&lt;/p>
-&lt;p>&lt;img alt="20240810131317" src="https://s2.loli.net/2024/08/10/wP3YOlyGbXsJKhm.png">&lt;/p></description></item><item><title>星露谷模组开发教程#5 自定义物品</title><link>https://blog.enaium.cn/post/2024-8-7-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%89%A9%E5%93%81/</link><pubDate>Wed, 07 Aug 2024 22:37:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-7-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%89%A9%E5%93%81/</guid><description>&lt;p>上篇文章我们已经学习到了如何去替换和修改游戏的内容，这篇文章我们将学习如何添加自定义物品。&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/10/wP3YOlyGbXsJKhm.png" alt="20240810131317">&lt;/p></description></item><item><title>星露谷模组开发教程#5 自定义物品</title><link>https://blog.enaium.cn/post/2024-8-7-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%89%A9%E5%93%81/</link><pubDate>Wed, 07 Aug 2024 22:37:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-7-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%89%A9%E5%93%81/</guid><description>&lt;p>上篇文章我们已经学习到了如何去替换和修改游戏的内容，这篇文章我们将学习如何添加自定义物品。&lt;/p>
 &lt;h2 id="修改-objects-数据">修改 Objects 数据&lt;/h2>
 &lt;p>游戏中几乎所有的普通物品被称为&lt;code>Object&lt;/code>，我们也会看到&lt;code>Data\Objects.json&lt;/code>文件中有着许多数据。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Data/Objects&amp;#34;&lt;/span>))
@@ -195,7 +218,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先我们先判断是否为&lt;code>Data/Objects&lt;/code>，接着我们使用&lt;code>ObjectData&lt;/code>去创建一个&lt;code>ObjectData&lt;/code>对象，然后我们设置&lt;code>Name&lt;/code>，&lt;code>DisplayName&lt;/code>，&lt;code>Description&lt;/code>，&lt;code>Type&lt;/code>，&lt;code>Category&lt;/code>，&lt;code>Price&lt;/code>，&lt;code>SpriteIndex&lt;/code>，&lt;code>Texture&lt;/code>，最后我们将这个对象添加到&lt;code>Data&lt;/code>中。&lt;/p>
 &lt;h2 id="添加物品图片">添加物品图片&lt;/h2>
 &lt;p>这里做一张&lt;code>16x16&lt;/code>格式为&lt;code>png&lt;/code>的图。&lt;/p>
-&lt;p>&lt;img alt="Diamond" src="https://s2.loli.net/2024/08/08/MizstxXLmlvdCuU.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/08/MizstxXLmlvdCuU.png" alt="Diamond">&lt;/p>
 &lt;p>我们需要在&lt;code>assets&lt;/code>文件夹下创建一个&lt;code>Awesome_Diamond.png&lt;/code>文件，然后将我们的图片放入其中。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Awesome_Diamond&amp;#34;&lt;/span>))
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
@@ -206,7 +229,7 @@
 &lt;p>在替换游戏内容直接我们需要知道每个文件的路径，我们可以使用&lt;a href="https://github.com/Pathoschild/StardewXnbHack">StardewXnbHack&lt;/a>来解包游戏内容，下载完成之后将&lt;code>StardewXnbHack&lt;/code>文件放到游戏目录下，然后运行&lt;code>StardewXnbHack&lt;/code>，它会自动解包游戏内容到&lt;code>Stardew Valley\Content (unpacked)&lt;/code>文件夹下。&lt;/p>
 &lt;h2 id="替换图片内容">替换图片内容&lt;/h2>
 &lt;p>这里就先替换游戏的肖像图片，我们可以在&lt;code>Stardew Valley\Content (unpacked)\Portraits&lt;/code>文件夹下找到肖像图片，比如这里我选择替换&lt;code>Abigail.png&lt;/code>。&lt;/p>
-&lt;p>&lt;img alt="Abigail" src="https://s2.loli.net/2024/08/05/xG4c7JQe3WuaDlC.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/05/xG4c7JQe3WuaDlC.png" alt="Abigail">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> OnAssetRequested(&lt;span style="color:#66d9ef">object?&lt;/span> sender, AssetRequestedEventArgs e)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Portraits/Abigail&amp;#34;&lt;/span>))
@@ -215,10 +238,10 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先判断资源名称是否为&lt;code>Portraits/Abigail&lt;/code>，然后使用&lt;code>LoadFromModFile&lt;/code>来加载我们的图片文件，第一个参数就是图片的路径，也就是&lt;code>assets/Abigail.png&lt;/code>，这里就是在项目的目录下创建一个&lt;code>assets&lt;/code>文件夹，然后放入我们的图片文件，这样就可以替换游戏内的图片了，第二个参数是加载优先级，这里选择&lt;code>Medium&lt;/code>，如果有多个模组替换同一个文件，优先级高的会生效。&lt;/p>
-&lt;p>&lt;img alt="20240805225516" src="https://s2.loli.net/2024/08/05/TjXtDKyUYbzp2i3.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/05/TjXtDKyUYbzp2i3.png" alt="20240805225516">&lt;/p>
 &lt;h2 id="修改图片内容">修改图片内容&lt;/h2>
 &lt;p>这里依旧是修改&lt;code>Abigail.png&lt;/code>，这里准备一张有&lt;code>Alpah&lt;/code>通道的图片，然后将它遮罩到&lt;code>Abigail.png&lt;/code>上。&lt;/p>
-&lt;p>&lt;img alt="Black" src="https://s2.loli.net/2024/08/05/9Cvp4n2YtkasWm5.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/05/9Cvp4n2YtkasWm5.png" alt="Black">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">private&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> OnAssetRequested(&lt;span style="color:#66d9ef">object?&lt;/span> sender, AssetRequestedEventArgs e)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> (e.Name.IsEquivalentTo(&lt;span style="color:#e6db74">&amp;#34;Portraits/Abigail&amp;#34;&lt;/span>))
@@ -232,7 +255,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>调用&lt;code>Edit&lt;/code>方法，之后将资源转为一个图片，然后加载我们的图片文件，之后调用&lt;code>PatchImage&lt;/code>方法，第一个参数是我们的图片文件，第二个参数是修补模式，这里选择&lt;code>Overlay&lt;/code>，这样就可以将我们的图片遮罩到游戏内的图片上了。&lt;/p>
-&lt;p>&lt;img alt="20240805225201" src="https://s2.loli.net/2024/08/05/k5iMXtWOKmJHY6B.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/05/k5iMXtWOKmJHY6B.png" alt="20240805225201">&lt;/p>
 &lt;h2 id="修改数据内容">修改数据内容&lt;/h2>
 &lt;p>这里我们选择修改商店的数据，我们可以在&lt;code>Stardew Valley\Content (unpacked)\Data&lt;/code>文件夹下找到&lt;code>Shops.json&lt;/code>文件，这个文件包含了所有物品的数据。&lt;/p></description></item><item><title>星露谷模组开发教程#3 事件</title><link>https://blog.enaium.cn/post/2024-8-4-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%233-%E4%BA%8B%E4%BB%B6/</link><pubDate>Sun, 04 Aug 2024 14:11:07 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-4-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%233-%E4%BA%8B%E4%BB%B6/</guid><description>&lt;p>&lt;code>SMAPI&lt;/code>提供了一些事件，比如游戏的内容、显示、输入等事件。这些事件可以让我们在游戏中添加自己的逻辑。这一节我们就来看看如何使用这些事件。&lt;/p>
 &lt;h2 id="注册一个事件">注册一个事件&lt;/h2>
@@ -325,21 +348,21 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里我们使用&lt;code>Monitor.Log&lt;/code>来打印一个日志，第一个参数是日志的内容，第二个参数是日志的等级，这里我们使用&lt;code>LogLevel.Debug&lt;/code>来打印一个调试日志。&lt;/p></description></item><item><title>星露谷模组开发教程#1 配置开发环境</title><link>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sat, 03 Aug 2024 16:56:31 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-8-3-%E6%98%9F%E9%9C%B2%E8%B0%B7%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;h2 id="安装net-sdk">安装.NET SDK&lt;/h2>
 &lt;p>首先我们需要下载&lt;a href="https://dotnet.microsoft.com/en-us/download">.NET SDK&lt;/a>，这里当前最新的LTS是&lt;code>.NET 8&lt;/code>，我们选择&lt;code>.NET 8&lt;/code>进行下载。&lt;/p>
-&lt;p>&lt;img alt="20240803170430" src="https://s2.loli.net/2024/08/03/X3HkvTl6MeidOsn.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/X3HkvTl6MeidOsn.png" alt="20240803170430">&lt;/p>
 &lt;p>点击&lt;code>Download .NET SDK x64&lt;/code>进行下载。&lt;/p>
-&lt;p>&lt;img alt="20240803170636" src="https://s2.loli.net/2024/08/03/y6FvItrBMKG3J5E.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/y6FvItrBMKG3J5E.png" alt="20240803170636">&lt;/p>
 &lt;p>下载完成之后点击安装&lt;/p>
 &lt;p>输入命令&lt;code>dotnet --version&lt;/code>，如果安装成功你就会看到终端中会输出当前的版本号。&lt;/p>
 &lt;h2 id="安装visual-studio-code">安装Visual Studio Code&lt;/h2>
 &lt;p>接着进入&lt;a href="https://code.visualstudio.com/Download">Visual Studio Code&lt;/a>的下载页面&lt;/p>
-&lt;p>&lt;img alt="20240803171235" src="https://s2.loli.net/2024/08/03/HAJgCxhR3MSasGk.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/HAJgCxhR3MSasGk.png" alt="20240803171235">&lt;/p>
 &lt;p>选择对应的版本进行下载。&lt;/p>
-&lt;p>&lt;img alt="20240803171348" src="https://s2.loli.net/2024/08/03/NIrkJBOCDPciwaU.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/NIrkJBOCDPciwaU.png" alt="20240803171348">&lt;/p>
 &lt;p>接受之后一直下一步到完成。&lt;/p>
-&lt;p>&lt;img alt="20240803171442" src="https://s2.loli.net/2024/08/03/4iEHX1rmSUpFqJc.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/4iEHX1rmSUpFqJc.png" alt="20240803171442">&lt;/p>
 &lt;h2 id="配置visual-studio-code">配置Visual Studio Code&lt;/h2>
 &lt;p>进入到插件管理搜索&lt;code>C#&lt;/code>，点击安装。&lt;/p>
-&lt;p>&lt;img alt="20240803175616" src="https://s2.loli.net/2024/08/03/bcCXmkqK26MORag.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/08/03/bcCXmkqK26MORag.png" alt="20240803175616">&lt;/p>
 &lt;p>好了，这样我们配置环境这一步就大功告成了。&lt;/p>
 &lt;h2 id="安装smapi">安装SMAPI&lt;/h2>
 &lt;p>这里大家肯定都装了，应该还没有连模组都不会装就来看模组开发了吧。&lt;/p></description></item><item><title>Windows下Rust OpenCV环境配置</title><link>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</link><pubDate>Sun, 28 Jul 2024 21:14:31 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-28-windows%E4%B8%8Brust-opencv%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</guid><description>&lt;h2 id="安装chocolatey">安装Chocolatey&lt;/h2>
@@ -370,7 +393,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> Ok(());
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>运行&lt;code>cargo run&lt;/code>，如果一切正常，你将看到一张图片弹出。&lt;/p>
-&lt;p>&lt;img alt="trump.png" src="https://s21.ax1x.com/2024/07/28/pkqHbVg.png">&lt;/p></description></item><item><title>Vue项目整合Cordova一键打包apk</title><link>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</link><pubDate>Sat, 13 Jul 2024 23:40:06 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</guid><description>&lt;p>&lt;code>Cordova&lt;/code>是一个依赖于&lt;code>Node.js&lt;/code>的工具，它可以将&lt;code>HTML&lt;/code>页面打包为&lt;code>apk&lt;/code>等移动端应用，本篇文章将介绍如何使用&lt;code>Cordova&lt;/code>将&lt;code>Vue&lt;/code>项目打包为&lt;code>apk&lt;/code>。&lt;/p>
+&lt;p>&lt;img src="https://s21.ax1x.com/2024/07/28/pkqHbVg.png" alt="trump.png">&lt;/p></description></item><item><title>Vue项目整合Cordova一键打包apk</title><link>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</link><pubDate>Sat, 13 Jul 2024 23:40:06 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-7-13-vue%E9%A1%B9%E7%9B%AE%E6%95%B4%E5%90%88cordova%E4%B8%80%E9%94%AE%E6%89%93%E5%8C%85apk/</guid><description>&lt;p>&lt;code>Cordova&lt;/code>是一个依赖于&lt;code>Node.js&lt;/code>的工具，它可以将&lt;code>HTML&lt;/code>页面打包为&lt;code>apk&lt;/code>等移动端应用，本篇文章将介绍如何使用&lt;code>Cordova&lt;/code>将&lt;code>Vue&lt;/code>项目打包为&lt;code>apk&lt;/code>。&lt;/p>
 &lt;h2 id="创建corodva项目">创建&lt;code>Corodva&lt;/code>项目&lt;/h2>
 &lt;p>首先，我们需要安装&lt;code>Cordova&lt;/code>，可以使用&lt;code>npm&lt;/code>进行安装：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>npm install -g cordova
@@ -710,14 +733,14 @@
 &lt;h2 id="创建-springboot-项目">创建 SpringBoot 项目&lt;/h2>
 &lt;p>使用&lt;code>IDEA&lt;/code>旗舰版的可以直接使用自带&lt;code>Spring Initializr&lt;/code>创建项目，其他的可以使用&lt;a href="https://start.spring.io/">Spring Initializr&lt;/a>创建项目。&lt;/p>
 &lt;p>语言选择&lt;code>Java&lt;/code>，类型选择&lt;code>Gradle-Kotlin&lt;/code>，&lt;code>Java&lt;/code>选择 21，其他的都随便填。&lt;/p>
-&lt;p>&lt;img alt="20240423215241" src="https://s2.loli.net/2024/04/23/OCrh1epGw5UDq24.png">&lt;/p>
-&lt;p>&lt;img alt="20240423210415" src="https://s2.loli.net/2024/04/23/4nLkO3TgEdtpFsa.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/OCrh1epGw5UDq24.png" alt="20240423215241">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/4nLkO3TgEdtpFsa.png" alt="20240423210415">&lt;/p>
 &lt;p>接下来选择依赖，这里选择&lt;code>web&lt;/code>，&lt;code>lombok&lt;/code>,数据库选择&lt;code>PostgreSQL&lt;/code>，如果你使用的是&lt;code>MySQL&lt;/code>就选它&lt;/p>
-&lt;p>&lt;img alt="20240423210635" src="https://s2.loli.net/2024/04/23/4GF2vzm5CtlaJT8.png">&lt;/p>
-&lt;p>&lt;img alt="20240423210727" src="https://s2.loli.net/2024/04/23/CDSJkhpmK52yEgv.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/4GF2vzm5CtlaJT8.png" alt="20240423210635">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/CDSJkhpmK52yEgv.png" alt="20240423210727">&lt;/p>
 &lt;p>之后点击创建自动打开项目，或者点击生成打开下载的项目&lt;/p>
-&lt;p>&lt;img alt="20240423210848" src="https://s2.loli.net/2024/04/23/6Y2qCyk8OGbhrc1.png">
-&lt;img alt="20240423210903" src="https://s2.loli.net/2024/04/23/Y54rbSCx8QUAycW.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/6Y2qCyk8OGbhrc1.png" alt="20240423210848">
+&lt;img src="https://s2.loli.net/2024/04/23/Y54rbSCx8QUAycW.png" alt="20240423210903">&lt;/p>
 &lt;p>之后等待项目的依赖下载完成就好了&lt;/p>
 &lt;p>如果需要配置镜像那就在&lt;code>repositories&lt;/code>中最上面添加腾讯云的镜像&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>repositories {
@@ -728,7 +751,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先我们需要创建数据库，比如一个图书管理系统，需要有一张图书表，有一些字段，比如标题、作者、创建时间、等等。&lt;/p>
 &lt;p>我们使用数据库管理工具来创建一个表吧。&lt;/p>
-&lt;p>&lt;img alt="20240423225934" src="https://s2.loli.net/2024/04/23/pz61HG9EyuQLWUl.png">&lt;/p>
+&lt;p>&lt;img src="https://s2.loli.net/2024/04/23/pz61HG9EyuQLWUl.png" alt="20240423225934">&lt;/p>
 &lt;p>注意这里使用的是&lt;code>Postgres&lt;/code>，如果是&lt;code>MySQL&lt;/code>类型略有不同。&lt;/p>
 &lt;p>之后我们就可以创建实体类了，这里需要先引入&lt;code>ORM&lt;/code>框架依赖，这里我为了方便引入写了一个&lt;code>Gradle&lt;/code>插件，把它写入到&lt;code>plugins&lt;/code>中，接着在刷新一下项目就可以继续编写代码了。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>plugins {
@@ -893,8 +916,8 @@
 &lt;h2 id="热重载资源">热重载资源&lt;/h2>
 &lt;p>使用&lt;code>F3+T&lt;/code>快捷键可以重载资源。&lt;/p>
 &lt;p>比如这里我给物品添加一个纹理：&lt;/p>
-&lt;p>&lt;img alt="2024-1-23-1" src="https://blog.enaium.cn/assets/fabric/2024-1-23-1.png">
-&lt;img alt="2024-1-23-2" src="https://blog.enaium.cn/assets/fabric/2024-1-23-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/2024-1-23-1.png" alt="2024-1-23-1">
+&lt;img src="https://blog.enaium.cn/assets/fabric/2024-1-23-2.png" alt="2024-1-23-2">&lt;/p>
 &lt;h2 id="热重载资源-1">热重载资源&lt;/h2>
 &lt;p>使用&lt;code>/reload&lt;/code>命令可以重载资源。&lt;/p>
 &lt;p>比如这里我修改一个合成表：&lt;/p>
@@ -910,8 +933,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> ],
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;key&amp;#34;: {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;#34;E&amp;#34;: {
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="2024-1-23-3" src="https://blog.enaium.cn/assets/fabric/2024-1-23-3.png">
-&lt;img alt="2024-1-23-4" src="https://blog.enaium.cn/assets/fabric/2024-1-23-4.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/2024-1-23-3.png" alt="2024-1-23-3">
+&lt;img src="https://blog.enaium.cn/assets/fabric/2024-1-23-4.png" alt="2024-1-23-4">&lt;/p>
 &lt;h2 id="热重载代码">热重载代码&lt;/h2>
 &lt;p>我们这里修改一个按钮的位置，然后到&lt;code>IDEA&lt;/code>的源码文件中按下&lt;code>Ctrl+Shift+F9&lt;/code>，然后就可以看到效果了。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-diff" data-lang="diff">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">@@ -12,6 +12,6 @@
@@ -922,7 +945,7 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&lt;/span>&lt;span style="color:#a6e22e">+ }).dimensions(100, 100, 50, 20).build());
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">&lt;/span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="2024-1-23-5" src="https://blog.enaium.cn/assets/fabric/2024-1-23-5.png">&lt;/p></description></item><item><title>Minecraft Fabric模组开发教程#11 添加流体</title><link>https://blog.enaium.cn/post/2024-1-15-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%2311-%E6%B7%BB%E5%8A%A0%E6%B5%81%E4%BD%93/</link><pubDate>Mon, 15 Jan 2024 15:45:08 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-1-15-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%2311-%E6%B7%BB%E5%8A%A0%E6%B5%81%E4%BD%93/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/2024-1-23-5.png" alt="2024-1-23-5">&lt;/p></description></item><item><title>Minecraft Fabric模组开发教程#11 添加流体</title><link>https://blog.enaium.cn/post/2024-1-15-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%2311-%E6%B7%BB%E5%8A%A0%E6%B5%81%E4%BD%93/</link><pubDate>Mon, 15 Jan 2024 15:45:08 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-1-15-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%2311-%E6%B7%BB%E5%8A%A0%E6%B5%81%E4%BD%93/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>本教程将会教你如何添加流体，什么是流体呢？就是像水、熔岩这样的东西，我们将会添加一种新的流体。&lt;/p>
 &lt;h2 id="创建流体">创建流体&lt;/h2>
 &lt;p>在原版中流体都继承了&lt;code>net.minecraft.fluid.FlowableFluid&lt;/code>，所以我们也继承它。&lt;/p>
@@ -991,8 +1014,8 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="注册矿物物品">注册矿物物品&lt;/h2>
 &lt;p>使用之前学习的方法，我们可以很容易的注册矿物物品。&lt;/p>
 &lt;h2 id="矿物纹理">矿物纹理&lt;/h2>
-&lt;p>&lt;img alt="end_heart_ore" src="https://blog.enaium.cn/assets/fabric2024/end_heart_ore.png">
-&lt;img alt="deepslate_end_heart_ore" src="https://blog.enaium.cn/assets/fabric2024/deepslate_end_heart_ore.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/end_heart_ore.png" alt="end_heart_ore">
+&lt;img src="https://blog.enaium.cn/assets/fabric2024/deepslate_end_heart_ore.png" alt="deepslate_end_heart_ore">&lt;/p>
 &lt;p>使用之前学习的方法，我们可以很容易的注册矿物纹理。&lt;/p>
 &lt;h2 id="多语言文件">多语言文件&lt;/h2>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
@@ -1080,8 +1103,8 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;hr>
 &lt;p>附魔书在在原材料的最后&lt;/p>
-&lt;p>&lt;img alt="9-1" src="https://blog.enaium.cn/assets/fabric2024/9-1.png">&lt;/p>
-&lt;p>&lt;img alt="9-2" src="https://blog.enaium.cn/assets/fabric2024/9-2.png">&lt;/p></description></item><item><title>Minecraft Fabric模组开发教程#8 添加武器</title><link>https://blog.enaium.cn/post/2024-1-10-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E6%B7%BB%E5%8A%A0%E6%AD%A6%E5%99%A8/</link><pubDate>Wed, 10 Jan 2024 16:00:24 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-1-10-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E6%B7%BB%E5%8A%A0%E6%AD%A6%E5%99%A8/</guid><description>&lt;h2 id="工具材料">工具材料&lt;/h2>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/9-1.png" alt="9-1">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/9-2.png" alt="9-2">&lt;/p></description></item><item><title>Minecraft Fabric模组开发教程#8 添加武器</title><link>https://blog.enaium.cn/post/2024-1-10-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E6%B7%BB%E5%8A%A0%E6%AD%A6%E5%99%A8/</link><pubDate>Wed, 10 Jan 2024 16:00:24 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-1-10-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%238-%E6%B7%BB%E5%8A%A0%E6%AD%A6%E5%99%A8/</guid><description>&lt;h2 id="工具材料">工具材料&lt;/h2>
 &lt;p>和添加盔甲差不多，需要创建一个&lt;code>EndToolMaterial&lt;/code>类，之后实现&lt;code>ToolMaterial&lt;/code>接口，这样我们就可以创建武器了。&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">enum&lt;/span> EndToolMaterial &lt;span style="color:#66d9ef">implements&lt;/span> ToolMaterial {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ;
@@ -1242,7 +1265,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;block.awesome.end_heart_block&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;End Heart Block&amp;#34;&lt;/span>,
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;itemGroup.awesome.item_group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Awesome&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="6-1" src="https://blog.enaium.cn/assets/fabric2024/6-1.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/6-1.png" alt="6-1">&lt;/p>
 &lt;h2 id="合成表">合成表&lt;/h2>
 &lt;p>合成表是用来合成物品的，我们可以在这里设置合成物品的配方。&lt;/p>
 &lt;p>在&lt;code>data\awesome\recipes&lt;/code>创建一个&lt;code>end_heart_block.json&lt;/code>文件，也就是如何在工作台中合成&lt;code>end_heart_block.json&lt;/code>。&lt;/p>
@@ -1279,8 +1302,8 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;count&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">9&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="6-2" src="https://blog.enaium.cn/assets/fabric2024/6-2.png">&lt;/p>
-&lt;p>&lt;img alt="6-3" src="https://blog.enaium.cn/assets/fabric2024/6-3.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/6-2.png" alt="6-2">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/6-3.png" alt="6-3">&lt;/p>
 &lt;h2 id="提示">提示&lt;/h2>
 &lt;p>我们可以在方块上添加提示，当玩家将鼠标悬停在方块上时，就会显示提示。&lt;/p>
 &lt;p>在&lt;code>EndHeartBlock&lt;/code>中添加&lt;code>appendTooltip&lt;/code>方法，之后调用&lt;code>tooltip.add&lt;/code>添加提示，使用&lt;code>Text.translatable&lt;/code>方法可以将多语言的key转换为对应的多语言。&lt;/p></description></item><item><title>Minecraft Fabric模组开发教程#5 添加方块</title><link>https://blog.enaium.cn/post/2024-1-9-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E6%B7%BB%E5%8A%A0%E6%96%B9%E5%9D%97/</link><pubDate>Wed, 10 Jan 2024 01:53:12 +0800</pubDate><guid>https://blog.enaium.cn/post/2024-1-9-minecraft-fabric%E6%A8%A1%E7%BB%84%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B%235-%E6%B7%BB%E5%8A%A0%E6%96%B9%E5%9D%97/</guid><description>&lt;h2 id="注册方块">注册方块&lt;/h2>
@@ -1490,21 +1513,21 @@
 &lt;p>在几年前我已经写过很多关于Mincraft开发相关的文章，今年已经是2024年了所以我决定重新写一遍，这次我会更加详细的介绍一些内容。&lt;/p>
 &lt;h2 id="安装jdk">安装JDK&lt;/h2>
 &lt;p>由于最新的Minecraft最低只支持JDK17，所以我们需要安装JDK17，这里我选择下载&lt;a href="https://bell-sw.com/pages/downloads/#/java-17-lts">Libreica OpenJDK 17&lt;/a>。&lt;/p>
-&lt;p>&lt;img alt="1-1" src="https://blog.enaium.cn/assets/fabric2024/1-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/1-1.png" alt="1-1">&lt;/p>
 &lt;p>这里选择&lt;code>Full JDK&lt;/code>之后点击后缀为&lt;code>msi&lt;/code>的文件下载，下载完成后双击安装即可。&lt;/p>
 &lt;h2 id="安装idea">安装IDEA&lt;/h2>
 &lt;p>这里我选择下载&lt;a href="https://www.jetbrains.com/idea/download/#section=windows">IDEA&lt;/a>，选择&lt;code>Community&lt;/code>版本即可。&lt;/p>
-&lt;p>&lt;img alt="1-2" src="https://blog.enaium.cn/assets/fabric2024/1-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/1-2.png" alt="1-2">&lt;/p>
 &lt;p>下载完成后双击安装即可。&lt;/p>
 &lt;h2 id="下载项目模板">下载项目模板&lt;/h2>
 &lt;p>这里需要到Fabric的GitHub仓库下载模板，&lt;a href="https://github.com/FabricMC/fabric-example-mod">点击这里&lt;/a>进入仓库，点击&lt;code>Code&lt;/code>按钮，选择&lt;code>Download ZIP&lt;/code>下载。&lt;/p>
-&lt;p>&lt;img alt="1-3" src="https://blog.enaium.cn/assets/fabric2024/1-3.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/1-3.png" alt="1-3">&lt;/p>
 &lt;h2 id="运行项目">运行项目&lt;/h2>
 &lt;p>下载完成后解压，打开IDEA，选择&lt;code>Open&lt;/code>，选择解压后的文件夹，点击&lt;code>OK&lt;/code>，最后点击&lt;code>Trust Project&lt;/code>。&lt;/p>
 &lt;p>这样就算是将项目导入IDEA了，接下来只需等待IDEA加载完成即可，如果是第一次开发Fabric模组，可能会需要下载一些依赖，这个过程可能会比较慢，需要耐心等待。&lt;/p>
 &lt;p>点击左下角有一个&lt;code>Build&lt;/code>图标的按钮，之后再右侧出现&lt;code>BUILD SUCCESSFUL&lt;/code>时，说明项目已经完成构建，可以运行了。&lt;/p>
 &lt;p>之后点击右上角的&lt;code>Gradle&lt;/code>图标的按钮，展开之后找到&lt;code>Tasks&lt;/code>下的&lt;code>fabric&lt;/code>，点击&lt;code>runClient&lt;/code>，等待运行完成即可。&lt;/p>
-&lt;p>&lt;img alt="1-4" src="https://blog.enaium.cn/assets/fabric2024/1-4.png">&lt;/p></description></item><item><title>Gradle极简入门</title><link>https://blog.enaium.cn/post/2023-6-2-gradle%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 02 Jun 2023 09:18:47 +0800</pubDate><guid>https://blog.enaium.cn/post/2023-6-2-gradle%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8/</guid><description>&lt;h2 id="什么是-gradle">什么是 Gradle&lt;/h2>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric2024/1-4.png" alt="1-4">&lt;/p></description></item><item><title>Gradle极简入门</title><link>https://blog.enaium.cn/post/2023-6-2-gradle%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 02 Jun 2023 09:18:47 +0800</pubDate><guid>https://blog.enaium.cn/post/2023-6-2-gradle%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8/</guid><description>&lt;h2 id="什么是-gradle">什么是 Gradle&lt;/h2>
 &lt;p>&lt;code>Gradle&lt;/code>是一个基于&lt;code>Apache Ant&lt;/code>和&lt;code>Apache Maven&lt;/code>概念的项目自动化构建工具。它使用一种基于&lt;code>Groovy&lt;/code>的特定领域语言(&lt;code>DSL&lt;/code>)来声明项目设置，而不是传统的&lt;code>XML&lt;/code>。&lt;code>Gradle&lt;/code>构建脚本是用&lt;code>Groovy&lt;/code>编写的，也可以使用&lt;code>Kotlin&lt;/code>编写，两者都是基于&lt;code>JVM&lt;/code>的语言。&lt;/p>
 &lt;h2 id="安装-gradle">安装 Gradle&lt;/h2>
 &lt;p>在开始之前，想必大家已经学会了&lt;code>Java&lt;/code>或者&lt;code>Kotlin&lt;/code>，现在大家都在使用&lt;code>Android Studio&lt;/code>开发&lt;code>Android&lt;/code>应用，&lt;code>Android Studio&lt;/code>是基于&lt;code>IntelliJ IDEA&lt;/code>开发的，但现在不从&lt;code>Android Studio&lt;/code>的角度来讲，也不从&lt;code>IntelliJ IDEA&lt;/code>的角度来讲，而是从&lt;code>Gradle&lt;/code>的角度来讲，所以我们需要去官网下载&lt;code>Gradle&lt;/code>，然后在&lt;code>IntelliJ IDEA&lt;/code>中去使用&lt;code>Gradle&lt;/code>。&lt;/p>
@@ -1941,10 +1964,10 @@ draft: true # 是否为草稿
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>使用develop参数即可启用gatsby服务&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>gatsby develop
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>进入到8000端口后即可访问默认的页面，不过本文章是创建个人博客&lt;/p>
-&lt;p>&lt;img src="https://blog.enaium.cn/assets/Snipaste_2022-09-28_09-38-35.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/Snipaste_2022-09-28_09-38-35.png" alt="">&lt;/p>
 &lt;p>在创建项目时后面跟着一个github地址，这个是gatsby官方的一个博客模板&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>gatsby new blog https://github.com/gatsbyjs/gatsby-starter-blog 
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/Snipaste_2022-09-28_09-46-26.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/Snipaste_2022-09-28_09-46-26.png" alt="">&lt;/p>
 &lt;p>这个是项目的目录结构&lt;/p>
 &lt;pre tabindex="0">&lt;code>C:.
 ├─content
@@ -2634,20 +2657,20 @@ categroy: javascript
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>创建&lt;code>getMapper&lt;/code>方法。&lt;/p></description></item><item><title>详细介绍如何发布到Maven中央仓库</title><link>https://blog.enaium.cn/post/2021-4-15-%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D%E5%A6%82%E4%BD%95%E5%8F%91%E5%B8%83%E5%88%B0maven%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/</link><pubDate>Thu, 15 Apr 2021 11:10:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2021-4-15-%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D%E5%A6%82%E4%BD%95%E5%8F%91%E5%B8%83%E5%88%B0maven%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/</guid><description>&lt;h2 id="注册账户">注册账户&lt;/h2>
 &lt;p>&lt;a href="https://issues.sonatype.org">https://issues.sonatype.org&lt;/a>&lt;/p>
 &lt;h2 id="发布问题创建新的工程">发布问题(创建新的工程)&lt;/h2>
-&lt;p>&lt;a href="https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;pid=10134">https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;pid=10134&lt;/a>&lt;/p>
-&lt;p>&lt;a href="https://imgtu.com/i/cg6kfe">&lt;img alt="cg6kfe.png" src="https://z3.ax1x.com/2021/04/15/cg6kfe.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;amp;pid=10134">https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&amp;pid=10134&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://imgtu.com/i/cg6kfe">&lt;img src="https://z3.ax1x.com/2021/04/15/cg6kfe.png" alt="cg6kfe.png">&lt;/a>&lt;/p>
 &lt;p>摘要:项目名称&lt;/p>
 &lt;p>Group Id:组名 这里要用自己的域名的话一定要保证有域名的所有权,后面会让你添加dns记录来验证&lt;/p>
 &lt;p>Project URL仓库地址
 SCM URL git地址&lt;/p>
 &lt;p>之后创建&lt;/p>
 &lt;p>等待回复 会让你添加DNS记录&lt;/p>
-&lt;p>&lt;a href="https://imgtu.com/i/cg6gn1">&lt;img alt="cg6gn1.png" src="https://z3.ax1x.com/2021/04/15/cg6gn1.png">&lt;/a>&lt;/p>
-&lt;p>&lt;a href="https://imgtu.com/i/cgcFH0">&lt;img alt="cgcFH0.png" src="https://z3.ax1x.com/2021/04/15/cgcFH0.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://imgtu.com/i/cg6gn1">&lt;img src="https://z3.ax1x.com/2021/04/15/cg6gn1.png" alt="cg6gn1.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://imgtu.com/i/cgcFH0">&lt;img src="https://z3.ax1x.com/2021/04/15/cgcFH0.png" alt="cgcFH0.png">&lt;/a>&lt;/p>
 &lt;p>添加后回复,这个地址要使用这个工具才能访问,直接执行命令后面跟着地址就行&lt;/p>
-&lt;p>&lt;a href="https://imgtu.com/i/cg6Tcd">&lt;img alt="cg6Tcd.png" src="https://z3.ax1x.com/2021/04/15/cg6Tcd.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://imgtu.com/i/cg6Tcd">&lt;img src="https://z3.ax1x.com/2021/04/15/cg6Tcd.png" alt="cg6Tcd.png">&lt;/a>&lt;/p>
 &lt;p>等待回复之后就能上传了,他说上传之后回复&lt;/p>
-&lt;p>&lt;a href="https://imgtu.com/i/cgcNgH">&lt;img alt="cgcNgH.png" src="https://z3.ax1x.com/2021/04/15/cgcNgH.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://imgtu.com/i/cgcNgH">&lt;img src="https://z3.ax1x.com/2021/04/15/cgcNgH.png" alt="cgcNgH.png">&lt;/a>&lt;/p>
 &lt;p>这里我使用Gradle&lt;/p>
 &lt;p>加上这2个插件&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-groovy" data-lang="groovy">&lt;span style="display:flex;">&lt;span>plugins &lt;span style="color:#f92672">{&lt;/span>
@@ -3627,9 +3650,9 @@ SCM URL git地址&lt;/p>
 		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
 		RESB	1469432
 &lt;/code>&lt;/pre>&lt;p>作者用的是nask 那么用nasm的话会出现 问题 &lt;code>.\hello.nas:41: error: attempt to reserve non-constant quantity of BSS space&lt;/code>&lt;/p></description></item><item><title>[Jekyll入门]#4条件、循环</title><link>https://blog.enaium.cn/post/2020-9-24-jekyll%E5%85%A5%E9%97%A8%234%E6%9D%A1%E4%BB%B6%E5%BE%AA%E7%8E%AF/</link><pubDate>Thu, 24 Sep 2020 19:58:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-9-24-jekyll%E5%85%A5%E9%97%A8%234%E6%9D%A1%E4%BB%B6%E5%BE%AA%E7%8E%AF/</guid><description>&lt;h2 id="条件">条件&lt;/h2>
-&lt;p>&lt;img alt="4-1" src="https://blog.enaium.cn/assets/jekyll/4-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/jekyll/4-1.png" alt="4-1">&lt;/p>
 &lt;h2 id="循环">循环&lt;/h2>
-&lt;p>&lt;img alt="4-2" src="https://blog.enaium.cn/assets/jekyll/4-2.png">&lt;/p></description></item><item><title>[Jekyll入门]#3布局</title><link>https://blog.enaium.cn/post/2020-9-23-jekyll%E5%85%A5%E9%97%A8%233%E5%B8%83%E5%B1%80/</link><pubDate>Wed, 23 Sep 2020 19:14:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-9-23-jekyll%E5%85%A5%E9%97%A8%233%E5%B8%83%E5%B1%80/</guid><description>&lt;h2 id="布局">布局&lt;/h2>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/jekyll/4-2.png" alt="4-2">&lt;/p></description></item><item><title>[Jekyll入门]#3布局</title><link>https://blog.enaium.cn/post/2020-9-23-jekyll%E5%85%A5%E9%97%A8%233%E5%B8%83%E5%B1%80/</link><pubDate>Wed, 23 Sep 2020 19:14:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-9-23-jekyll%E5%85%A5%E9%97%A8%233%E5%B8%83%E5%B1%80/</guid><description>&lt;h2 id="布局">布局&lt;/h2>
 &lt;h3 id="自定义">自定义&lt;/h3>
 &lt;ol>
 &lt;li>创建&lt;code>_layouts&lt;/code>目录&lt;/li>
@@ -3727,13 +3750,13 @@ permalink: /donation/ #永久链接
 &lt;li>创建Vue项目使用&lt;code>vue ui&lt;/code>命令(需要vue 3.0&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>选择刚才的目录&lt;img alt="2020-4-20-1" src="https://blog.enaium.cn/assets/springboot/2020-4-20-1.png">
-名字为&lt;code>Vue&lt;/code>创建后V还是小写 创建后可以改为大写&lt;img alt="2020-4-20-2" src="https://blog.enaium.cn/assets/springboot/2020-4-20-2.png">
-取消git初始化&lt;img alt="2020-4-20-3" src="https://blog.enaium.cn/assets/springboot/2020-4-20-3.png">
-手动配置&lt;img alt="2020-4-20-4" src="https://blog.enaium.cn/assets/springboot/2020-4-20-4.png">
-取消&lt;img alt="2020-4-20-5" src="https://blog.enaium.cn/assets/springboot/2020-4-20-5.png">
-打开&lt;img alt="2020-4-20-6" src="https://blog.enaium.cn/assets/springboot/2020-4-20-6.png">
-创建项目，不保存预设&lt;img alt="2020-4-20-7" src="https://blog.enaium.cn/assets/springboot/2020-4-20-7.png">&lt;/p>
+&lt;p>选择刚才的目录&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-1.png" alt="2020-4-20-1">
+名字为&lt;code>Vue&lt;/code>创建后V还是小写 创建后可以改为大写&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-2.png" alt="2020-4-20-2">
+取消git初始化&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-3.png" alt="2020-4-20-3">
+手动配置&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-4.png" alt="2020-4-20-4">
+取消&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-5.png" alt="2020-4-20-5">
+打开&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-6.png" alt="2020-4-20-6">
+创建项目，不保存预设&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-7.png" alt="2020-4-20-7">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote>
 &lt;h3 id="新建springboot项目">新建SpringBoot项目&lt;/h3>
@@ -3742,18 +3765,18 @@ permalink: /donation/ #永久链接
 &lt;li>用IDEA打开&lt;code>SpringBoot-Vue-MessageBoard&lt;/code>这个目录&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="2020-4-20-8" src="https://blog.enaium.cn/assets/springboot/2020-4-20-8.png">
-&lt;img alt="2020-4-20-9" src="https://blog.enaium.cn/assets/springboot/2020-4-20-9.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-8.png" alt="2020-4-20-8">
+&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-9.png" alt="2020-4-20-9">&lt;/p>
 &lt;/blockquote>
 &lt;ol start="2">
 &lt;li>创建SpringBoot项目&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>右键&lt;img alt="2020-4-20-10" src="https://blog.enaium.cn/assets/springboot/2020-4-20-10.png">
-选择&lt;code>Spring Initializr&lt;/code>&lt;img alt="2020-4-20-11" src="https://blog.enaium.cn/assets/springboot/2020-4-20-11.png">
-&lt;img alt="2020-4-20-12" src="https://blog.enaium.cn/assets/springboot/2020-4-20-12.png">
-选择这四个&lt;img alt="2020-4-20-13" src="https://blog.enaium.cn/assets/springboot/2020-4-20-13.png">
-名字改为&lt;code>SpringBoot&lt;/code>&lt;img alt="2020-4-20-14" src="https://blog.enaium.cn/assets/springboot/2020-4-20-14.png">&lt;/p>
+&lt;p>右键&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-10.png" alt="2020-4-20-10">
+选择&lt;code>Spring Initializr&lt;/code>&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-11.png" alt="2020-4-20-11">
+&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-12.png" alt="2020-4-20-12">
+选择这四个&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-13.png" alt="2020-4-20-13">
+名字改为&lt;code>SpringBoot&lt;/code>&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-14.png" alt="2020-4-20-14">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote>
 &lt;h2 id="二-后端">二. 后端&lt;/h2>
@@ -3847,11 +3870,11 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="解决跨源请求问题">解决跨源请求问题&lt;/h3>
-&lt;p>&lt;img alt="2020-4-20-15" src="https://blog.enaium.cn/assets/springboot/2020-4-20-15.png">&lt;/p></description></item><item><title>[全民写端第二季]#2移植</title><link>https://blog.enaium.cn/post/2020-3-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%232%E7%A7%BB%E6%A4%8D/</link><pubDate>Sat, 28 Mar 2020 18:43:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%232%E7%A7%BB%E6%A4%8D/</guid><description>&lt;p>一. 把第一季的源码复制过来&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/springboot/2020-4-20-15.png" alt="2020-4-20-15">&lt;/p></description></item><item><title>[全民写端第二季]#2移植</title><link>https://blog.enaium.cn/post/2020-3-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%232%E7%A7%BB%E6%A4%8D/</link><pubDate>Sat, 28 Mar 2020 18:43:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%232%E7%A7%BB%E6%A4%8D/</guid><description>&lt;p>一. 把第一季的源码复制过来&lt;/p>
 &lt;p>二. 注入&lt;/p>
 &lt;ol>
 &lt;li>注入run 和 top
-&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/2-1.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/2-1.png" alt="img">&lt;/li>
 &lt;/ol>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">@Mixin&lt;/span>(Minecraft.&lt;span style="color:#a6e22e">class&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MinecraftMixin&lt;/span> {
@@ -3868,7 +3891,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>注入&lt;code>EventUpdate&lt;/code> &lt;code>EventKeyboard&lt;/code> &lt;code>EventRender2D&lt;/code>&lt;/li>
 &lt;/ol>
-&lt;p>&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/2-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/2-2.png" alt="img">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">@Mixin&lt;/span>(Minecraft.&lt;span style="color:#a6e22e">class&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MinecraftMixin&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Inject&lt;/span>(at &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">@At&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;RETURN&amp;#34;&lt;/span>), method &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;dispatchKeypresses&amp;#34;&lt;/span>)
@@ -3877,7 +3900,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">new&lt;/span> EventKeyboard(Keyboard.&lt;span style="color:#a6e22e">getEventKey&lt;/span>() &lt;span style="color:#f92672">==&lt;/span> 0 &lt;span style="color:#f92672">?&lt;/span> Keyboard.&lt;span style="color:#a6e22e">getEventCharacter&lt;/span>() &lt;span style="color:#f92672">+&lt;/span> 256 : Keyboard,getEventKey()).&lt;span style="color:#a6e22e">call&lt;/span>();
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/2-3.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/2-3.png" alt="img">&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">@Mixin&lt;/span>(EntityPlayerSP.&lt;span style="color:#a6e22e">class&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">EntityPlayerSPMixin&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">@Inject&lt;/span>(at &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">@At&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;HEAD&amp;#34;&lt;/span>), method &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;onUpdate&amp;#34;&lt;/span>)
@@ -3885,7 +3908,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">new&lt;/span> EventUpdate(Event.&lt;span style="color:#a6e22e">Type&lt;/span>.&lt;span style="color:#a6e22e">PRE&lt;/span>).&lt;span style="color:#a6e22e">call&lt;/span>();
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/2-4.png">&lt;/p></description></item><item><title>[全民写端第二季]#1配置开发环境</title><link>https://blog.enaium.cn/post/2020-3-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Wed, 25 Mar 2020 19:27:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;ol>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/2-4.png" alt="img">&lt;/p></description></item><item><title>[全民写端第二季]#1配置开发环境</title><link>https://blog.enaium.cn/post/2020-3-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Wed, 25 Mar 2020 19:27:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%E7%AC%AC%E4%BA%8C%E5%AD%A3%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;ol>
 &lt;li>下载&lt;a href="https://github.com/Enaium/FoxBase/tree/1.8.9-Forge-Example">FoxBase&lt;/a>&lt;/li>
 &lt;/ol>
 &lt;p>如果你想修改名字可以在&lt;code>gradle.build&lt;/code>文件修改&lt;code>archivesBaseName&lt;/code>&lt;/p>
@@ -3893,13 +3916,13 @@ permalink: /donation/ #永久链接
 &lt;li>从项目的根目录运行以下命令:
 &lt;code>./gradlew setupDevWorkspace idea genIntellijRuns build&lt;/code>&lt;/li>
 &lt;li>打开 IntelliJ IDEA.
-&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/1-1.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/1-1.png" alt="img">&lt;/li>
 &lt;li>Open &lt;code>Open =&amp;gt; Select FoxBase folder&lt;/code>
-&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/1-2.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/1-2.png" alt="img">&lt;/li>
 &lt;li>Click &lt;code>Import gradle project&lt;/code>
-&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/1-3.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/1-3.png" alt="img">&lt;/li>
 &lt;li>添加VM options &lt;code>-Dfml.coreMods.load=cn.enaium.foxbase.injection.MixinLoader&lt;/code>
-&lt;img alt="img" src="https://blog.enaium.cn/assets/minecraftclient2/1-4.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient2/1-4.png" alt="img">&lt;/li>
 &lt;/ol>
 &lt;p>完成！&lt;/p></description></item><item><title>[全民写端]#12绘制ClickGUI</title><link>https://blog.enaium.cn/post/2020-3-14-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2312-%E7%BB%98%E5%88%B6clickgui/</link><pubDate>Sat, 14 Mar 2020 17:52:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-14-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2312-%E7%BB%98%E5%88%B6clickgui/</guid><description>&lt;p>一. 先复制进去&lt;code>FontUtils&lt;/code>&lt;/p>
 &lt;h2 id="fontutils">FontUtils&lt;/h2>
@@ -3949,11 +3972,11 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>二. 开始绘制&lt;/p></description></item><item><title>[全民写端]#11绘制主菜单</title><link>https://blog.enaium.cn/post/2020-3-3-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2311%E7%BB%98%E5%88%B6%E4%B8%BB%E8%8F%9C%E5%8D%95/</link><pubDate>Tue, 03 Mar 2020 11:01:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-3-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2311%E7%BB%98%E5%88%B6%E4%B8%BB%E8%8F%9C%E5%8D%95/</guid><description>&lt;p>一. 搜索&lt;code>GuiMainMenu&lt;/code>这个类&lt;/p>
-&lt;p>&lt;img alt="11-1" src="https://blog.enaium.cn/assets/minecraftclient/11-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/11-1.png" alt="11-1">&lt;/p>
 &lt;p>二. 删除&lt;code>drawScreen&lt;/code>方法内所有&lt;/p>
-&lt;p>&lt;img alt="11-2" src="https://blog.enaium.cn/assets/minecraftclient/11-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/11-2.png" alt="11-2">&lt;/p>
 &lt;p>三. 删除无用方法(显示为灰色的方法)&lt;/p>
-&lt;p>&lt;img alt="11-3" src="https://blog.enaium.cn/assets/minecraftclient/11-3.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/11-3.png" alt="11-3">&lt;/p>
 &lt;p>四. 在&lt;code>drawScreen&lt;/code>方法绘制&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">drawScreen&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> mouseX, &lt;span style="color:#66d9ef">int&lt;/span> mouseY, &lt;span style="color:#66d9ef">float&lt;/span> partialTicks)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
@@ -3968,7 +3991,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">super&lt;/span>.&lt;span style="color:#a6e22e">drawScreen&lt;/span>(mouseX, mouseY, partialTicks);
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>五. 放入纹理(材质)
-&lt;img alt="background" src="https://blog.enaium.cn/assets/minecraftclient/background.jpg">&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/background.jpg" alt="background">&lt;/p>
 &lt;blockquote>
 &lt;ol>
 &lt;li>在&lt;code>assets.minecraft&lt;/code>新建一个&lt;code>coreium&lt;/code>包&lt;/li>
@@ -3976,8 +3999,8 @@ permalink: /donation/ #永久链接
 &lt;/ol>
 &lt;/blockquote>
 &lt;p>完成
-&lt;img alt="11-4" src="https://blog.enaium.cn/assets/minecraftclient/11-4.png">&lt;/p></description></item><item><title>用Gitee搭建私有Maven仓库</title><link>https://blog.enaium.cn/post/2020-3-1-%E7%94%A8gitee%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89maven%E4%BB%93%E5%BA%93/</link><pubDate>Sun, 01 Mar 2020 19:53:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-1-%E7%94%A8gitee%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89maven%E4%BB%93%E5%BA%93/</guid><description>&lt;p>一. 新建仓库&lt;/p>
-&lt;p>&lt;img alt="2020-3-1-1" src="https://blog.enaium.cn/assets/others/2020-3-1-1.png">&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/11-4.png" alt="11-4">&lt;/p></description></item><item><title>用Gitee搭建私有Maven仓库</title><link>https://blog.enaium.cn/post/2020-3-1-%E7%94%A8gitee%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89maven%E4%BB%93%E5%BA%93/</link><pubDate>Sun, 01 Mar 2020 19:53:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-3-1-%E7%94%A8gitee%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89maven%E4%BB%93%E5%BA%93/</guid><description>&lt;p>一. 新建仓库&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-3-1-1.png" alt="2020-3-1-1">&lt;/p>
 &lt;p>二. 上传index&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-html" data-lang="html">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&amp;lt;!DOCTYPE html&amp;gt;&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;&lt;span style="color:#f92672">html&lt;/span> &lt;span style="color:#a6e22e">lang&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;en&amp;#34;&lt;/span>&amp;gt;
@@ -3991,11 +4014,11 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;/&lt;span style="color:#f92672">body&lt;/span>&amp;gt;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;/&lt;span style="color:#f92672">html&lt;/span>&amp;gt;
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>三. 开通Gitee Pages&lt;/p>
-&lt;p>&lt;img alt="2020-3-1-2" src="https://blog.enaium.cn/assets/others/2020-3-1-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-3-1-2.png" alt="2020-3-1-2">&lt;/p>
 &lt;p>四. 上传文件&lt;/p>
-&lt;p>&lt;img alt="2020-3-1-3" src="https://blog.enaium.cn/assets/others/2020-3-1-3.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-3-1-3.png" alt="2020-3-1-3">&lt;/p>
 &lt;p>五. 部署&lt;/p>
-&lt;p>&lt;img alt="2020-3-1-4" src="https://blog.enaium.cn/assets/others/2020-3-1-4.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-3-1-4.png" alt="2020-3-1-4">&lt;/p>
 &lt;p>⚠上传的文件部署后才能从Gitee Pages中下载到&lt;/p></description></item><item><title>[全民写端]#10绘制ToggleModules</title><link>https://blog.enaium.cn/post/2020-2-29%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2310%E7%BB%98%E5%88%B6togglemodules/</link><pubDate>Sat, 29 Feb 2020 18:25:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-29%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%2310%E7%BB%98%E5%88%B6togglemodules/</guid><description>&lt;p>一.添加&lt;code>EventRender2D&lt;/code>&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">EventRender2D&lt;/span> &lt;span style="color:#66d9ef">extends&lt;/span> Event {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#a6e22e">EventRender2D&lt;/span>() {
@@ -4008,7 +4031,7 @@ permalink: /donation/ #永久链接
 &lt;li>搜索&lt;code>GuiIngame&lt;/code>这个类打开&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="10-1" src="https://blog.enaium.cn/assets/minecraftclient/10-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/10-1.png" alt="10-1">&lt;/p>
 &lt;/blockquote>
 &lt;ol start="2">
 &lt;li>找到&lt;code>renderGameOverlay&lt;/code>这个类&lt;/li>
@@ -4068,7 +4091,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> index &lt;span style="color:#f92672">+=&lt;/span> 12;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>完成
-&lt;img alt="10-2" src="https://blog.enaium.cn/assets/minecraftclient/10-2.png">&lt;/p></description></item><item><title>[全民写端]#9添加配置</title><link>https://blog.enaium.cn/post/2020-2-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%239%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE/</link><pubDate>Fri, 28 Feb 2020 12:21:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%239%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE/</guid><description>&lt;p>一. 添加Config&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/10-2.png" alt="10-2">&lt;/p></description></item><item><title>[全民写端]#9添加配置</title><link>https://blog.enaium.cn/post/2020-2-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%239%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE/</link><pubDate>Fri, 28 Feb 2020 12:21:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-28-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%239%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE/</guid><description>&lt;p>一. 添加Config&lt;/p>
 &lt;blockquote>
 &lt;p>下载&lt;a href="https://blog.enaium.cn/assets/minecraftclient/config.zip">Config&lt;/a>解压到你想要的目录&lt;/p>
 &lt;/blockquote>
@@ -4366,14 +4389,14 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>三. 运行&lt;/p>
 &lt;p>按V打开&lt;/p>
-&lt;p>&lt;img alt="5-1" src="https://blog.enaium.cn/assets/minecraftclient/5-1.png">&lt;/p></description></item><item><title>[全民写端]#4添加Event和Module</title><link>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%234%E6%B7%BB%E5%8A%A0event%E5%92%8Cmodule/</link><pubDate>Tue, 25 Feb 2020 13:03:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%234%E6%B7%BB%E5%8A%A0event%E5%92%8Cmodule/</guid><description>&lt;p>一. 添加Event&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/5-1.png" alt="5-1">&lt;/p></description></item><item><title>[全民写端]#4添加Event和Module</title><link>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%234%E6%B7%BB%E5%8A%A0event%E5%92%8Cmodule/</link><pubDate>Tue, 25 Feb 2020 13:03:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%234%E6%B7%BB%E5%8A%A0event%E5%92%8Cmodule/</guid><description>&lt;p>一. 添加Event&lt;/p>
 &lt;blockquote>
 &lt;ol>
 &lt;li>下载&lt;a href="https://blog.enaium.cn/assets/minecraftclient/event.zip">Event&lt;/a>解压到你想要的目录&lt;/li>
 &lt;li>修改Event&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="4-1" src="https://blog.enaium.cn/assets/minecraftclient/4-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/4-1.png" alt="4-1">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote>
 &lt;p>二. 钩子&lt;/p>
@@ -4471,13 +4494,13 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>五. 写ModuleManager类&lt;/p></description></item><item><title>[全民写端]#3添加OptiFine</title><link>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%233%E6%B7%BB%E5%8A%A0optifine/</link><pubDate>Tue, 25 Feb 2020 12:16:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%233%E6%B7%BB%E5%8A%A0optifine/</guid><description>&lt;p>一. 下载&lt;a href="https://optifinesource.co.uk/">Optifine&lt;/a>本站&lt;a href="https://blog.enaium.cn/assets/minecraftclient/OptiFine.zip">下载&lt;/a>&lt;/p>
 &lt;p>二. 删除src\minecraft所有内容 将Optifine解压进去(保留你写的包)&lt;/p>
-&lt;p>&lt;img alt="3-1" src="https://blog.enaium.cn/assets/minecraftclient/2-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/2-1.png" alt="3-1">&lt;/p>
 &lt;p>三. 根据#2的方法修改Minecraft类调用Start 和 Stop&lt;/p>
 &lt;p>四. 导入&lt;a href="https://blog.enaium.cn/assets/minecraftclient/vecmath-1.5.2.jar">vecmath&lt;/a>包&lt;/p>
-&lt;p>&lt;img alt="3-2" src="https://blog.enaium.cn/assets/minecraftclient/3-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/3-2.png" alt="3-2">&lt;/p>
 &lt;p>五. 修改类名&lt;code>net.minecraft.client.renderer&lt;/code>包下的&lt;code>EntityRenderer$1&lt;/code> &lt;code>EntityRenderer$2&lt;/code> 改为&lt;code>EntityRenderer1&lt;/code> &lt;code>EntityRenderer2&lt;/code>&lt;/p>
 &lt;p>六. 启动&lt;/p>
-&lt;p>&lt;img alt="3-3" src="https://blog.enaium.cn/assets/minecraftclient/3-3.png">&lt;/p></description></item><item><title>[全民写端]#2设置启动和停止</title><link>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%232%E8%AE%BE%E7%BD%AE%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2/</link><pubDate>Tue, 25 Feb 2020 10:42:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%232%E8%AE%BE%E7%BD%AE%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2/</guid><description>&lt;p>一. 写启动和停止&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/3-3.png" alt="3-3">&lt;/p></description></item><item><title>[全民写端]#2设置启动和停止</title><link>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%232%E8%AE%BE%E7%BD%AE%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2/</link><pubDate>Tue, 25 Feb 2020 10:42:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-25-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%232%E8%AE%BE%E7%BD%AE%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2/</guid><description>&lt;p>一. 写启动和停止&lt;/p>
 &lt;blockquote>
 &lt;ol>
 &lt;li>在你想要的地方新建一个类&lt;/li>
@@ -4506,7 +4529,7 @@ permalink: /donation/ #永久链接
 &lt;/ol>
 &lt;blockquote>
 &lt;p>搜索&lt;code>Minecraft&lt;/code>
-&lt;img alt="2-1" src="https://blog.enaium.cn/assets/minecraftclient/2-1.png">
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/2-1.png" alt="2-1">
 找到&lt;code>startGame&lt;/code>在这个方法在最后面写&lt;code>Coreium.INSTANCE.start();&lt;/code>
 找到&lt;code>shutdownMinecraftApplet&lt;/code>在&lt;code>logger.info(&amp;quot;Stopping!&amp;quot;);&lt;/code>后面写&lt;code>Coreium.INSTANCE.stop();&lt;/code>&lt;/p>
 &lt;/blockquote>
@@ -4542,31 +4565,31 @@ permalink: /donation/ #永久链接
 &lt;li>运行&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="2-2" src="https://blog.enaium.cn/assets/minecraftclient/2-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/2-2.png" alt="2-2">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote></description></item><item><title>[全民写端]#1配置开发环境</title><link>https://blog.enaium.cn/post/2020-2-24-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Mon, 24 Feb 2020 18:36:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-24-%E5%85%A8%E6%B0%91%E5%86%99%E7%AB%AF%231%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;p>需要 JAVA8+ 和 IDEA&lt;/p>
 &lt;p>一. 下载&lt;a href="http://www.modcoderpack.com/">MCP&lt;/a>&lt;/p>
-&lt;p>&lt;img alt="1-1" src="https://blog.enaium.cn/assets/minecraftclient/1-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-1.png" alt="1-1">&lt;/p>
 &lt;p>二. 解压到你想要的路径,文件名你想起什么名字就起什么名字&lt;/p>
-&lt;p>&lt;img alt="1-2" src="https://blog.enaium.cn/assets/minecraftclient/1-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-2.png" alt="1-2">&lt;/p>
 &lt;p>三. 打开文件夹运行&lt;code>decompile.bat&lt;/code>,Linux 或者Mac OS 运行&lt;code>decompile.sh&lt;/code>(这一步必有正版启动器,而且默认目录%APPDATA%.minecraft\versions 必须要有MC1.8.8版本,运行前还要运行过1.8.8MC.)&lt;/p>
 &lt;p>反编译完成
-&lt;img alt="1-3" src="https://blog.enaium.cn/assets/minecraftclient/1-3.png">&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-3.png" alt="1-3">&lt;/p>
 &lt;p>四. 导入IDEA&lt;/p>
 &lt;blockquote>
 &lt;ol>
-&lt;li>&lt;img alt="1-4" src="https://blog.enaium.cn/assets/minecraftclient/1-4.png">&lt;/li>
-&lt;li>&lt;img alt="1-5" src="https://blog.enaium.cn/assets/minecraftclient/1-5.png">&lt;/li>
-&lt;li>&lt;img alt="1-6" src="https://blog.enaium.cn/assets/minecraftclient/1-6.png">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-4.png" alt="1-4">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-5.png" alt="1-5">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-6.png" alt="1-6">&lt;/li>
 &lt;li>Next&lt;/li>
-&lt;li>&lt;img alt="1-7" src="https://blog.enaium.cn/assets/minecraftclient/1-7.png">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-7.png" alt="1-7">&lt;/li>
 &lt;li>Next&lt;/li>
 &lt;li>Next&lt;/li>
 &lt;li>Finish&lt;/li>
 &lt;li>填写你的导入的目录&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="1-8" src="https://blog.enaium.cn/assets/minecraftclient/1-8.png">
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-8.png" alt="1-8">
 这个目录将你以后的所有写端项目的目录,删除后除了重新设置目录你将无法读取到lib,(以后新建项目不会提示填写目录).&lt;/p>
 &lt;/blockquote>
 &lt;ol start="10">
@@ -4576,17 +4599,17 @@ permalink: /donation/ #永久链接
 &lt;p>五. 设置项目&lt;/p>
 &lt;blockquote>
 &lt;ol>
-&lt;li>&lt;img alt="1-9" src="https://blog.enaium.cn/assets/minecraftclient/1-9.png">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-9.png" alt="1-9">&lt;/li>
 &lt;li>全部点×&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="1-10" src="https://blog.enaium.cn/assets/minecraftclient/1-10.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-10.png" alt="1-10">&lt;/p>
 &lt;/blockquote>
 &lt;ol start="3">
-&lt;li>&lt;img alt="1-11" src="https://blog.enaium.cn/assets/minecraftclient/1-11.png">&lt;/li>
+&lt;li>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-11.png" alt="1-11">&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>&lt;img alt="1-12" src="https://blog.enaium.cn/assets/minecraftclient/1-12.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-12.png" alt="1-12">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote>
 &lt;p>六. 运行&lt;/p>
@@ -4594,21 +4617,21 @@ permalink: /donation/ #永久链接
 &lt;ol>
 &lt;li>打开Start&lt;/li>
 &lt;li>选右上角的Setup SDK选中1.8
-&lt;img alt="1-16" src="https://blog.enaium.cn/assets/minecraftclient/1-16.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-16.png" alt="1-16">&lt;/li>
 &lt;li>运行
-&lt;img alt="1-17" src="https://blog.enaium.cn/assets/minecraftclient/1-17.png">&lt;/li>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-17.png" alt="1-17">&lt;/li>
 &lt;/ol>
 &lt;/blockquote>
 &lt;p>七. 启动设置&lt;/p>
 &lt;blockquote>
 &lt;blockquote>
 &lt;p>运行后出现错误需要设置启动
-&lt;img alt="1-18" src="https://blog.enaium.cn/assets/minecraftclient/1-18.png">
-&lt;img alt="1-19" src="https://blog.enaium.cn/assets/minecraftclient/1-19.png">&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-18.png" alt="1-18">
+&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-19.png" alt="1-19">&lt;/p>
 &lt;/blockquote>
 &lt;/blockquote>
 &lt;p>&lt;code>-Djava.library.path=versions\1.8.8\1.8.8-natives&lt;/code>&lt;/p>
-&lt;p>&lt;img alt="1-20" src="https://blog.enaium.cn/assets/minecraftclient/1-20.png">&lt;/p></description></item><item><title>Minecraft Fabric 进阶教程 #2 绘制界面</title><link>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%232-%E7%BB%98%E5%88%B6%E7%95%8C%E9%9D%A2/</link><pubDate>Mon, 24 Feb 2020 16:27:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%232-%E7%BB%98%E5%88%B6%E7%95%8C%E9%9D%A2/</guid><description>&lt;p>绘制界面不需用注入Mixin&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraftclient/1-20.png" alt="1-20">&lt;/p></description></item><item><title>Minecraft Fabric 进阶教程 #2 绘制界面</title><link>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%232-%E7%BB%98%E5%88%B6%E7%95%8C%E9%9D%A2/</link><pubDate>Mon, 24 Feb 2020 16:27:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%232-%E7%BB%98%E5%88%B6%E7%95%8C%E9%9D%A2/</guid><description>&lt;p>绘制界面不需用注入Mixin&lt;/p>
 &lt;h2 id="新建一个类">新建一个类&lt;/h2>
 &lt;p>&lt;code>ExampleGui.java&lt;/code>&lt;/p>
 &lt;p>继承&lt;code>Screen&lt;/code>构造器&lt;/p>
@@ -4650,7 +4673,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>打开界面 &lt;code>MinecraftClient.getInstance().openScreen(new ExampleGui(this));&lt;/code>&lt;/p>
 &lt;p>将按钮的action写为&lt;code>MinecraftClient.getInstance().openScreen(screen);&lt;/code>&lt;/p>
 &lt;p>运行&lt;/p>
-&lt;p>&lt;img alt="2-1" src="https://blog.enaium.cn/assets/fabric/s2-1.png">&lt;/p></description></item><item><title>Minecraft Fabric 进阶教程 #1 绘制按钮</title><link>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%231-%E7%BB%98%E5%88%B6%E6%8C%89%E9%92%AE/</link><pubDate>Mon, 24 Feb 2020 13:56:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%231-%E7%BB%98%E5%88%B6%E6%8C%89%E9%92%AE/</guid><description>&lt;h2 id="在mixin包里新建一个类">在Mixin包里新建一个类&lt;/h2>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/s2-1.png" alt="2-1">&lt;/p></description></item><item><title>Minecraft Fabric 进阶教程 #1 绘制按钮</title><link>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%231-%E7%BB%98%E5%88%B6%E6%8C%89%E9%92%AE/</link><pubDate>Mon, 24 Feb 2020 13:56:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-24-minecraft-fabric-%E8%BF%9B%E9%98%B6%E6%95%99%E7%A8%8B-%231-%E7%BB%98%E5%88%B6%E6%8C%89%E9%92%AE/</guid><description>&lt;h2 id="在mixin包里新建一个类">在Mixin包里新建一个类&lt;/h2>
 &lt;p>注入到&lt;code>TitleScreen.class&lt;/code>里&lt;/p>
 &lt;p>注入到这个类的init的方法的头部也就是最上面所以at是&lt;code>HEAD&lt;/code>&lt;/p>
 &lt;p>因为init方法没有参数所以方法就是&lt;code>init()V&lt;/code>&lt;/p>
@@ -4663,7 +4686,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	}
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>用IDEA反编译&lt;code>TitleScreen.class&lt;/code>init方法可以看到&lt;code>this.addButton&lt;/code>这个就是添加按钮&lt;/p>
-&lt;p>&lt;img alt="1-1" src="https://blog.enaium.cn/assets/fabric/s1-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/s1-1.png" alt="1-1">&lt;/p>
 &lt;p>所以我们要在Mixin里面写添加按钮&lt;/p>
 &lt;p>需要继承Screen类&lt;/p>
 &lt;p>按照提示生成构造器就行了&lt;/p>
@@ -4680,7 +4703,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在x20 y20处绘制一个长200高20(高必须为20)的按钮标题为“233”点击触发action输出&lt;code>By Enaium&lt;/code>&lt;/p>
 &lt;p>添加到mixin.json&lt;/p>
 &lt;p>我们运行一下看看&lt;/p>
-&lt;p>&lt;img alt="1-2" src="https://blog.enaium.cn/assets/fabric/s1-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/s1-2.png" alt="1-2">&lt;/p>
 &lt;p>成功&lt;/p></description></item><item><title>星露谷MOD开发教程 #1 配置开发环境</title><link>https://blog.enaium.cn/post/2020-2-9-%E6%98%9F%E9%9C%B2%E8%B0%B7-mod-%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sun, 09 Feb 2020 19:00:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-9-%E6%98%9F%E9%9C%B2%E8%B0%B7-mod-%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;h2 id="要求">要求&lt;/h2>
 &lt;ul>
 &lt;li>安装了&lt;a href="smapi.io/">SMAPI&lt;/a>&lt;/li>
@@ -4690,19 +4713,19 @@ permalink: /donation/ #永久链接
 &lt;ol>
 &lt;li>创建一个类库项目&lt;/li>
 &lt;/ol>
-&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-1.png" alt="">&lt;/p>
 &lt;ol start="2">
 &lt;li>引用&lt;a href="https://www.nuget.org/packages/Pathoschild.Stardew.ModBuildConfig">Pathoschild.Stardew.ModBuildConfig&lt;/a>Nuget包&lt;/li>
 &lt;/ol>
-&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-2.png" alt="">&lt;/p>
 &lt;ol start="3">
 &lt;li>创建一个类&lt;/li>
 &lt;/ol>
-&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-3.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-3.png" alt="">&lt;/p>
 &lt;ol start="4">
 &lt;li>新建&lt;code>manifest.json&lt;/code>文件&lt;/li>
 &lt;/ol>
-&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-4.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/stardewvalley/2020-2-9-4.png" alt="">&lt;/p>
 &lt;p>格式&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;Name&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;your project name&amp;gt;&amp;#34;&lt;/span>,
@@ -4742,7 +4765,7 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样一个mod就完成了&lt;/p></description></item><item><title>使用WPF设计工具-MaterialDesignInXamlToolkit</title><link>https://blog.enaium.cn/post/2020-2-3-%E4%BD%BF%E7%94%A8wpf%E8%AE%BE%E8%AE%A1%E5%B7%A5%E5%85%B7-materialdesigninxamltoolkit/</link><pubDate>Mon, 03 Feb 2020 10:18:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-2-3-%E4%BD%BF%E7%94%A8wpf%E8%AE%BE%E8%AE%A1%E5%B7%A5%E5%85%B7-materialdesigninxamltoolkit/</guid><description>&lt;p>&lt;a href="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit">MaterialDesignInXamlToolkit&lt;/a>&lt;/p>
 &lt;h2 id="安装nuget包materialdesignthemes">安装Nuget包&lt;code>MaterialDesignThemes&lt;/code>&lt;/h2>
-&lt;p>&lt;img alt="Nuget" src="https://blog.enaium.cn/assets/csharp/2020-2-3-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/csharp/2020-2-3-1.png" alt="Nuget">&lt;/p>
 &lt;h2 id="添加到appxaml">添加到&lt;code>App.xaml&lt;/code>&lt;/h2>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-html" data-lang="html">&lt;span style="display:flex;">&lt;span>&amp;lt;&lt;span style="color:#f92672">ResourceDictionary&lt;/span>&amp;gt;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">ResourceDictionary.MergedDictionaries&lt;/span>&amp;gt;
@@ -4752,12 +4775,12 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">ResourceDictionary&lt;/span> &lt;span style="color:#a6e22e">Source&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml&amp;#34;&lt;/span> /&amp;gt;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;/&lt;span style="color:#f92672">ResourceDictionary.MergedDictionaries&lt;/span>&amp;gt;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;/&lt;span style="color:#f92672">ResourceDictionary&lt;/span>&amp;gt;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="img 2" src="https://blog.enaium.cn/assets/csharp/2020-2-3-2.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/csharp/2020-2-3-2.png" alt="img 2">&lt;/p>
 &lt;h2 id="加入window中">加入&lt;code>Window&lt;/code>中&lt;/h2>
 &lt;p>&lt;code>xmlns:materialDesign=&amp;quot;http://materialdesigninxaml.net/winfx/xaml/themes&amp;quot;&lt;/code>&lt;/p>
-&lt;p>&lt;img alt="img 3" src="https://blog.enaium.cn/assets/csharp/2020-2-3-3.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/csharp/2020-2-3-3.png" alt="img 3">&lt;/p>
 &lt;p>完成&lt;/p></description></item><item><title>Minecraft Fabric Client 教程 #5 添加Event、Sprint和ToggleCommand</title><link>https://blog.enaium.cn/post/2020-1-20-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%235-%E6%B7%BB%E5%8A%A0eventsprint%E5%92%8Ctogglecommand/</link><pubDate>Mon, 20 Jan 2020 13:27:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-20-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%235-%E6%B7%BB%E5%8A%A0eventsprint%E5%92%8Ctogglecommand/</guid><description>&lt;h2 id="添加event">添加Event&lt;/h2>
-&lt;p>下载&lt;a href="https://blog.enaium.cn/assets/fabricclient/event.zip">&lt;img alt="event.zip" src="https://blog.enaium.cn/assets/icon/zip.png">&lt;/a>&lt;/p>
+&lt;p>下载&lt;a href="https://blog.enaium.cn/assets/fabricclient/event.zip">&lt;img src="https://blog.enaium.cn/assets/icon/zip.png" alt="event.zip">&lt;/a>&lt;/p>
 &lt;p>放在&lt;code>cn.enaium.excel&lt;/code>里&lt;/p>
 &lt;p>然后在&lt;code>Excel.java&lt;/code>里面添加&lt;code>EventManager&lt;/code>&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">enum&lt;/span> Excel {
@@ -4853,16 +4876,16 @@ permalink: /donation/ #永久链接
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">this&lt;/span>.&lt;span style="color:#a6e22e">toggled&lt;/span> &lt;span style="color:#f92672">=&lt;/span> toggled;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>ModuleManager&lt;/code> 内容&lt;/p></description></item><item><title>解决IDEA Push rejected问题</title><link>https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/</link><pubDate>Mon, 06 Jan 2020 11:25:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/</guid><description>&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/others/2020-1-6-2.png">&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>ModuleManager&lt;/code> 内容&lt;/p></description></item><item><title>解决IDEA Push rejected问题</title><link>https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/</link><pubDate>Mon, 06 Jan 2020 11:25:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-6-%E8%A7%A3%E5%86%B3idea-push-rejected%E9%97%AE%E9%A2%98/</guid><description>&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-1-6-2.png" alt="a">&lt;/p>
 &lt;p>右击目录选择&lt;code>Git Bash Here&lt;/code>&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/others/2020-1-6-4.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-1-6-4.png" alt="a">&lt;/p>
 &lt;p>依次输入以下命令&lt;/p>
 &lt;pre tabindex="0">&lt;code>git pull
 git pull origin master
 git pull origin master --allow-unrelated-histories
-&lt;/code>&lt;/pre>&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/others/2020-1-6-1.png">&lt;/p>
+&lt;/code>&lt;/pre>&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-1-6-1.png" alt="a">&lt;/p>
 &lt;p>再次推送&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/others/2020-1-6-3.png">&lt;/p></description></item><item><title>Minecraft Fabric Client 教程 #3 添加自定义Command</title><link>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%233-%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89command/</link><pubDate>Sun, 05 Jan 2020 12:52:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%233-%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89command/</guid><description>&lt;h2 id="添加chatutils">添加ChatUtils&lt;/h2>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/others/2020-1-6-3.png" alt="a">&lt;/p></description></item><item><title>Minecraft Fabric Client 教程 #3 添加自定义Command</title><link>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%233-%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89command/</link><pubDate>Sun, 05 Jan 2020 12:52:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%233-%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89command/</guid><description>&lt;h2 id="添加chatutils">添加ChatUtils&lt;/h2>
 &lt;p>先在&lt;code>cn.enaium.excel&lt;/code>里新建一个包&lt;code>utils&lt;/code>&lt;/p>
 &lt;p>然后创建一个&lt;code>ChatUtils.java&lt;/code>类&lt;/p>
 &lt;p>内容&lt;/p>
@@ -4893,9 +4916,9 @@ git pull origin master --allow-unrelated-histories
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="添加自定义command">添加自定义command&lt;/h2>
 &lt;p>先在&lt;code>cn.enaium.excel&lt;/code>里新建一个包&lt;code>command&lt;/code>&lt;/p>
-&lt;p>下载&lt;a href="https://blog.enaium.cn/assets/fabricclient/command.zip">&lt;img alt="command.zip" src="https://blog.enaium.cn/assets/icon/zip.png">&lt;/a>&lt;/p>
+&lt;p>下载&lt;a href="https://blog.enaium.cn/assets/fabricclient/command.zip">&lt;img src="https://blog.enaium.cn/assets/icon/zip.png" alt="command.zip">&lt;/a>&lt;/p>
 &lt;p>将压缩包里面的内容全部放进去&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/fabricclient/2020-1-5-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabricclient/2020-1-5-1.png" alt="a">&lt;/p>
 &lt;p>然后再&lt;code>Excel.java&lt;/code>里添加&lt;code>command&lt;/code>&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> CommandManager commandManager;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
@@ -4905,9 +4928,9 @@ git pull origin master --allow-unrelated-histories
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="注入mixin">注入Mixin&lt;/h2>
 &lt;p>在mixin包里面新建一个&lt;code>ClientPlayerEntityMixin.java&lt;/code>类&lt;/p></description></item><item><title>Minecraft Fabric Client 教程 #2 修改文件和目录名添加run和stop</title><link>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%232-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%92%8C%E7%9B%AE%E5%BD%95%E5%90%8D%E6%B7%BB%E5%8A%A0run%E5%92%8Cstop/</link><pubDate>Sat, 04 Jan 2020 23:08:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2020-1-4-minecraft-fabric-client-%E6%95%99%E7%A8%8B-%232-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%92%8C%E7%9B%AE%E5%BD%95%E5%90%8D%E6%B7%BB%E5%8A%A0run%E5%92%8Cstop/</guid><description>&lt;h2 id="修改-包名json文件添加run-stop">修改 包名、json文件、添加run stop&lt;/h2>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/fabricclient/2020-1-4-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabricclient/2020-1-4-1.png" alt="a">&lt;/p>
 &lt;p>首先先修改包名&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/fabricclient/2020-1-4-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabricclient/2020-1-4-2.png" alt="a">&lt;/p>
 &lt;p>将&lt;code>ExampleMod.java&lt;/code>改为&lt;code>ExcelInitializer.java&lt;/code>&lt;/p>
 &lt;p>修改json文件&lt;code>modid.mixins.json&lt;/code>和&lt;code>fabric.mod.json&lt;/code>&lt;/p>
 &lt;p>将&lt;code>modid.mixins.json&lt;/code>改为&lt;code>excel.mixins.json&lt;/code>&lt;/p>
@@ -4985,14 +5008,14 @@ git pull origin master --allow-unrelated-histories
 &lt;p>&lt;a href="https://papermc.io/downloads">Downloads – PaperMC&lt;/a>&lt;/p>
 &lt;p>我这里是1.15.1的版本&lt;/p>
 &lt;p>选最新版本就行了&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/minecraft/2020-1-2-1.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraft/2020-1-2-1.png" alt="a">&lt;/p>
 &lt;h2 id="运行">运行&lt;/h2>
 &lt;p>下载好后放到一个文件夹然后放到一个文件夹然后再新建一个bat文件&lt;code>Launcher.bat&lt;/code>里面写&lt;/p>
 &lt;p>&lt;code>java -Xms512M -Xmx1024M -jar paper.jar&lt;/code>&lt;/p>
 &lt;p>然后发现下载好后瞬间退出了是因为要同意一些eula&lt;/p>
 &lt;p>打开&lt;code>eula.exe&lt;/code>将&lt;code>eula=false&lt;/code>改成&lt;code>就好了&lt;/code>&lt;/p>
 &lt;p>然后再次运行&lt;/p>
-&lt;p>&lt;img alt="a" src="https://blog.enaium.cn/assets/minecraft/2020-1-2-2.png">&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/minecraft/2020-1-2-2.png" alt="a">&lt;/p>
 &lt;p>这样一个服务器就开好了&lt;/p></description></item><item><title>Linux下制作Windows启动U盘</title><link>https://blog.enaium.cn/post/2019-12-28-linux%E4%B8%8B%E5%88%B6%E4%BD%9Cwindows%E5%90%AF%E5%8A%A8u%E7%9B%98/</link><pubDate>Sat, 28 Dec 2019 21:24:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-28-linux%E4%B8%8B%E5%88%B6%E4%BD%9Cwindows%E5%90%AF%E5%8A%A8u%E7%9B%98/</guid><description>&lt;h2 id="安装woeusb">安装WoeUsb&lt;/h2>
 &lt;p>&lt;code>sudo apt-get install woeusb&lt;/code>&lt;/p>
 &lt;p>或者&lt;/p>
@@ -5003,7 +5026,7 @@ git pull origin master --allow-unrelated-histories
 &lt;p>&lt;code>sudo woeusb -d /media/e/Enaium/镜像/windows64/win101909.iso /dev/sdb --target-filesystem NTFS&lt;/code>&lt;/p>
 &lt;p>注意路径！&lt;/p>
 &lt;p>接下来等就好了&lt;/p>
-&lt;p>&lt;img alt="img" src="https://blog.enaium.cn/assets/linux/2019-12-28-1.png">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #9 添加盔甲</title><link>https://blog.enaium.cn/post/2019-12-16-minecraft-fabric-%E6%95%99%E7%A8%8B-%239-%E6%B7%BB%E5%8A%A0%E7%9B%94%E7%94%B2/</link><pubDate>Mon, 16 Dec 2019 17:36:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-16-minecraft-fabric-%E6%95%99%E7%A8%8B-%239-%E6%B7%BB%E5%8A%A0%E7%9B%94%E7%94%B2/</guid><description>&lt;p>创建一个盔甲类&lt;/p>
+&lt;p>&lt;img src="https://blog.enaium.cn/assets/linux/2019-12-28-1.png" alt="img">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #9 添加盔甲</title><link>https://blog.enaium.cn/post/2019-12-16-minecraft-fabric-%E6%95%99%E7%A8%8B-%239-%E6%B7%BB%E5%8A%A0%E7%9B%94%E7%94%B2/</link><pubDate>Mon, 16 Dec 2019 17:36:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-16-minecraft-fabric-%E6%95%99%E7%A8%8B-%239-%E6%B7%BB%E5%8A%A0%E7%9B%94%E7%94%B2/</guid><description>&lt;p>创建一个盔甲类&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">EndArmorMaterials&lt;/span> &lt;span style="color:#66d9ef">implements&lt;/span> ArmorMaterial {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">[&lt;/span>...&lt;span style="color:#f92672">]&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
@@ -5103,7 +5126,7 @@ git pull origin master --allow-unrelated-histories
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">appendTooltip&lt;/span>(ItemStack stack, World world, List&lt;span style="color:#f92672">&amp;lt;&lt;/span>Text&lt;span style="color:#f92672">&amp;gt;&lt;/span> tooltip, TooltipContext context) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tooltip.&lt;span style="color:#a6e22e">add&lt;/span>(&lt;span style="color:#66d9ef">new&lt;/span> TranslatableText(&lt;span style="color:#e6db74">&amp;#34;tooltip.endarmor.end_heart&amp;#34;&lt;/span>));
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="7 1" src="https://blog.enaium.cn/assets/fabric/7-1.jpg">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #6 添加合成表</title><link>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%236-%E6%B7%BB%E5%8A%A0%E5%90%88%E6%88%90%E8%A1%A8/</link><pubDate>Sun, 15 Dec 2019 20:48:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%236-%E6%B7%BB%E5%8A%A0%E5%90%88%E6%88%90%E8%A1%A8/</guid><description>&lt;p>位置 &lt;code>src\main\resources\data\endarmor\recipes\end_heart_block.json&lt;/code>&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://blog.enaium.cn/assets/fabric/7-1.jpg" alt="7 1">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #6 添加合成表</title><link>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%236-%E6%B7%BB%E5%8A%A0%E5%90%88%E6%88%90%E8%A1%A8/</link><pubDate>Sun, 15 Dec 2019 20:48:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%236-%E6%B7%BB%E5%8A%A0%E5%90%88%E6%88%90%E8%A1%A8/</guid><description>&lt;p>位置 &lt;code>src\main\resources\data\endarmor\recipes\end_heart_block.json&lt;/code>&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>{
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;minecraft:crafting_shaped&amp;#34;&lt;/span>,
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;pattern&amp;#34;&lt;/span>: &lt;span style="color:#f92672">[&lt;/span>
@@ -5231,7 +5254,7 @@ Block Texture: src/main/resources/assets/endarmor/textures/block/end_heart_block
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>end_heart.png 就是纹理
-&lt;img alt="my alternate text" src="https://blog.enaium.cn/assets/fabric/end_heart.png">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #1 开发环境配置</title><link>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sun, 15 Dec 2019 17:50:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;p>需要 JAVA8+ 和 IDE&lt;/p>
+&lt;img src="https://blog.enaium.cn/assets/fabric/end_heart.png" alt="my alternate text">&lt;/p></description></item><item><title>Minecraft Fabric 教程 #1 开发环境配置</title><link>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><pubDate>Sun, 15 Dec 2019 17:50:00 +0800</pubDate><guid>https://blog.enaium.cn/post/2019-12-15-minecraft-fabric-%E6%95%99%E7%A8%8B-%231-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</guid><description>&lt;p>需要 JAVA8+ 和 IDE&lt;/p>
 &lt;p>首先下载github 上的项目 &lt;a href="https://github.com/FabricMC/fabric-example-mod/">fabric-example-mod&lt;/a> 有以下方法:&lt;/p>
 &lt;ul>
 &lt;li>用IDE 克隆 库&lt;/li>
