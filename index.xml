@@ -1,4 +1,44 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Sat, 04 Jan 2025 11:13:20 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>LSP介绍并实现语言服务</title><link>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</link><pubDate>Sat, 04 Jan 2025 11:13:20 +0800</pubDate><guid>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</guid><description>&lt;h2 id="lsp-language-server-protocol-介绍">LSP (Language Server Protocol) 介绍&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title/><link>https://blog.enaium.cn/</link><description>Recent content on</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Fri, 24 Jan 2025 20:41:52 +0800</lastBuildDate><atom:link href="https://blog.enaium.cn/index.xml" rel="self" type="application/rss+xml"/><item><title>Java使用FFM API调用SDL</title><link>https://blog.enaium.cn/post/2025-1-24-java%E4%BD%BF%E7%94%A8ffm-api%E8%B0%83%E7%94%A8sdl/</link><pubDate>Fri, 24 Jan 2025 20:41:52 +0800</pubDate><guid>https://blog.enaium.cn/post/2025-1-24-java%E4%BD%BF%E7%94%A8ffm-api%E8%B0%83%E7%94%A8sdl/</guid><description>&lt;p>首先我们需要创建一个&lt;code>Gradle&lt;/code>项目，之后设置项目的&lt;code>JDK&lt;/code>版本，设置为&lt;code>22&lt;/code>及以上版本。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>plugins {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> kotlin(&lt;span style="color:#e6db74">&amp;#34;jvm&amp;#34;&lt;/span>) version &lt;span style="color:#e6db74">&amp;#34;2.1.0&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>group = &lt;span style="color:#e6db74">&amp;#34;cn.enaium&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>version = &lt;span style="color:#e6db74">&amp;#34;1.0-SNAPSHOT&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>repositories {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mavenCentral()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>dependencies {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> testImplementation(kotlin(&lt;span style="color:#e6db74">&amp;#34;test&amp;#34;&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tasks.test {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> useJUnitPlatform()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>kotlin {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jvmToolchain(&lt;span style="color:#ae81ff">23&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>接着我们在当前目录初始化&lt;code>git&lt;/code>仓库，之后需要添加一个子模块。、&lt;/p>
+&lt;pre tabindex="0">&lt;code>git init
+git submodule add git@github.com:libsdl-org/SDL.git SDL
+&lt;/code>&lt;/pre>&lt;p>之后编写生成接口的脚本，在这之前你必须安装&lt;a href="https://cmake.org/">CMake&lt;/a>和&lt;a href="https://jdk.java.net/jextract/">&lt;code>jextract&lt;/code>&lt;/a>到环境变量中。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-powershell" data-lang="powershell">&lt;span style="display:flex;">&lt;span>$sdl_path = &lt;span style="color:#e6db74">&amp;#34;SDL&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mkdir &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/build&amp;#34;&lt;/span>;cmake -DCMAKE_BUILD_TYPE=Release .. -B &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/build&amp;#34;&lt;/span>;cmake --build . --config Release --parallel -B &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/build&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>jextract --include-dir &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/include&amp;#34;&lt;/span> --dump-includes &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/build/includes.txt&amp;#34;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/include/SDL3/SDL.h&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>jextract --include-dir &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/include&amp;#34;&lt;/span> --output src/main/java --target-package org.libsdl --library SDL3 --use-system-load-library &lt;span style="color:#e6db74">&amp;#34;@&lt;/span>$sdl_path&lt;span style="color:#e6db74">/build/includes.txt&amp;#34;&lt;/span> &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$sdl_path&lt;span style="color:#e6db74">/include/SDL3/SDL.h&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先是使用&lt;code>CMake&lt;/code>编译&lt;code>SDL&lt;/code>，之后使用&lt;code>jextract&lt;/code>生成&lt;code>Java&lt;/code>接口，之后运行脚本，这样就会在&lt;code>src/main/java&lt;/code>生成&lt;code>SDL3&lt;/code>的接口。&lt;/p>
+&lt;p>接着我们回到&lt;code>build.gradle.kts&lt;/code>，添加&lt;code>application&lt;/code>插件，之后将编译好的路径添加到启动参数中。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>plugins {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> application
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>application {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mainClass = &lt;span style="color:#e6db74">&amp;#34;MainKt&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> applicationDefaultJvmArgs = listOf(&lt;span style="color:#e6db74">&amp;#34;-Djava.library.path=SDL/build/Release&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;--enable-native-access=ALL-UNNAMED&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>之后就可以调用&lt;code>SDL&lt;/code>的接口了。&lt;/p></description></item><item><title>LSP介绍并实现语言服务</title><link>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</link><pubDate>Sat, 04 Jan 2025 11:13:20 +0800</pubDate><guid>https://blog.enaium.cn/post/2025-1-4-lsp%E4%BB%8B%E7%BB%8D%E5%B9%B6%E5%AE%9E%E7%8E%B0%E8%AF%AD%E8%A8%80%E6%9C%8D%E5%8A%A1/</guid><description>&lt;h2 id="lsp-language-server-protocol-介绍">LSP (Language Server Protocol) 介绍&lt;/h2>
 &lt;p>前段时间我为&lt;a href="https://github.com/babyfish-ct/jimmer">Jimmer DTO&lt;/a>实现了一个 &lt;code>LSP&lt;/code> 的语言服务，这是我第一次实现 &lt;code>LSP&lt;/code>，所以在这里我分享一下我实现&lt;code>LSP&lt;/code>的经验。&lt;/p>
 &lt;p>首先来看一下效果，图片太多，我就放一部分，更多的可以看&lt;a href="https://github.com/Enaium/jimmer-dto-lsp">jimmer-dto-lsp&lt;/a>&lt;/p>
 &lt;p>&lt;img src="https://s2.loli.net/2024/12/13/DvS4n6xOLCuH23e.gif" alt="属性提示">&lt;/p>
